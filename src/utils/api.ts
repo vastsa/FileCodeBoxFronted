@@ -12,7 +12,7 @@ const sanitizedBaseURL = typeof baseURL === 'string' ? baseURL : ''
 // 创建 axios 实例
 const api = axios.create({
   baseURL: sanitizedBaseURL,
-  timeout: 10000, // 请求超时时间
+  timeout: 20000, // 请求超时时间
   headers: {
     'Content-Type': 'application/json'
   }
