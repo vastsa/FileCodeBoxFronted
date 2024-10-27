@@ -3,14 +3,11 @@ import { ref, watchEffect, provide, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import ThemeToggle from './components/ThemeToggle.vue'
 import { useRouter } from 'vue-router'
-import api from './utils/api'
 const isDarkMode = ref(false)
 const isLoading = ref(false)
 const router = useRouter()
 import AlertComponent from '@/components/AlertComponent.vue'
-import { useAlertStore } from '@/stores/alertStore'
-
-const alertStore = useAlertStore()
+import ShowInfo from '@/components/ShowInfo.vue'
 // 检查系统颜色模式
 const checkSystemColorScheme = () => {
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -38,19 +35,6 @@ onMounted(() => {
   } else {
     setColorMode(checkSystemColorScheme())
   }
-  api.post('/', {}).then((res: any) => {
-    if (res.code === 200) {
-      localStorage.setItem('config', JSON.stringify(res.detail))
-      if (
-        res.detail.notify_title &&
-        res.detail.notify_content &&
-        localStorage.getItem('notify') !== res.detail.notify_title + res.detail.notify_content
-      ) {
-        localStorage.setItem('notify', res.detail.notify_title + res.detail.notify_content)
-        alertStore.showAlert(res.detail.notify_title + ': ' + res.detail.notify_content, 'success')
-      }
-    }
-  })
 })
 
 watchEffect(() => {
@@ -84,7 +68,8 @@ provide('isLoading', isLoading)
         <component :is="Component" :key="$route.fullPath" />
       </transition>
     </RouterView>
-
+    <!-- 备案信息 -->
+    <ShowInfo />
     <AlertComponent />
   </div>
 </template>

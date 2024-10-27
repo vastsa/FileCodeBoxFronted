@@ -17,7 +17,7 @@
               class="rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 animate-spin-slow"
             >
               <div class="rounded-full bg-gray-900 p-2">
-                <BoxIcon class="w-8 h-8 text-white" />
+                <BoxIcon class="w-8 h-8 text-white" @click="handleBoxIconClick" />
               </div>
             </div>
           </div>
@@ -509,6 +509,16 @@ const renderedContent = computed(() => {
 
 const showContentPreview = () => {
   showPreview.value = true
+}
+
+// 新增的代码
+const clickCount = ref(0)
+const handleBoxIconClick = () => {
+  clickCount.value++
+  if (clickCount.value === 5) {
+    router.push('/admin')
+    clickCount.value = 0
+  }
 }
 </script>
 

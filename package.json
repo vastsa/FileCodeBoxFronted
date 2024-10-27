@@ -16,6 +16,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "axios": "^1.7.7",
     "file-saver": "^2.0.5",
+    "filecodeboxfronted": "file:",
     "lru-cache": "^11.0.1",
     "lucide-vue-next": "^0.445.0",
     "marked": "^14.1.2",
