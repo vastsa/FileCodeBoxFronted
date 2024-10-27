@@ -20,6 +20,10 @@ const router = createRouter({
       component: () => import('@/views/AdminView.vue'),
       children: [
         {
+          path: '',
+          redirect: '/admin/fileList'
+        },
+        {
           path: 'fileList',
           component: () => import('@/components/FileListComponent.vue')
         },
@@ -41,7 +45,7 @@ import('../views/SendFileView.vue')
 
 // 添加全局前置守卫
 router.beforeEach(async (to, from, next) => {
-  // 检查路由是否需要管理员权限
+  // 检查是否需要管理员权限
   if (to.path.startsWith('/admin') && to.path !== '/admin/login') {
     // 检查是否已登录（通过获取本地存储的 admin_token）
     const adminToken = localStorage.getItem('admin_token')
@@ -56,7 +60,7 @@ router.beforeEach(async (to, from, next) => {
             'Authorization': adminToken
           }
         })
-        if (response.code === 200) {
+        if (response.data.code === 200) {
           // token 有效，允许访问
           next()
           console.log('token 有效');
