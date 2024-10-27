@@ -3,10 +3,10 @@
     <div class="max-w-7xl mx-auto px-4 text-center">
       <p class="text-xs" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
         <template v-if="showICP">
-          备案信息: {{ ICP }} | 版权所有 © {{ currentYear }} FileCodeBox
+          备案信息: <a href="https://beian.miit.gov.cn" target="_blank" class="hover:underline">{{ ICP }}</a> | 版权所有 © {{ currentYear }} FileCodeBox
         </template>
         <template v-else>
-          版权所有 © {{ currentYear }} FileCodeBox
+          备案信息: <a href="https://beian.miit.gov.cn" target="_blank" class="hover:underline">示例备案号</a> | 版权所有 © {{ currentYear }} FileCodeBox
         </template>
       </p>
       <p class="text-xxs mt-1" :class="[isDarkMode ? 'text-gray-500' : 'text-gray-400']">免责声明：本网站内容仅供学习参考，不构成任何建议或保证。用户应遵守相关法规并对自身行为负责。</p>
@@ -22,8 +22,6 @@ const currentYear = ref(new Date().getFullYear())
 const route = useRoute()
 const isHomePage = computed(() => route.path === '/')
 const isDarkMode = inject('isDarkMode')
-
-// 根据环境判断是否显示备案信息
 const showICP = import.meta.env.PROD
-const ICP = showICP ? import.meta.env.VITE_ICP || '京ICP备XXXXXXXX号-X' : ''
+const ICP = showICP ? import.meta.env.VITE_ICP : '示例备案号'
 </script>
