@@ -70,7 +70,7 @@ const isDarkMode = inject('isDarkMode');
 
 const fileList = ref([]);
 const currentPage = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(7);
 const total = ref(0);
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)));
@@ -135,7 +135,7 @@ const deleteFile = async (id) => {
       }
     });
     if (response.code === 200) {
-      alertStore.showAlert('删除文件成功', 'success');
+      alertStore.showAlert('删除文件成功', 'success',700);
       fetchFileList();
     } else {
       alertStore.showAlert('删除文件失败', 'error');

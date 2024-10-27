@@ -1,15 +1,17 @@
 <template>
-  <footer v-if="isHomePage" class="py-2 fixed bottom-0 left-0 right-0" :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <p class="text-xs" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
+  <footer v-if="isHomePage" class="py-1 fixed bottom-0 left-0 right-0" :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-100 bg-opacity-50']">
+    <div class="max-w-7xl mx-auto px-2 text-center">
+      <p class="text-xs" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
         <template v-if="showICP">
-          备案信息: <a href="https://beian.miit.gov.cn" target="_blank" class="hover:underline">{{ ICP }}</a> | 版权所有 © {{ currentYear }} FileCodeBox
+          <a href="https://beian.miit.gov.cn" target="_blank" class="hover:underline">{{ ICP }}</a> | © {{ currentYear }} FileCodeBox
         </template>
         <template v-else>
-          备案信息: <a href="https://beian.miit.gov.cn" target="_blank" class="hover:underline">示例备案号</a> | 版权所有 © {{ currentYear }} FileCodeBox
+          <a href="https://beian.miit.gov.cn" target="_blank" class="hover:underline">示例备案号</a> | © {{ currentYear }} FileCodeBox
         </template>
       </p>
-      <p class="text-xxs mt-1" :class="[isDarkMode ? 'text-gray-500' : 'text-gray-400']">免责声明：本网站内容仅供学习参考，不构成任何建议或保证。用户应遵守相关法规并对自身行为负责。</p>
+      <p class="text-xs mt-1 font-light" :class="[isDarkMode ? 'text-gray-600' : 'text-gray-400']">
+        免责声明：请勿上传或分享违法内容。用户应遵守相关法律法规，违规内容将被处理。
+      </p>
     </div>
   </footer>
 </template>

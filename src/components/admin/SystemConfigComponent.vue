@@ -33,10 +33,10 @@
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue';
 import { useAlertStore } from '@/stores/alertStore';
-import StorageConfig from './config/StorageConfig.vue';
-import SystemConfig from './config/SystemConfig.vue';
-import WebsiteConfig from './config/WebsiteConfig.vue';
-import SecurityConfig from './config/SecurityConfig.vue';
+import StorageConfig from '@/components/config/StorageConfig.vue';
+import SystemConfig from '@/components/config/SystemConfig.vue';
+import WebsiteConfig from '@/components/config/WebsiteConfig.vue';
+import SecurityConfig from '@/components/config/SecurityConfig.vue';
 import api from '@/utils/api';
 
 const isDarkMode = inject('isDarkMode');
@@ -56,7 +56,7 @@ onMounted(async () => {
     });
     if (response.code === 200) {
       config.value = response.detail;
-  
+      console.log(response);
     } else {
       alertStore.showAlert('获取配置失败', 'error');
     }

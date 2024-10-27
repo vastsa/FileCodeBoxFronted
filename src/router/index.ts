@@ -16,23 +16,26 @@ const router = createRouter({
     },
     {
       path: '/admin',
-      name: 'Admin',
       component: () => import('@/views/AdminView.vue'),
       children: [
         {
           path: '',
+          name: 'Admin',
           redirect: '/admin/fileList'
         },
         {
           path: 'fileList',
-          component: () => import('@/components/FileListComponent.vue')
+          name: 'AdminFileList',
+          component: () => import('@/components/admin/FileListComponent.vue')
         },
         {
           path: 'systemConfig',
-          component: () => import('@/components/SystemConfigComponent.vue')
+          name: 'AdminSystemConfig',
+          component: () => import('@/components/admin/SystemConfigComponent.vue')
         },
         {
           path: 'login',
+          name: 'AdminLogin',
           component: () => import('@/views/LoginView.vue')
         }
       ]
