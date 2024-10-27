@@ -52,27 +52,22 @@ router.beforeEach(async (to, from, next) => {
     if (!adminToken) {
       // 如果没有 admin_token，重定向到登录页面
       next('/admin/login')
-    } else {
-      try {
-        // 使用 login 接口验证 admin_token 是否有效
-        const response = await api.post('/admin/login', {}, {
-          headers: {
-            'Authorization': adminToken
-          }
-        })
-        if (response.data.code === 200) {
-          // token 有效，允许访问
-          next()
-          console.log('token 有效');
-        } else {
-          // token 无效，重定向到登录页面
-          localStorage.removeItem('admin_token')
-          next('/admin/login')
+      return
+    }
+    
+    try {
+      // 使用 login 接口验证 admin_token 是否有效
+      await api.post('/admin/login', {}, {
+        headers: {
+          'Authorization': adminToken
         }
-      } catch (error) {
-        console.error('验证 token 时出错:', error)
-        next('/admin/login')
-      }
+      })
+      // token 有效,允许访问
+      next()
+    } catch (error) {
+      console.error('验证 token 时出错:', error)
+      localStorage.removeItem('admin_token')
+      next('/admin/login')
     }
   } else {
     // 不需要管理员权限的路由，直接放行
