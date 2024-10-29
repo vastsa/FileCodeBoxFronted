@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // 从环境变量中获取 API 基础 URL
-const baseURL =
+export const baseURL =
   import.meta.env.MODE === 'production'
     ? import.meta.env.VITE_API_BASE_URL_PROD
     : import.meta.env.VITE_API_BASE_URL_DEV
@@ -73,3 +73,4 @@ api.interceptors.response.use(
 )
 
 export default api
+

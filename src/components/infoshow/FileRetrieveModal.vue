@@ -46,6 +46,8 @@ import { ref, inject, computed } from 'vue';
 import { useAlertStore } from '@/stores/alertStore';
 import api from '@/utils/api';
 
+import baseUrl from '@/utils/api';
+
 const props = defineProps({
   isVisible: Boolean,
   fileInfo: Object
@@ -68,7 +70,9 @@ const closeModal = () => {
 };
 
 const downloadFile = () => {
-  const url = props.fileInfo.text; // 文件的下载链接
+  const url =  baseUrl + props.fileInfo.text; // 文件的下载链接
+  console.log(url);
+  
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', props.fileInfo.name); // 指定文件名（可选）
