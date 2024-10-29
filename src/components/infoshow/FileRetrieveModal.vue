@@ -67,22 +67,17 @@ const closeModal = () => {
   emit('close');
 };
 
-const downloadFile = async () => {
-  try {
-    // 创建一个隐藏的a标签来触发下载
-    const link = document.createElement('a');
-    link.href = props.fileInfo.text;
-    link.download = props.fileInfo.name; // 使用文件原始名称
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    alertStore.showAlert('文件下载开始', 'success');
-  } catch (error) {
-    console.error('下载文件时出错:', error);
-    alertStore.showAlert('文件下载失败', 'error');
-  }
+const downloadFile = () => {
+  const url = props.fileInfo.text; // 文件的下载链接
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', props.fileInfo.name); // 指定文件名（可选）
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  alertStore.showAlert('文件下载开始', 'success');
 };
+
 
 const formatFileSize = (bytes) => {
   if (bytes === 0) return '0 Bytes';

@@ -17,5 +17,8 @@ export default defineConfig({
     postcss: {
       plugins: [tailwindcss, autoprefixer]
     }
+  },
+  server: {
+    port: 4000
   }
 })
