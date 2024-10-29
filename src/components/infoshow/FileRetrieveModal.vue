@@ -67,20 +67,13 @@ const closeModal = () => {
   emit('close');
 };
 
-const downloadFile = async () => {
+const downloadFile = () => {
   try {
-    const response = await api.get(props.fileInfo.text, { responseType: 'blob' });
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', props.fileInfo.name);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.open(props.fileInfo.text, '_blank');
     alertStore.showAlert('文件下载开始', 'success');
   } catch (error) {
     console.error('下载文件时出错:', error);
-    alertStore.showAlert('文件下载失败', 'error');
+    alertStore.showAlert('文件下载失败', 'error'); 
   }
 };
 
