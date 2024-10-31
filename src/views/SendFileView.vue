@@ -63,10 +63,10 @@
       </div>
     </div>
 
-    <div class="absolute bottom-4 right-4">
+    <div class="fixed bottom-4 right-4 z-50">
       <button
         @click="toggleHistory"
-        class="rounded-full px-4 sm:px-6 py-2 sm:py-3 shadow-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 flex items-center hover:bg-opacity-90 transform hover:scale-110 hover:rotate-3 text-sm sm:text-base"
+        class="rounded-full px-3 sm:px-6 py-2 sm:py-3 shadow-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 flex items-center hover:bg-opacity-90 transform hover:scale-110 hover:rotate-3 text-xs sm:text-base"
         :class="[
           isDarkMode ? 'bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg text-indigo-400 focus:ring-indigo-500' : 'bg-white bg-opacity-80 backdrop-filter backdrop-blur-lg text-blue-600 focus:ring-blue-500'
         ]"

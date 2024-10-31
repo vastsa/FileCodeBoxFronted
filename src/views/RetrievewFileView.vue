@@ -51,9 +51,9 @@
             </div>
           </form>
           <div class="mt-6 text-center">
-            <p class="text-sm text-gray-500 dark:text-gray-400">
+            <p class="text-base text-gray-800 dark:text-gray-200 font-semibold">
               想发送文件？
-              <a @click="toSend" class="text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer">点击这里</a>
+              <a @click="toSend" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-600 underline cursor-pointer">点击这里</a>
             </p>
           </div>
         </div>
@@ -178,6 +178,59 @@ const handleCloudDownloadIconClick = () => {
 
   50% {
     opacity: .5;
+  }
+}
+
+@media (max-width: 640px) {
+  .text-xl {
+    font-size: 1.25rem;
+  }
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+  .rounded-lg {
+    border-radius: 0.5rem;
+  }
+  .rounded-full {
+    border-radius: 9999px;
+  }
+  .w-6 {
+    width: 1.5rem;
+  }
+  .h-6 {
+    height: 1.5rem;
+  }
+  .w-8 {
+    width: 2rem;
+  }
+  .h-8 {
+    height: 2rem;
+  }
+  .w-5 {
+    width: 1.25rem;
+  }
+  .h-5 {
+    height: 1.25rem;
+  }
+  .mb-6 {
+    margin-bottom: 1.5rem;
+  }
+  .mb-8 {
+    margin-bottom: 2rem;
+  }
+  .mt-6 {
+    margin-top: 1.5rem;
+  }
+  .mt-8 {
+    margin-top: 2rem;
   }
 }
 </style>
