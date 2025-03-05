@@ -102,7 +102,7 @@ const convertToSeconds = (time: number, unit: string): number => {
 
 const refreshData = () => {
   api({
-    url: '/admin/config/get',
+    url: 'admin/config/get',
     method: 'get'
   }).then((res: any) => {
     config.value = res.detail
@@ -164,7 +164,7 @@ const submitSave = () => {
   }
 
   api({
-    url: '/admin/config/update',
+    url: 'admin/config/update',
     method: 'patch',
     data: formData
   }).then((res: any) => {

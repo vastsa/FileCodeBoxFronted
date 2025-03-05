@@ -459,7 +459,7 @@ const closeEditModal = () => {
 const handleUpdate = async () => {
   try {
     await api({
-      url: '/admin/file/update',
+      url: 'admin/file/update',
       method: 'patch',
       data: editForm.value
     })
@@ -474,7 +474,7 @@ const handleUpdate = async () => {
 const downloadFile = async (id: number) => {
   try {
     const response = await api({
-      url: '/admin/file/download',
+      url: 'admin/file/download',
       method: 'get',
       params: { id },
       responseType: 'blob'
@@ -502,7 +502,7 @@ const downloadFile = async (id: number) => {
 const deleteFile = async (id: number) => {
   try {
     await api({
-      url: '/admin/file/delete',
+      url: 'admin/file/delete',
       method: 'delete',
       data: { id }
     })

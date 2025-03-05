@@ -295,13 +295,13 @@ const handleSubmit = async () => {
   inputStatus.value.loading = true
 
   try {
-    const res = await api.post('/share/select/', {
+    const res = await api.post('share/select/', {
       code: code.value
     })
 
     if (res.code === 200) {
       if (res.detail) {
-        const isFile = res.detail.text.startsWith('/share/download') || res.detail.name !== 'Text'
+        const isFile = res.detail.text.startsWith('share/download') || res.detail.name !== 'Text'
         const newFileData = {
           id: Date.now(),
           code: res.detail.code,
@@ -368,7 +368,7 @@ const toggleDrawer = () => {
 }
 
 const toSend = () => {
-  router.push('/send')
+  router.push('send')
 }
 
 const getQRCodeValue = (record) => {

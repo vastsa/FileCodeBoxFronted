@@ -339,7 +339,7 @@ import {
 import { useRouter } from 'vue-router'
 import BorderProgressBar from '@/components/common/BorderProgressBar.vue'
 import QRCode from 'qrcode.vue'
-import { useFileDataStore } from '../stores/fileData'
+import { useFileDataStore } from '@/stores/fileData'
 import api from '@/utils/api'
 import { copyRetrieveLink, copyRetrieveCode, copyWgetCommand } from '@/utils/clipboard'
 import { getStorageUnit } from '@/utils/convert'
@@ -479,7 +479,7 @@ const handleChunkUpload = async (file: File) => {
     const chunkSize = 5 * 1024 * 1024
     const chunks = Math.ceil(file.size / chunkSize)
     // 1. 初始化切片上传
-    const initResponse: any = await api.post('/chunk/upload/init/', {
+    const initResponse: any = await api.post('chunk/upload/init/', {
       file_name: file.name,
       file_size: file.size,
       chunk_size: chunkSize,
@@ -505,7 +505,7 @@ const handleChunkUpload = async (file: File) => {
 
       // 使用 application/x-www-form-urlencoded 格式
       const chunkResponse: any = await api.post(
-        `/chunk/upload/chunk/${uploadId}/${i}`,
+        `chunk/upload/chunk/${uploadId}/${i}`,
         chunkFormData,
         {
           headers: {
@@ -526,7 +526,7 @@ const handleChunkUpload = async (file: File) => {
     }
 
     // 3. 完成上传
-    const completeResponse: any = await api.post(`/chunk/upload/complete/${uploadId}`, {
+    const completeResponse: any = await api.post(`chunk/upload/complete/${uploadId}`, {
       expire_value: expirationValue.value ? parseInt(expirationValue.value) : 1,
       expire_style: expirationMethod.value
     })
@@ -561,7 +561,7 @@ const handleDefaultFileUpload = async (file: File) => {
   formData.append('file', file)
   formData.append('expire_value', expirationValue.value)
   formData.append('expire_style', expirationMethod.value)
-  const response: any = await api.post('/share/file/', formData, config)
+  const response: any = await api.post('share/file/', formData, config)
   return response
 }
 const checkOpenUpload = () => {
@@ -648,7 +648,7 @@ const handleSubmit = async () => {
       formData.append('text', textContent.value)
       formData.append('expire_value', expirationValue.value)
       formData.append('expire_style', expirationMethod.value)
-      response = await api.post('/share/text/', formData, {
+      response = await api.post('share/text/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

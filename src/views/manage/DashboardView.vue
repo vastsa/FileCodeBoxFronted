@@ -182,7 +182,7 @@ const getLocalstorageUsed = (nowUsedBit: string) => {
   }
 }
 const getDashboardData = async () => {
-  const response: any = await api.get('/admin/dashboard')
+  const response: any = await api.get('admin/dashboard')
   dashboardData.totalFiles = response.detail.totalFiles
   dashboardData.storageUsed = getLocalstorageUsed(response.detail.storageUsed)
   dashboardData.yesterdaySize = getLocalstorageUsed(response.detail.yesterdaySize)
