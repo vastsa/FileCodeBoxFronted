@@ -217,9 +217,10 @@
       <div v-if="selectedRecord" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
         <div
           class="w-full max-w-2xl rounded-2xl shadow-2xl transform transition-all duration-300 ease-out overflow-hidden"
-          :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']">
+          :class="[isDarkMode ? 'bg-gray-900 bg-opacity-70' : 'bg-white bg-opacity-95']">
           <!-- 顶部标题栏 -->
-          <div class="px-4 sm:px-6 py-3 sm:py-4 border-b" :class="[isDarkMode ? 'border-gray-800' : 'border-gray-100']">
+          <div class="px-4 sm:px-6 py-3 sm:py-4 border-b" 
+            :class="[isDarkMode ? 'border-gray-800' : 'border-gray-100']">
             <div class="flex items-center justify-between">
               <h3 class="text-lg sm:text-xl font-semibold" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
                 文件详情
@@ -234,7 +235,8 @@
           <!-- 主要内容区域 -->
           <div class="p-4 sm:p-6">
             <!-- 文件信息卡片 -->
-            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+            <div class="rounded-xl p-3 sm:p-4 mb-4 sm:mb-6"
+              :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']">
               <div class="flex items-center mb-3 sm:mb-4">
                 <div class="p-2 sm:p-3 rounded-lg" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
                   <FileIcon class="w-5 h-5 sm:w-6 sm:h-6" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
@@ -279,7 +281,8 @@
                   <p class="text-2xl sm:text-3xl font-bold tracking-wider text-center">{{ selectedRecord.retrieveCode }}</p>
                 </div>
 
-                <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 sm:p-4">
+                <div class="rounded-xl p-3 sm:p-4"
+                  :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']">
                   <div class="flex items-center justify-between mb-2 sm:mb-3">
                     <h4 class="font-medium text-sm sm:text-base flex items-center" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
                       <TerminalIcon class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-indigo-500" />
@@ -297,7 +300,8 @@
               </div>
 
               <!-- 右侧二维码 -->
-              <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 sm:p-5 flex flex-col items-center">
+              <div class="rounded-xl p-4 sm:p-5 flex flex-col items-center"
+                :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']">
                 <div class="bg-white p-3 sm:p-4 rounded-lg shadow-sm mb-3 sm:mb-4">
                   <QRCode :value="getQRCodeValue(selectedRecord)" :size="140" level="M" class="sm:w-[160px] sm:h-[160px]" />
                 </div>

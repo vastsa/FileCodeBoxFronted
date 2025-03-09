@@ -139,8 +139,12 @@
     <transition name="fade">
       <div v-if="selectedRecord" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div
-          class="p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg bg-opacity-70 overflow-hidden"
-          :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
+          class="p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg overflow-hidden"
+          :class="[
+            isDarkMode 
+              ? 'bg-gray-800 bg-opacity-70' 
+              : 'bg-white bg-opacity-95'
+          ]">
           <h3 class="text-2xl font-bold mb-6 truncate" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
             文件详情
           </h3>
@@ -295,13 +299,13 @@ const handleSubmit = async () => {
   inputStatus.value.loading = true
 
   try {
-    const res = await api.post('share/select/', {
+    const res = await api.post('/share/select/', {
       code: code.value
     })
 
     if (res.code === 200) {
       if (res.detail) {
-        const isFile = res.detail.text.startsWith('share/download') || res.detail.name !== 'Text'
+        const isFile = res.detail.text.startsWith('/share/download') || res.detail.name !== 'Text'
         const newFileData = {
           id: Date.now(),
           code: res.detail.code,
@@ -336,7 +340,8 @@ const handleSubmit = async () => {
       alertStore.showAlert(res.detail || '获取文件失败', 'error')
     }
   } catch (err) {
-    alertStore.showAlert(`取件失败，请稍后重试：${err.response.data.detail}`, 'error')
+    console.error('取件失败:', err)
+    alertStore.showAlert('取件失败，请稍后重试', 'error')
   } finally {
     inputStatus.value.readonly = false
     inputStatus.value.loading = false
@@ -368,7 +373,7 @@ const toggleDrawer = () => {
 }
 
 const toSend = () => {
-  router.push('send')
+  router.push('/send')
 }
 
 const getQRCodeValue = (record) => {
