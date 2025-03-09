@@ -225,7 +225,7 @@ refreshData()
               管理员密码
             </label>
             <div class="relative">
-              <input type="password" v-model="config.admin_token" placeholder="留空则不修改密码"
+              <input type="password" minlength="6" v-model="config.admin_token" placeholder="留空则不修改密码"
                 class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                 :class="[
                   isDarkMode
