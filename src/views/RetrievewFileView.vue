@@ -209,8 +209,6 @@
         </div>
       </div>
     </transition>
-
-    <!-- 新增内容预览弹框 -->
     <transition name="fade">
       <div v-if="showPreview" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div
@@ -220,14 +218,27 @@
             <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
               内容预览
             </h3>
-            <button @click="showPreview = false" class="text-gray-500 hover:text-gray-700">
-              <XIcon class="w-6 h-6" />
-            </button>
+            <div class="flex items-center gap-2">
+              <button @click="copyContent" 
+                class="px-3 py-1 rounded-lg transition duration-300 flex items-center gap-1"
+                :class="[
+                  isDarkMode 
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                ]">
+                <CopyIcon class="w-4 h-4" />
+                复制
+              </button>
+              <button @click="showPreview = false" class="text-gray-500 hover:text-gray-700">
+                <XIcon class="w-6 h-6" />
+              </button>
+            </div>
           </div>
           <div class="prose max-w-none" :class="[isDarkMode ? 'prose-invert' : '']" v-html="renderedContent"></div>
         </div>
       </div>
     </transition>
+
   </div>
 </template>
 
@@ -244,7 +255,8 @@ import {
   FileIcon,
   CalendarIcon,
   HardDriveIcon,
-  DownloadIcon
+  DownloadIcon,
+  CopyIcon
 } from 'lucide-vue-next'
 import { useRouter, useRoute } from 'vue-router'
 import QRCode from 'qrcode.vue'
@@ -289,6 +301,17 @@ watch(code, (newVal) => {
   }
 })
 
+// 在其他代码后添加复制功能
+const copyContent = async () => {
+  if (selectedRecord.value && selectedRecord.value.content) {
+    try {
+      await navigator.clipboard.writeText(selectedRecord.value.content)
+      alertStore.showAlert('内容已复制到剪贴板', 'success')
+    } catch (err) {
+      alertStore.showAlert('复制失败，请重试', 'error')
+    }
+  }
+}
 const handleSubmit = async () => {
   if (code.value.length !== 5) {
     alertStore.showAlert('请输入5位取件码', 'error')
