@@ -1,5 +1,6 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-300">
+  <div class="min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-300"
+    @paste.prevent="handlePaste">
     <div class="rounded-3xl shadow-2xl overflow-hidden border w-full max-w-md transition-colors duration-300" :class="[
       isDarkMode
         ? 'bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl border-gray-700'
@@ -41,7 +42,7 @@
           </div>
 
           <transition name="fade" mode="out-in">
-            <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8" @paste.prevent="handlePaste">
+            <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8">
               <!-- 文件上传区域 -->
               <div
                 class="rounded-xl p-8 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative"
@@ -214,18 +215,18 @@
 
     <!-- 记录详情弹窗 -->
     <transition name="fade">
-      <div v-if="selectedRecord" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+      <div v-if="selectedRecord"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
         <div
           class="w-full max-w-2xl rounded-2xl shadow-2xl transform transition-all duration-300 ease-out overflow-hidden"
           :class="[isDarkMode ? 'bg-gray-900 bg-opacity-70' : 'bg-white bg-opacity-95']">
           <!-- 顶部标题栏 -->
-          <div class="px-4 sm:px-6 py-3 sm:py-4 border-b" 
-            :class="[isDarkMode ? 'border-gray-800' : 'border-gray-100']">
+          <div class="px-4 sm:px-6 py-3 sm:py-4 border-b" :class="[isDarkMode ? 'border-gray-800' : 'border-gray-100']">
             <div class="flex items-center justify-between">
               <h3 class="text-lg sm:text-xl font-semibold" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
                 文件详情
               </h3>
-              <button @click="selectedRecord = null" 
+              <button @click="selectedRecord = null"
                 class="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                 <XIcon class="w-4 h-4 sm:w-5 sm:h-5" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
               </button>
@@ -239,7 +240,8 @@
               :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']">
               <div class="flex items-center mb-3 sm:mb-4">
                 <div class="p-2 sm:p-3 rounded-lg" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
-                  <FileIcon class="w-5 h-5 sm:w-6 sm:h-6" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+                  <FileIcon class="w-5 h-5 sm:w-6 sm:h-6"
+                    :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
                 </div>
                 <div class="ml-3 sm:ml-4">
                   <h4 class="font-medium text-sm sm:text-base" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
@@ -252,13 +254,15 @@
               </div>
               <div class="grid grid-cols-2 gap-3 sm:gap-4">
                 <div class="flex items-center">
-                  <ClockIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+                  <ClockIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2"
+                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
                   <span class="text-xs sm:text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
                     {{ selectedRecord.expiration }}
                   </span>
                 </div>
                 <div class="flex items-center">
-                  <ShieldCheckIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+                  <ShieldCheckIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2"
+                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
                   <span class="text-xs sm:text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
                     安全加密
                   </span>
@@ -278,22 +282,26 @@
                       <ClipboardCopyIcon class="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                   </div>
-                  <p class="text-2xl sm:text-3xl font-bold tracking-wider text-center">{{ selectedRecord.retrieveCode }}</p>
+                  <p class="text-2xl sm:text-3xl font-bold tracking-wider text-center">{{ selectedRecord.retrieveCode }}
+                  </p>
                 </div>
 
                 <div class="rounded-xl p-3 sm:p-4"
                   :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']">
                   <div class="flex items-center justify-between mb-2 sm:mb-3">
-                    <h4 class="font-medium text-sm sm:text-base flex items-center" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+                    <h4 class="font-medium text-sm sm:text-base flex items-center"
+                      :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
                       <TerminalIcon class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-indigo-500" />
                       wget下载
                     </h4>
                     <button @click="copyWgetCommand(selectedRecord.retrieveCode)"
                       class="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                      <ClipboardCopyIcon class="w-4 h-4 sm:w-5 sm:h-5" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+                      <ClipboardCopyIcon class="w-4 h-4 sm:w-5 sm:h-5"
+                        :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
                     </button>
                   </div>
-                  <p class="text-xs sm:text-sm font-mono break-all" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
+                  <p class="text-xs sm:text-sm font-mono break-all"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
                     点击复制wget命令
                   </p>
                 </div>
@@ -303,7 +311,8 @@
               <div class="rounded-xl p-4 sm:p-5 flex flex-col items-center"
                 :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']">
                 <div class="bg-white p-3 sm:p-4 rounded-lg shadow-sm mb-3 sm:mb-4">
-                  <QRCode :value="getQRCodeValue(selectedRecord)" :size="140" level="M" class="sm:w-[160px] sm:h-[160px]" />
+                  <QRCode :value="getQRCodeValue(selectedRecord)" :size="140" level="M"
+                    class="sm:w-[160px] sm:h-[160px]" />
                 </div>
                 <p class="text-xs sm:text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
                   扫描二维码快速取件
@@ -397,16 +406,40 @@ const handleFileDrop = async (event: DragEvent) => {
 const handlePaste = async (event: ClipboardEvent) => {
   const items = event.clipboardData?.items
   if (!items) return
+
   for (const item of items) {
     if (item.kind === 'file') {
       const file = item.getAsFile()
       if (file) {
-        selectedFile.value = file
-        if (!checkUpload()) return
-        fileHash.value = await calculateFileHash(file)
-        alertStore.showAlert('已从剪贴板添加文件：' + file.name, 'success')
+        // 检查文件是否为空
+        if (file.size === 0) {
+          alertStore.showAlert('无法读取空文件', 'error')
+          return
+        }
+
+        // 检查文件类型
+        if (file.type.startsWith('image/')) {
+          selectedFile.value = file
+          if (!checkUpload()) return
+
+          try {
+            fileHash.value = await calculateFileHash(file)
+            alertStore.showAlert('已从剪贴板添加图片：' + file.name, 'success')
+          } catch (error) {
+            alertStore.showAlert('文件处理失败', 'error')
+            console.error('File hash calculation failed:', error)
+          }
+        } else {
+          alertStore.showAlert('目前仅支持粘贴图片文件', 'warning')
+        }
         break
       }
+    }
+    else {
+      sendType.value = 'text'
+      items[0].getAsString((str: string) => {
+        textContent.value += str
+      })
     }
   }
 }
@@ -420,16 +453,29 @@ const calculateFileHash = async (file: File): Promise<string> => {
 
     fileReader.onload = async (e) => {
       const chunk = new Uint8Array(e.target!.result as ArrayBuffer)
-      const hashBuffer = await crypto.subtle.digest('SHA-256', chunk)
-      const hashArray = Array.from(new Uint8Array(hashBuffer))
-      const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 
-      currentChunk++
+      try {
+        // 尝试使用 crypto.subtle.digest
+        if (window.isSecureContext) {
+          const hashBuffer = await crypto.subtle.digest('SHA-256', chunk)
+          const hashArray = Array.from(new Uint8Array(hashBuffer))
+          const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 
-      if (currentChunk < chunks) {
-        loadNext()
-      } else {
-        resolve(hashHex)
+          currentChunk++
+          if (currentChunk < chunks) {
+            loadNext()
+          } else {
+            resolve(hashHex)
+          }
+        } else {
+          // 如果不是安全上下文（HTTP），则返回一个基于文件信息的替代哈希
+          const fallbackHash = generateFallbackHash(file)
+          resolve(fallbackHash)
+        }
+      } catch (error) {
+        // 如果 crypto.subtle.digest 失败，使用替代方案
+        const fallbackHash = generateFallbackHash(file)
+        resolve(fallbackHash)
       }
     }
 
@@ -441,6 +487,20 @@ const calculateFileHash = async (file: File): Promise<string> => {
 
     loadNext()
   })
+}
+
+// 生成替代哈希的函数
+const generateFallbackHash = (file: File): string => {
+  // 使用文件名、大小和最后修改时间生成一个简单的哈希
+  const fileInfo = `${file.name}-${file.size}-${file.lastModified}`
+  let hash = 0
+  for (let i = 0; i < fileInfo.length; i++) {
+    const char = fileInfo.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32-bit integer
+  }
+  // 转换为16进制字符串并填充到64位
+  return Math.abs(hash).toString(16).padStart(64, '0')
 }
 
 const getPlaceholder = (value: string = expirationMethod.value) => {
