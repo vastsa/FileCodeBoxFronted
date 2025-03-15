@@ -266,6 +266,7 @@ import api from '@/utils/api'
 import { saveAs } from 'file-saver'
 import { marked } from 'marked'
 import { useAlertStore } from '@/stores/alertStore'
+import { copyToClipboard } from '@/utils/clipboard'
 
 const alertStore = useAlertStore()
 const baseUrl = window.location.origin
@@ -304,12 +305,10 @@ watch(code, (newVal) => {
 // 在其他代码后添加复制功能
 const copyContent = async () => {
   if (selectedRecord.value && selectedRecord.value.content) {
-    try {
-      await navigator.clipboard.writeText(selectedRecord.value.content)
-      alertStore.showAlert('内容已复制到剪贴板', 'success')
-    } catch (err) {
-      alertStore.showAlert('复制失败，请重试', 'error')
-    }
+    await copyToClipboard(selectedRecord.value.content, {
+      successMsg: '内容已复制到剪贴板',
+      errorMsg: '复制失败，请重试'
+    })
   }
 }
 const handleSubmit = async () => {
