@@ -89,36 +89,97 @@
             </div>
           </transition>
           <!-- 过期方式选择 -->
-          <div class="flex flex-col space-y-4">
+          <div class="flex flex-col space-y-3">
             <label :class="['text-sm font-medium', isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-              过期方式
+              过期时间
             </label>
-            <select v-model="expirationMethod" :class="[
-              'px-4 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500',
-              isDarkMode
-                ? 'bg-gray-800 bg-opacity-50 text-white'
-                : 'bg-white text-gray-900 border border-gray-300'
-            ]">
-              <option v-for="item in config.expireStyle" :value="item" :key="item">
-                {{ getUnit(item) }}
-              </option>
-            </select>
-            <div v-if="expirationMethod !== 'forever'" class="flex items-center space-x-2">
-              <div class="relative flex-grow">
-                <input v-model="expirationValue" type="number" :placeholder="getPlaceholder()" :class="[
-                  'w-full px-4 py-2 pr-16 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500',
+            <div class="relative flex-grow group">
+              <div 
+                :class="[
+                  'relative h-11 rounded-xl border transition-all duration-300',
                   isDarkMode
-                    ? 'bg-gray-800 bg-opacity-50 text-white'
-                    : 'bg-white text-gray-900 border border-gray-300'
-                ]" />
-                <span :class="[
-                  'absolute right-3 top-1/2 transform -translate-y-1/2',
-                  isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                ]">
-                  {{ getUnit() }}
-                </span>
+                    ? 'bg-gray-800/50 border-gray-700 group-hover:border-gray-600'
+                    : 'bg-white border-gray-200 group-hover:border-gray-300'
+                ]"
+              >
+                <template v-if="expirationMethod !== 'forever'">
+                  <input 
+                    v-model="expirationValue" 
+                    type="number" 
+                    :placeholder="getPlaceholder()" 
+                    min="1"
+                    :class="[
+                      'w-full h-full px-4 pr-32 rounded-xl placeholder-gray-400 transition-all duration-300',
+                      'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
+                      '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+                      'bg-transparent',
+                      isDarkMode ? 'text-white' : 'text-gray-900'
+                    ]" 
+                  />
+                  <div class="absolute right-24 top-0 h-full flex flex-col border-l"
+                    :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
+                    <button 
+                      type="button"
+                      @click="incrementValue(1)"
+                      class="flex-1 px-2 flex items-center justify-center transition-colors duration-200 hover:bg-opacity-50"
+                      :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100']"
+                    >
+                      <svg class="w-3 h-3" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                      </svg>
+                    </button>
+                    <button 
+                      type="button"
+                      @click="incrementValue(-1)"
+                      class="flex-1 px-2 flex items-center justify-center transition-colors duration-200 hover:bg-opacity-50"
+                      :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100']"
+                    >
+                      <svg class="w-3 h-3" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+                </template>
+                <select 
+                  v-model="expirationMethod" 
+                  :class="[
+                    'absolute right-0 top-0 h-full appearance-none cursor-pointer bg-transparent',
+                    'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0',
+                    expirationMethod === 'forever' ? 'w-full px-4' : 'w-24 pl-3 pr-8 border-l',
+                    isDarkMode 
+                      ? 'text-white border-gray-700' 
+                      : 'text-gray-900 border-gray-200'
+                  ]"
+                >
+                  <option v-for="item in config.expireStyle" :value="item" :key="item">
+                    {{ getUnit(item) }}
+                  </option>
+                </select>
+                <div 
+                  class="absolute pointer-events-none"
+                  :class="[
+                    expirationMethod === 'forever' ? 'right-3' : 'right-2',
+                    'top-1/2 -translate-y-1/2'
+                  ]"
+                >
+                  <svg 
+                    class="w-4 h-4 transition-colors duration-300"
+                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </div>
             </div>
+            <p 
+              class="text-xs transition-colors duration-300" 
+              :class="[isDarkMode ? 'text-gray-500' : 'text-gray-400']"
+            >
+              选择文件过期的时间，过期后文件将自动删除
+            </p>
           </div>
           <!-- 提交按钮 -->
           <button type="submit"
@@ -741,10 +802,9 @@ const handleSubmit = async () => {
 
       // 显示发送成功消息
       alertStore.showAlert(`文件发送成功！取件码：${retrieveCode}`, 'success')
-      // 重置表单
+      // 重置表单 - 只重置文件和文本内容,保留过期信息
       selectedFile.value = null
       textContent.value = ''
-      expirationValue.value = ''
       uploadProgress.value = 0
       // 显示详情
       selectedRecord.value = newRecord
@@ -786,6 +846,14 @@ const deleteRecord = (id: number) => {
 const baseUrl = window.location.origin + '/#/'
 const getQRCodeValue = (record: any) => {
   return `${baseUrl}?code=${record.retrieveCode}`
+}
+
+const incrementValue = (delta: number) => {
+  const currentValue = parseInt(expirationValue.value) || 0;
+  const newValue = currentValue + delta;
+  if (newValue >= 1) {
+    expirationValue.value = newValue.toString();
+  }
 }
 
 // 使用 onMounted 钩子延迟加载一些非关键资源或初始化
