@@ -212,29 +212,44 @@
     <transition name="fade">
       <div v-if="showPreview" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div
-          class="p-8 rounded-2xl max-w-3xl w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg bg-opacity-70 max-h-[80vh] overflow-y-auto"
+          class="p-6 rounded-2xl max-w-3xl w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg bg-opacity-70 max-h-[85vh] overflow-hidden flex flex-col"
           :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
-          <div class="flex justify-between items-center mb-4">
+          <div class="flex justify-between items-center mb-4 flex-shrink-0">
             <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
               内容预览
             </h3>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3">
               <button @click="copyContent" 
-                class="px-3 py-1 rounded-lg transition duration-300 flex items-center gap-1"
+                class="px-4 py-1.5 rounded-lg transition duration-300 flex items-center gap-2 text-sm font-medium"
                 :class="[
                   isDarkMode 
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' 
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900'
                 ]">
                 <CopyIcon class="w-4 h-4" />
                 复制
               </button>
-              <button @click="showPreview = false" class="text-gray-500 hover:text-gray-700">
-                <XIcon class="w-6 h-6" />
+              <button @click="showPreview = false" 
+                class="p-1.5 rounded-lg transition duration-300 hover:bg-opacity-10"
+                :class="[
+                  isDarkMode 
+                    ? 'text-gray-400 hover:text-white hover:bg-white' 
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-black'
+                ]">
+                <XIcon class="w-5 h-5" />
               </button>
             </div>
           </div>
-          <div class="prose max-w-none" :class="[isDarkMode ? 'prose-invert' : '']" v-html="renderedContent"></div>
+          <div class="flex-1 overflow-y-auto custom-scrollbar">
+            <div class="prose max-w-none p-6 rounded-xl" 
+              :class="[
+                isDarkMode 
+                  ? 'prose-invert bg-gray-900 bg-opacity-50' 
+                  : 'bg-gray-50'
+              ]" 
+              v-html="renderedContent">
+            </div>
+          </div>
         </div>
       </div>
     </transition>
@@ -437,7 +452,6 @@ const showContentPreview = () => {
 
 <style scoped>
 @keyframes blob {
-
   0%,
   100% {
     transform: translate(0, 0) scale(1);
@@ -562,5 +576,43 @@ const showContentPreview = () => {
     width: 30rem;
     /* 480px */
   }
+}
+
+/* 自定义滚动条样式 */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
+  transition: background-color 0.3s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.5);
+}
+
+/* 深色模式下的滚动条样式 */
+:deep([class*='dark']) .custom-scrollbar {
+  scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
+}
+
+:deep([class*='dark']) .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.3);
+}
+
+:deep([class*='dark']) .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(75, 85, 99, 0.5);
 }
 </style>
