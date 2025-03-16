@@ -94,59 +94,100 @@
               过期时间
             </label>
             <div class="relative flex-grow group">
-              <div :class="[
-                'relative h-11 rounded-xl border transition-all duration-300',
-                isDarkMode
-                  ? 'bg-gray-800/50 border-gray-700 group-hover:border-gray-600'
-                  : 'bg-white border-gray-200 group-hover:border-gray-300'
-              ]">
+              <div 
+                :class="[
+                  'relative h-11 rounded-xl border transition-all duration-300',
+                  isDarkMode
+                    ? 'bg-gray-800/50 border-gray-700/50 group-hover:border-gray-600'
+                    : 'bg-white border-gray-200 group-hover:border-gray-300'
+                ]"
+              >
                 <template v-if="expirationMethod !== 'forever'">
-                  <input v-model="expirationValue" type="number" :placeholder="getPlaceholder()" min="1" :class="[
-                    'w-full h-full px-4 pr-32 rounded-xl placeholder-gray-400 transition-all duration-300',
-                    'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent',
-                    '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
-                    'bg-transparent',
-                    isDarkMode ? 'text-white' : 'text-gray-900'
-                  ]" />
+                  <input 
+                    v-model="expirationValue" 
+                    type="number" 
+                    :placeholder="getPlaceholder()" 
+                    min="1"
+                    :class="[
+                      'w-full h-full px-4 pr-32 rounded-xl placeholder-gray-400 transition-all duration-300',
+                      'focus:outline-none focus:ring-2 focus:ring-offset-0',
+                      '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+                      'bg-transparent',
+                      isDarkMode 
+                        ? 'text-gray-100 focus:ring-indigo-500/70 placeholder-gray-500' 
+                        : 'text-gray-900 focus:ring-indigo-500/50 placeholder-gray-400'
+                    ]" 
+                  />
                   <div class="absolute right-24 top-0 h-full flex flex-col border-l"
-                    :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-                    <button type="button" @click="incrementValue(1)"
-                      class="flex-1 px-2 flex items-center justify-center transition-colors duration-200 hover:bg-opacity-50"
-                      :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100']">
-                      <svg class="w-3 h-3" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
+                    :class="[isDarkMode ? 'border-gray-700/50' : 'border-gray-200']">
+                    <button 
+                      type="button"
+                      @click="incrementValue(1)"
+                      class="flex-1 px-2 flex items-center justify-center transition-all duration-200"
+                      :class="[
+                        isDarkMode 
+                          ? 'hover:bg-gray-700/50 text-gray-400 hover:text-gray-200' 
+                          : 'hover:bg-gray-50 text-gray-500 hover:text-gray-700'
+                      ]"
+                    >
+                      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                       </svg>
                     </button>
-                    <button type="button" @click="incrementValue(-1)"
-                      class="flex-1 px-2 flex items-center justify-center transition-colors duration-200 hover:bg-opacity-50"
-                      :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100']">
-                      <svg class="w-3 h-3" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']" fill="none"
-                        viewBox="0 0 24 24" stroke="currentColor">
+                    <button 
+                      type="button"
+                      @click="incrementValue(-1)"
+                      class="flex-1 px-2 flex items-center justify-center transition-all duration-200"
+                      :class="[
+                        isDarkMode 
+                          ? 'hover:bg-gray-700/50 text-gray-400 hover:text-gray-200' 
+                          : 'hover:bg-gray-50 text-gray-500 hover:text-gray-700'
+                      ]"
+                    >
+                      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
                   </div>
                 </template>
-                <select v-model="expirationMethod" :class="[
-                  'absolute right-0 top-0 h-full appearance-none cursor-pointer bg-transparent',
-                  'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0',
-                  expirationMethod === 'forever' ? 'w-full px-4' : 'w-24 pl-3 pr-8 border-l',
-                  isDarkMode
-                    ? 'text-white border-gray-700'
-                    : 'text-gray-900 border-gray-200'
-                ]">
-                  <option v-for="item in config.expireStyle" :value="item" :key="item">
+                <select 
+                  v-model="expirationMethod" 
+                  :class="[
+                    'absolute right-0 top-0 h-full appearance-none cursor-pointer',
+                    'focus:outline-none focus:ring-2 focus:ring-offset-0',
+                    expirationMethod === 'forever' ? 'w-full px-4' : 'w-24 pl-3 pr-8 border-l',
+                    isDarkMode 
+                      ? 'text-gray-100 border-gray-700/50 focus:ring-indigo-500/70 bg-gray-800/50' 
+                      : 'text-gray-900 border-gray-200 focus:ring-indigo-500/50 bg-white'
+                  ]"
+                >
+                  <option 
+                    v-for="item in config.expireStyle" 
+                    :value="item" 
+                    :key="item"
+                    :class="[
+                      isDarkMode 
+                        ? 'bg-gray-800 text-gray-100' 
+                        : 'bg-white text-gray-900'
+                    ]"
+                  >
                     {{ getUnit(item) }}
                   </option>
                 </select>
-                <div class="absolute pointer-events-none" :class="[
-                  expirationMethod === 'forever' ? 'right-3' : 'right-2',
-                  'top-1/2 -translate-y-1/2'
-                ]">
-                  <svg class="w-4 h-4 transition-colors duration-300"
-                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
+                <div 
+                  class="absolute pointer-events-none"
+                  :class="[
+                    expirationMethod === 'forever' ? 'right-3' : 'right-2',
+                    'top-1/2 -translate-y-1/2'
+                  ]"
+                >
+                  <svg 
+                    class="w-4 h-4 transition-colors duration-300"
+                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
@@ -878,5 +919,28 @@ onMounted(() => {
 .list-leave-to {
   opacity: 0;
   transform: translateX(30px);
+}
+
+select option {
+  padding: 8px;
+  margin: 4px;
+  border-radius: 6px;
+}
+
+select option:checked {
+  background: linear-gradient(to right, rgb(99 102 241 / 0.5), rgb(168 85 247 / 0.5)) !important;
+  color: white !important;
+}
+
+.dark select option:checked {
+  background: linear-gradient(to right, rgb(99 102 241 / 0.7), rgb(168 85 247 / 0.7)) !important;
+}
+
+select option:hover {
+  background-color: rgb(99 102 241 / 0.1);
+}
+
+.dark select option:hover {
+  background-color: rgb(99 102 241 / 0.2);
 }
 </style>
