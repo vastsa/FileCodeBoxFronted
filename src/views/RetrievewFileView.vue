@@ -182,7 +182,7 @@
                 </button>
               </div>
               <div v-else>
-                <a :href="`${baseUrl}${selectedRecord.downloadUrl}`" target="_blank" rel="noopener noreferrer"
+                <a :href="getDownloadUrl(selectedRecord)" target="_blank" rel="noopener noreferrer"
                   class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300">
                   点击下载
                 </a>
@@ -317,6 +317,13 @@ watch(code, (newVal) => {
   }
 })
 
+const getDownloadUrl = (record) => {
+  if (record.downloadUrl.startsWith('http')) {
+    return record.downloadUrl
+  } else {
+    return `${baseUrl}${record.downloadUrl}`
+  }
+}
 // 在其他代码后添加复制功能
 const copyContent = async () => {
   if (selectedRecord.value && selectedRecord.value.content) {
