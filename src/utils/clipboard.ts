@@ -3,7 +3,7 @@
  */
 
 import { useAlertStore } from '@/stores/alertStore'
-
+const alertStore = useAlertStore();
 interface CopyOptions {
   successMsg?: string
   errorMsg?: string
@@ -80,10 +80,13 @@ export const copyRetrieveCode = async (code: string): Promise<boolean> => {
   })
 }
 
-export const copyWgetCommand = async (code: string): Promise<boolean> => {
-  const command = `wget ${window.location.origin}/share/select?code=${code}`
-  return copyToClipboard(command, {
-    successMsg: 'wget命令已复制到剪贴板',
-    errorMsg: '复制失败，请手动复制wget命令'
-  })
-}
+const baseUrl = window.location.origin + '/#/';
+
+export const copyWgetCommand = (retrieveCode: string, fileName: any) => {
+  const command = `wget ${baseUrl}?code=${retrieveCode} -O "${fileName}"`;
+  navigator.clipboard.writeText(command).then(() => {
+    alertStore.showAlert('wget命令已复制到剪贴板', 'success');
+  }).catch(() => {
+    alertStore.showAlert('复制wget命令失败', 'error');
+  });
+};

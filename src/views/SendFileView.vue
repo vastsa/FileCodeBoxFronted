@@ -339,7 +339,7 @@
                       <TerminalIcon class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-indigo-500 flex-shrink-0" />
                       <span class="truncate">wget下载</span>
                     </h4>
-                    <button @click="copyWgetCommand(selectedRecord.retrieveCode)"
+                    <button @click="copyWgetCommand(selectedRecord.retrieveCode,selectedRecord.filename)"
                       class="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-shrink-0">
                       <ClipboardCopyIcon class="w-4 h-4 sm:w-5 sm:h-5"
                         :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
