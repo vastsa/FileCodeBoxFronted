@@ -653,7 +653,7 @@ const handlePaste = async (event: ClipboardEvent) => {
 
         try {
           fileHash.value = await calculateFileHash(file)
-          alertStore.showAlert('已从剪贴板添加图片：' + file.name, 'success')
+          alertStore.showAlert('已从剪贴板添加文件：' + file.name, 'success')
         } catch (error) {
           alertStore.showAlert('文件处理失败', 'error')
           console.error('File hash calculation failed:', error)
