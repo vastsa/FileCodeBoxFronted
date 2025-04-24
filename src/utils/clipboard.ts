@@ -82,11 +82,52 @@ export const copyRetrieveCode = async (code: string): Promise<boolean> => {
 
 const baseUrl = window.location.origin + '/#/';
 
-export const copyWgetCommand = (retrieveCode: string, fileName: any) => {
-  const command = `wget ${baseUrl}?code=${retrieveCode} -O "${fileName}"`;
+/*export const copyWgetCommand = (retrieveCode: string, fileName: any) => {
+  //wget https://share.lanol.cn/share/select?code=17634
+  const command = `wget ${baseUrl}share/select?code=${retrieveCode} -O "${fileName}"`;
   navigator.clipboard.writeText(command).then(() => {
     alertStore.showAlert('wget命令已复制到剪贴板', 'success');
   }).catch(() => {
     alertStore.showAlert('复制wget命令失败', 'error');
   });
+};*/
+
+export const copyWgetCommand = (retrieveCode: string, fileName: string) => {
+  // const command = `wget ${window.location.origin}/download/${retrieveCode} -O ${filename}`;
+  const command = `wget ${baseUrl}share/select?code=${retrieveCode} -O "${fileName}"`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(command)
+      .then(() => {
+        console.log("命令已复制到剪贴板！");
+      })
+      .catch((err) => {
+        console.error("复制失败，使用回退方法：", err);
+        fallbackCopyTextToClipboard(command);
+      });
+  } else {
+    console.warn("Clipboard API 不可用，使用回退方法。");
+    fallbackCopyTextToClipboard(command);
+  }
 };
+function fallbackCopyTextToClipboard(text:string) {
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.position = "fixed"; // 避免滚动
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    const successful = document.execCommand("copy");
+    console.log("回退复制操作成功：", successful);
+  } catch (err) {
+    console.error("回退复制操作失败：", err);
+  }
+  document.body.removeChild(textArea);
+}
+
+if (navigator.clipboard && navigator.clipboard.writeText) {
+  navigator.clipboard.writeText("要复制的文本");
+} else {
+  fallbackCopyTextToClipboard("要复制的文本");
+}
