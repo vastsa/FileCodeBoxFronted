@@ -80,20 +80,9 @@ export const copyRetrieveCode = async (code: string): Promise<boolean> => {
   })
 }
 
-const baseUrl = window.location.origin + '/#/';
-
-/*export const copyWgetCommand = (retrieveCode: string, fileName: any) => {
-  //wget https://share.lanol.cn/share/select?code=17634
-  const command = `wget ${baseUrl}share/select?code=${retrieveCode} -O "${fileName}"`;
-  navigator.clipboard.writeText(command).then(() => {
-    alertStore.showAlert('wget命令已复制到剪贴板', 'success');
-  }).catch(() => {
-    alertStore.showAlert('复制wget命令失败', 'error');
-  });
-};*/
+const baseUrl = window.location.origin + '/';
 
 export const copyWgetCommand = (retrieveCode: string, fileName: string) => {
-  // const command = `wget ${window.location.origin}/download/${retrieveCode} -O ${filename}`;
   const command = `wget ${baseUrl}share/select?code=${retrieveCode} -O "${fileName}"`;
 
   if (navigator.clipboard && navigator.clipboard.writeText) {

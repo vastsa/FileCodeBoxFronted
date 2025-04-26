@@ -1,32 +1,49 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-300"
-    @paste.prevent="handlePaste">
-    <div class="rounded-3xl shadow-2xl overflow-hidden border w-full max-w-md transition-colors duration-300" :class="[
-      isDarkMode
-        ? 'bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl border-gray-700'
-        : 'bg-white border-gray-200'
-    ]">
+  <div
+    class="min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-300"
+    @paste.prevent="handlePaste"
+  >
+    <div
+      class="rounded-3xl shadow-2xl overflow-hidden border w-full max-w-md transition-colors duration-300"
+      :class="[
+        isDarkMode
+          ? 'bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl border-gray-700'
+          : 'bg-white border-gray-200'
+      ]"
+    >
       <div class="p-8">
-        <h2 class="text-3xl font-extrabold text-center mb-8 cursor-pointer transition-colors duration-300" :class="[
-          isDarkMode
-            ? 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300'
-            : 'text-indigo-600'
-        ]" @click="toRetrieve">
+        <h2
+          class="text-3xl font-extrabold text-center mb-8 cursor-pointer transition-colors duration-300"
+          :class="[
+            isDarkMode
+              ? 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300'
+              : 'text-indigo-600'
+          ]"
+          @click="toRetrieve"
+        >
           {{ config.name }}
         </h2>
         <form @submit.prevent="handleSubmit" class="space-y-8">
           <!-- 发送类型选择 -->
           <div class="flex justify-center space-x-4 mb-6">
-            <button type="button" @click="sendType = 'file'" :class="[
-              'px-4 py-2 rounded-lg',
-              sendType === 'file' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
-            ]">
+            <button
+              type="button"
+              @click="sendType = 'file'"
+              :class="[
+                'px-4 py-2 rounded-lg',
+                sendType === 'file' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
+              ]"
+            >
               发送文件
             </button>
-            <button type="button" @click="sendType = 'text'" :class="[
-              'px-4 py-2 rounded-lg',
-              sendType === 'text' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
-            ]">
+            <button
+              type="button"
+              @click="sendType = 'text'"
+              :class="[
+                'px-4 py-2 rounded-lg',
+                sendType === 'text' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
+              ]"
+            >
               发送文本
             </button>
             <!-- <button
@@ -50,23 +67,37 @@
                   isDarkMode
                     ? 'bg-gray-800 bg-opacity-50 border-gray-600 hover:border-indigo-500'
                     : 'bg-gray-100 border-gray-300 hover:border-indigo-500'
-                ]" @click="triggerFileUpload" @dragover.prevent @drop.prevent="handleFileDrop">
-                <input id="file-upload" type="file" class="hidden" @change="handleFileUpload" ref="fileInput" />
+                ]"
+                @click="triggerFileUpload"
+                @dragover.prevent
+                @drop.prevent="handleFileDrop"
+              >
+                <input
+                  id="file-upload"
+                  type="file"
+                  class="hidden"
+                  @change="handleFileUpload"
+                  ref="fileInput"
+                />
                 <div class="absolute inset-0 w-full h-full" v-if="uploadProgress > 0">
                   <BorderProgressBar :progress="uploadProgress" />
                 </div>
-                <UploadCloudIcon :class="[
-                  'w-16 h-16 transition-colors duration-300',
-                  isDarkMode
-                    ? 'text-gray-400 group-hover:text-indigo-400'
-                    : 'text-gray-600 group-hover:text-indigo-600'
-                ]" />
-                <p :class="[
-                  'mt-4 text-sm transition-colors duration-300 w-full text-center',
-                  isDarkMode
-                    ? 'text-gray-400 group-hover:text-indigo-400'
-                    : 'text-gray-600 group-hover:text-indigo-600'
-                ]">
+                <UploadCloudIcon
+                  :class="[
+                    'w-16 h-16 transition-colors duration-300',
+                    isDarkMode
+                      ? 'text-gray-400 group-hover:text-indigo-400'
+                      : 'text-gray-600 group-hover:text-indigo-600'
+                  ]"
+                />
+                <p
+                  :class="[
+                    'mt-4 text-sm transition-colors duration-300 w-full text-center',
+                    isDarkMode
+                      ? 'text-gray-400 group-hover:text-indigo-400'
+                      : 'text-gray-600 group-hover:text-indigo-600'
+                  ]"
+                >
                   <span class="block truncate">
                     {{ selectedFile ? selectedFile.name : '点击或拖放文件到此处上传' }}
                   </span>
@@ -79,12 +110,18 @@
             <div v-else key="text" class="grid grid-cols-1 gap-8">
               <!-- 文本输入区域 -->
               <div v-if="sendType === 'text'" class="flex flex-col">
-                <textarea id="text-content" v-model="textContent" rows="7" :class="[
-                  'flex-grow px-4 py-3 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 resize-none',
-                  isDarkMode
-                    ? 'bg-gray-800 bg-opacity-50 text-white'
-                    : 'bg-white text-gray-900 border border-gray-300'
-                ]" placeholder="在此输入要发送的文本..."></textarea>
+                <textarea
+                  id="text-content"
+                  v-model="textContent"
+                  rows="7"
+                  :class="[
+                    'flex-grow px-4 py-3 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 resize-none',
+                    isDarkMode
+                      ? 'bg-gray-800 bg-opacity-50 text-white'
+                      : 'bg-white text-gray-900 border border-gray-300'
+                  ]"
+                  placeholder="在此输入要发送的文本..."
+                ></textarea>
               </div>
             </div>
           </transition>
@@ -94,80 +131,127 @@
               过期时间
             </label>
             <div class="relative flex-grow group">
-              <div :class="[
-                'relative h-11 rounded-xl border transition-all duration-300',
-                isDarkMode
-                  ? 'bg-gray-800/50 border-gray-700/50 group-hover:border-gray-600'
-                  : 'bg-white border-gray-200 group-hover:border-gray-300'
-              ]">
+              <div
+                :class="[
+                  'relative h-11 rounded-xl border transition-all duration-300',
+                  isDarkMode
+                    ? 'bg-gray-800/50 border-gray-700/50 group-hover:border-gray-600'
+                    : 'bg-white border-gray-200 group-hover:border-gray-300'
+                ]"
+              >
                 <template v-if="expirationMethod !== 'forever'">
-                  <input v-model="expirationValue" type="number" :placeholder="getPlaceholder()" min="1" :class="[
-                    'w-full h-full px-4 pr-32 rounded-xl placeholder-gray-400 transition-all duration-300',
-                    'focus:outline-none focus:ring-2 focus:ring-offset-0',
-                    '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
-                    'bg-transparent',
-                    isDarkMode
-                      ? 'text-gray-100 focus:ring-indigo-500/70 placeholder-gray-500'
-                      : 'text-gray-900 focus:ring-indigo-500/50 placeholder-gray-400'
-                  ]" />
-                  <div class="absolute right-24 top-0 h-full flex flex-col border-l"
-                    :class="[isDarkMode ? 'border-gray-700/50' : 'border-gray-200']">
-                    <button type="button" @click="incrementValue(1)"
-                      class="flex-1 px-2 flex items-center justify-center transition-all duration-200" :class="[
+                  <input
+                    v-model="expirationValue"
+                    type="number"
+                    :placeholder="getPlaceholder()"
+                    min="1"
+                    :class="[
+                      'w-full h-full px-4 pr-32 rounded-xl placeholder-gray-400 transition-all duration-300',
+                      'focus:outline-none focus:ring-2 focus:ring-offset-0',
+                      '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+                      'bg-transparent',
+                      isDarkMode
+                        ? 'text-gray-100 focus:ring-indigo-500/70 placeholder-gray-500'
+                        : 'text-gray-900 focus:ring-indigo-500/50 placeholder-gray-400'
+                    ]"
+                  />
+                  <div
+                    class="absolute right-24 top-0 h-full flex flex-col border-l"
+                    :class="[isDarkMode ? 'border-gray-700/50' : 'border-gray-200']"
+                  >
+                    <button
+                      type="button"
+                      @click="incrementValue(1)"
+                      class="flex-1 px-2 flex items-center justify-center transition-all duration-200"
+                      :class="[
                         isDarkMode
                           ? 'hover:bg-gray-700/50 text-gray-400 hover:text-gray-200'
                           : 'hover:bg-gray-50 text-gray-500 hover:text-gray-700'
-                      ]">
+                      ]"
+                    >
                       <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M5 15l7-7 7 7"
+                        />
                       </svg>
                     </button>
-                    <button type="button" @click="incrementValue(-1)"
-                      class="flex-1 px-2 flex items-center justify-center transition-all duration-200" :class="[
+                    <button
+                      type="button"
+                      @click="incrementValue(-1)"
+                      class="flex-1 px-2 flex items-center justify-center transition-all duration-200"
+                      :class="[
                         isDarkMode
                           ? 'hover:bg-gray-700/50 text-gray-400 hover:text-gray-200'
                           : 'hover:bg-gray-50 text-gray-500 hover:text-gray-700'
-                      ]">
+                      ]"
+                    >
                       <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 9l-7 7-7-7"
+                        />
                       </svg>
                     </button>
                   </div>
                 </template>
-                <select v-model="expirationMethod" :class="[
-                  'absolute right-0 top-0 h-full appearance-none cursor-pointer',
-                  'focus:outline-none focus:ring-2 focus:ring-offset-0',
-                  expirationMethod === 'forever' ? 'w-full px-4' : 'w-24 pl-3 pr-8 border-l',
-                  isDarkMode
-                    ? 'text-gray-100 border-gray-700/50 focus:ring-indigo-500/70 bg-gray-800/50'
-                    : 'text-gray-900 border-gray-200 focus:ring-indigo-500/50 bg-white'
-                ]">
-                  <option v-for="item in config.expireStyle" :value="item" :key="item" :class="[
+                <select
+                  v-model="expirationMethod"
+                  :class="[
+                    'absolute right-0 top-0 h-full appearance-none cursor-pointer',
+                    'focus:outline-none focus:ring-2 focus:ring-offset-0',
+                    expirationMethod === 'forever' ? 'w-full px-4' : 'w-24 pl-3 pr-8 border-l',
                     isDarkMode
-                      ? 'bg-gray-800 text-gray-100'
-                      : 'bg-white text-gray-900'
-                  ]">
+                      ? 'text-gray-100 border-gray-700/50 focus:ring-indigo-500/70 bg-gray-800/50'
+                      : 'text-gray-900 border-gray-200 focus:ring-indigo-500/50 bg-white'
+                  ]"
+                >
+                  <option
+                    v-for="item in config.expireStyle"
+                    :value="item"
+                    :key="item"
+                    :class="[isDarkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900']"
+                  >
                     {{ getUnit(item) }}
                   </option>
                 </select>
-                <div class="absolute pointer-events-none" :class="[
-                  expirationMethod === 'forever' ? 'right-3' : 'right-2',
-                  'top-1/2 -translate-y-1/2'
-                ]">
-                  <svg class="w-4 h-4 transition-colors duration-300"
-                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                <div
+                  class="absolute pointer-events-none"
+                  :class="[
+                    expirationMethod === 'forever' ? 'right-3' : 'right-2',
+                    'top-1/2 -translate-y-1/2'
+                  ]"
+                >
+                  <svg
+                    class="w-4 h-4 transition-colors duration-300"
+                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </div>
               </div>
             </div>
           </div>
           <!-- 提交按钮 -->
-          <button type="submit"
-            class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105 hover:shadow-lg relative overflow-hidden group">
+          <button
+            type="submit"
+            class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105 hover:shadow-lg relative overflow-hidden group"
+          >
             <span
-              class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+              class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+            ></span>
             <span class="relative z-10 flex items-center justify-center text-lg">
               <SendIcon class="w-6 h-6 mr-2" />
               <span>安全寄送</span>
@@ -181,14 +265,22 @@
         </div>
       </div>
 
-      <div class="px-8 py-4 bg-opacity-50 flex justify-between items-center"
-        :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']">
-        <span class="text-sm flex items-center" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
+      <div
+        class="px-8 py-4 bg-opacity-50 flex justify-between items-center"
+        :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']"
+      >
+        <span
+          class="text-sm flex items-center"
+          :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
+        >
           <ShieldCheckIcon class="w-4 h-4 mr-1 text-green-400" />
           安全加密
         </span>
-        <button @click="toggleDrawer" class="text-sm hover:text-indigo-300 transition duration-300 flex items-center"
-          :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']">
+        <button
+          @click="toggleDrawer"
+          class="text-sm hover:text-indigo-300 transition duration-300 flex items-center"
+          :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+        >
           发件记录
           <ClipboardListIcon class="w-4 h-4 ml-1" />
         </button>
@@ -197,56 +289,84 @@
 
     <!-- 抽屉式发件记录 -->
     <transition name="drawer">
-      <div v-if="showDrawer"
+      <div
+        v-if="showDrawer"
         class="fixed inset-y-0 right-0 w-full sm:w-120 bg-opacity-70 backdrop-filter backdrop-blur-xl shadow-2xl z-50 overflow-hidden flex flex-col"
-        :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']">
-        <div class="flex justify-between items-center p-6 border-b"
-          :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
+        :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']"
+      >
+        <div
+          class="flex justify-between items-center p-6 border-b"
+          :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']"
+        >
           <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
             发件记录
           </h3>
-          <button @click="toggleDrawer" class="hover:text-white transition duration-300"
-            :class="[isDarkMode ? 'text-gray-400' : 'text-gray-800']">
+          <button
+            @click="toggleDrawer"
+            class="hover:text-white transition duration-300"
+            :class="[isDarkMode ? 'text-gray-400' : 'text-gray-800']"
+          >
             <XIcon class="w-6 h-6" />
           </button>
         </div>
         <div class="flex-grow overflow-y-auto p-6">
           <transition-group name="list" tag="div" class="space-y-4">
-            <div v-for="record in sendRecords" :key="record.id"
+            <div
+              v-for="record in sendRecords"
+              :key="record.id"
               class="bg-opacity-50 rounded-lg p-4 flex items-center shadow-md hover:shadow-lg transition duration-300 transform hover:scale-102"
-              :class="[isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-white']">
+              :class="[isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-white']"
+            >
               <div class="flex-shrink-0 mr-4">
-                <FileIcon class="w-10 h-10" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+                <FileIcon
+                  class="w-10 h-10"
+                  :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+                />
               </div>
               <div class="flex-grow min-w-0 mr-4">
-                <p class="font-medium text-lg truncate" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
+                <p
+                  class="font-medium text-lg truncate"
+                  :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
+                >
                   {{ record.filename ? record.filename : 'Text' }}
                 </p>
-                <p class="text-sm truncate" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
+                <p
+                  class="text-sm truncate"
+                  :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']"
+                >
                   {{ record.date }} · {{ record.size }}
                 </p>
               </div>
               <div class="flex-shrink-0 flex space-x-2">
-                <button @click="copyRetrieveLink(record.retrieveCode)"
-                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300" :class="[
+                <button
+                  @click="copyRetrieveLink(record.retrieveCode)"
+                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
+                  :class="[
                     isDarkMode
                       ? 'hover:bg-blue-400 text-blue-400'
                       : 'hover:bg-blue-100 text-blue-600'
-                  ]">
+                  ]"
+                >
                   <ClipboardCopyIcon class="w-5 h-5" />
                 </button>
-                <button @click="viewDetails(record)"
-                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300" :class="[
+                <button
+                  @click="viewDetails(record)"
+                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
+                  :class="[
                     isDarkMode
                       ? 'hover:bg-green-400 text-green-400'
                       : 'hover:bg-green-100 text-green-600'
-                  ]">
+                  ]"
+                >
                   <EyeIcon class="w-5 h-5" />
                 </button>
-                <button @click="deleteRecord(record.id)"
-                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300" :class="[
+                <button
+                  @click="deleteRecord(record.id)"
+                  class="p-2 rounded-full hover:bg-opacity-20 transition duration-300"
+                  :class="[
                     isDarkMode ? 'hover:bg-red-400 text-red-400' : 'hover:bg-red-100 text-red-600'
-                  ]">
+                  ]"
+                >
                   <TrashIcon class="w-5 h-5" />
                 </button>
               </div>
@@ -258,20 +378,34 @@
 
     <!-- 记录详情弹窗 -->
     <transition name="fade">
-      <div v-if="selectedRecord"
-        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
+      <div
+        v-if="selectedRecord"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto"
+      >
         <div
           class="w-full max-w-2xl rounded-2xl shadow-2xl transform transition-all duration-300 ease-out overflow-hidden"
-          :class="[isDarkMode ? 'bg-gray-900 bg-opacity-70' : 'bg-white bg-opacity-95']">
+          :class="[isDarkMode ? 'bg-gray-900 bg-opacity-70' : 'bg-white bg-opacity-95']"
+        >
           <!-- 顶部标题栏 -->
-          <div class="px-4 sm:px-6 py-3 sm:py-4 border-b" :class="[isDarkMode ? 'border-gray-800' : 'border-gray-100']">
+          <div
+            class="px-4 sm:px-6 py-3 sm:py-4 border-b"
+            :class="[isDarkMode ? 'border-gray-800' : 'border-gray-100']"
+          >
             <div class="flex items-center justify-between">
-              <h3 class="text-lg sm:text-xl font-semibold" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+              <h3
+                class="text-lg sm:text-xl font-semibold"
+                :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+              >
                 文件详情
               </h3>
-              <button @click="selectedRecord = null"
-                class="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <XIcon class="w-4 h-4 sm:w-5 sm:h-5" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+              <button
+                @click="selectedRecord = null"
+                class="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <XIcon
+                  class="w-4 h-4 sm:w-5 sm:h-5"
+                  :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+                />
               </button>
             </div>
           </div>
@@ -279,35 +413,57 @@
           <!-- 主要内容区域 -->
           <div class="p-4 sm:p-6">
             <!-- 文件信息卡片 -->
-            <div class="rounded-xl p-3 sm:p-4 mb-4 sm:mb-6"
-              :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']">
+            <div
+              class="rounded-xl p-3 sm:p-4 mb-4 sm:mb-6"
+              :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']"
+            >
               <div class="flex items-center mb-3 sm:mb-4">
-                <div class="p-2 sm:p-3 rounded-lg" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
-                  <FileIcon class="w-5 h-5 sm:w-6 sm:h-6"
-                    :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+                <div
+                  class="p-2 sm:p-3 rounded-lg"
+                  :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']"
+                >
+                  <FileIcon
+                    class="w-5 h-5 sm:w-6 sm:h-6"
+                    :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+                  />
                 </div>
                 <div class="ml-3 sm:ml-4 min-w-0 flex-1">
-                  <h4 class="font-medium text-sm sm:text-base truncate"
-                    :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+                  <h4
+                    class="font-medium text-sm sm:text-base truncate"
+                    :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+                  >
                     {{ selectedRecord.filename }}
                   </h4>
-                  <p class="text-xs sm:text-sm truncate" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+                  <p
+                    class="text-xs sm:text-sm truncate"
+                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+                  >
                     {{ selectedRecord.size }} · {{ selectedRecord.date }}
                   </p>
                 </div>
               </div>
               <div class="grid grid-cols-2 gap-3 sm:gap-4">
                 <div class="flex items-center min-w-0">
-                  <ClockIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0"
-                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
-                  <span class="text-xs sm:text-sm truncate" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
+                  <ClockIcon
+                    class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0"
+                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+                  />
+                  <span
+                    class="text-xs sm:text-sm truncate"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']"
+                  >
                     {{ selectedRecord.expiration }}
                   </span>
                 </div>
                 <div class="flex items-center min-w-0">
-                  <ShieldCheckIcon class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0"
-                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
-                  <span class="text-xs sm:text-sm truncate" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
+                  <ShieldCheckIcon
+                    class="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0"
+                    :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+                  />
+                  <span
+                    class="text-xs sm:text-sm truncate"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']"
+                  >
                     安全加密
                   </span>
                 </div>
@@ -318,49 +474,73 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <!-- 左侧取件码 -->
               <div class="space-y-3 sm:space-y-4">
-                <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-4 sm:p-5 text-white">
+                <div
+                  class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-4 sm:p-5 text-white"
+                >
                   <div class="flex items-center justify-between mb-3 sm:mb-4">
                     <h4 class="font-medium text-sm sm:text-base">取件码</h4>
-                    <button @click="copyRetrieveCode(selectedRecord.retrieveCode)"
-                      class="p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-colors">
+                    <button
+                      @click="copyRetrieveCode(selectedRecord.retrieveCode)"
+                      class="p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-colors"
+                    >
                       <ClipboardCopyIcon class="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                   </div>
-                  <p class="text-2xl sm:text-3xl font-bold tracking-wider text-center break-all">{{
-                    selectedRecord.retrieveCode }}
+                  <p class="text-2xl sm:text-3xl font-bold tracking-wider text-center break-all">
+                    {{ selectedRecord.retrieveCode }}
                   </p>
                 </div>
 
-                <div class="rounded-xl p-3 sm:p-4"
-                  :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']">
+                <div
+                  class="rounded-xl p-3 sm:p-4"
+                  :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']"
+                >
                   <div class="flex items-center justify-between mb-2 sm:mb-3">
-                    <h4 class="font-medium text-sm sm:text-base flex items-center min-w-0"
-                      :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
-                      <TerminalIcon class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-indigo-500 flex-shrink-0" />
+                    <h4
+                      class="font-medium text-sm sm:text-base flex items-center min-w-0"
+                      :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+                    >
+                      <TerminalIcon
+                        class="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 text-indigo-500 flex-shrink-0"
+                      />
                       <span class="truncate">wget下载</span>
                     </h4>
-                    <button @click="copyWgetCommand(selectedRecord.retrieveCode,selectedRecord.filename)"
-                      class="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-shrink-0">
-                      <ClipboardCopyIcon class="w-4 h-4 sm:w-5 sm:h-5"
-                        :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+                    <button
+                      @click="copyWgetCommand(selectedRecord.retrieveCode, selectedRecord.filename)"
+                      class="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex-shrink-0"
+                    >
+                      <ClipboardCopyIcon
+                        class="w-4 h-4 sm:w-5 sm:h-5"
+                        :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+                      />
                     </button>
                   </div>
-                  <p class="text-xs sm:text-sm font-mono break-all line-clamp-2"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']">
+                  <p
+                    class="text-xs sm:text-sm font-mono break-all line-clamp-2"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']"
+                  >
                     点击复制wget命令
                   </p>
                 </div>
               </div>
 
               <!-- 右侧二维码 -->
-              <div class="rounded-xl p-4 sm:p-5 flex flex-col items-center"
-                :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']">
+              <div
+                class="rounded-xl p-4 sm:p-5 flex flex-col items-center"
+                :class="[isDarkMode ? 'bg-gray-800 bg-opacity-50' : 'bg-gray-50 bg-opacity-95']"
+              >
                 <div class="bg-white p-3 sm:p-4 rounded-lg shadow-sm mb-3 sm:mb-4">
-                  <QRCode :value="getQRCodeValue(selectedRecord)" :size="140" level="M"
-                    class="sm:w-[160px] sm:h-[160px]" />
+                  <QRCode
+                    :value="getQRCodeValue(selectedRecord)"
+                    :size="140"
+                    level="M"
+                    class="sm:w-[160px] sm:h-[160px]"
+                  />
                 </div>
-                <p class="text-xs sm:text-sm truncate max-w-full"
-                  :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+                <p
+                  class="text-xs sm:text-sm truncate max-w-full"
+                  :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+                >
                   扫描二维码快速取件
                 </p>
               </div>
@@ -368,9 +548,14 @@
           </div>
 
           <!-- 底部操作栏 -->
-          <div class="px-4 sm:px-6 py-3 sm:py-4 border-t" :class="[isDarkMode ? 'border-gray-800' : 'border-gray-100']">
-            <button @click="copyRetrieveLink(selectedRecord.retrieveCode)"
-              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors">
+          <div
+            class="px-4 sm:px-6 py-3 sm:py-4 border-t"
+            :class="[isDarkMode ? 'border-gray-800' : 'border-gray-100']"
+          >
+            <button
+              @click="copyRetrieveLink(selectedRecord.retrieveCode)"
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors"
+            >
               复制取件链接
             </button>
           </div>
@@ -393,7 +578,7 @@ import {
   EyeIcon,
   ShieldCheckIcon,
   ClipboardCopyIcon,
-  TerminalIcon,
+  TerminalIcon
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import BorderProgressBar from '@/components/common/BorderProgressBar.vue'
@@ -463,25 +648,19 @@ const handlePaste = async (event: ClipboardEvent) => {
           return
         }
 
-        // 检查文件类型
-        if (file.type.startsWith('image/')) {
-          selectedFile.value = file
-          if (!checkUpload()) return
+        selectedFile.value = file
+        if (!checkUpload()) return
 
-          try {
-            fileHash.value = await calculateFileHash(file)
-            alertStore.showAlert('已从剪贴板添加图片：' + file.name, 'success')
-          } catch (error) {
-            alertStore.showAlert('文件处理失败', 'error')
-            console.error('File hash calculation failed:', error)
-          }
-        } else {
-          alertStore.showAlert('目前仅支持粘贴图片文件', 'warning')
+        try {
+          fileHash.value = await calculateFileHash(file)
+          alertStore.showAlert('已从剪贴板添加文件：' + file.name, 'success')
+        } catch (error) {
+          alertStore.showAlert('文件处理失败', 'error')
+          console.error('File hash calculation failed:', error)
         }
         break
       }
-    }
-    else {
+    } else {
       sendType.value = 'text'
       items[0].getAsString((str: string) => {
         textContent.value += str
@@ -542,7 +721,7 @@ const generateFallbackHash = (file: File): string => {
   let hash = 0
   for (let i = 0; i < fileInfo.length; i++) {
     const char = fileInfo.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
+    hash = (hash << 5) - hash + char
     hash = hash & hash // Convert to 32-bit integer
   }
   // 转换为16进制字符串并填充到64位
@@ -834,10 +1013,10 @@ const getQRCodeValue = (record: any) => {
 }
 
 const incrementValue = (delta: number) => {
-  const currentValue = parseInt(expirationValue.value) || 0;
-  const newValue = currentValue + delta;
+  const currentValue = parseInt(expirationValue.value) || 0
+  const newValue = currentValue + delta
   if (newValue >= 1) {
-    expirationValue.value = newValue.toString();
+    expirationValue.value = newValue.toString()
   }
 }
 
