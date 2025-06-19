@@ -1,10 +1,15 @@
 {
   "openapi": "3.1.0",
-  "info": { "title": "FastAPI", "version": "0.1.0" },
+  "info": {
+    "title": "FastAPI",
+    "version": "0.1.0"
+  },
   "paths": {
     "/share/text/": {
       "post": {
-        "tags": ["分享"],
+        "tags": [
+          "分享"
+        ],
         "summary": "Share Text",
         "operationId": "share_text_share_text__post",
         "parameters": [
@@ -12,27 +17,38 @@
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "application/x-www-form-urlencoded": {
-              "schema": { "$ref": "#/components/schemas/Body_share_text_share_text__post" }
+              "schema": {
+                "$ref": "#/components/schemas/Body_share_text_share_text__post"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -41,7 +57,9 @@
     },
     "/share/file/": {
       "post": {
-        "tags": ["分享"],
+        "tags": [
+          "分享"
+        ],
         "summary": "Share File",
         "operationId": "share_file_share_file__post",
         "parameters": [
@@ -49,27 +67,38 @@
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
             "multipart/form-data": {
-              "schema": { "$ref": "#/components/schemas/Body_share_file_share_file__post" }
+              "schema": {
+                "$ref": "#/components/schemas/Body_share_file_share_file__post"
+              }
             }
           }
         },
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -78,7 +107,9 @@
     },
     "/share/select/": {
       "get": {
-        "tags": ["分享"],
+        "tags": [
+          "分享"
+        ],
         "summary": "Get Code File",
         "operationId": "get_code_file_share_select__get",
         "parameters": [
@@ -86,44 +117,65 @@
             "name": "code",
             "in": "query",
             "required": true,
-            "schema": { "type": "string", "title": "Code" }
+            "schema": {
+              "type": "string",
+              "title": "Code"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
         }
       },
       "post": {
-        "tags": ["分享"],
+        "tags": [
+          "分享"
+        ],
         "summary": "Select File",
         "operationId": "select_file_share_select__post",
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/SelectFileModel" } }
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectFileModel"
+              }
+            }
           }
         },
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -132,7 +184,9 @@
     },
     "/share/download": {
       "get": {
-        "tags": ["分享"],
+        "tags": [
+          "分享"
+        ],
         "summary": "Download File",
         "operationId": "download_file_share_download_get",
         "parameters": [
@@ -140,25 +194,37 @@
             "name": "key",
             "in": "query",
             "required": true,
-            "schema": { "type": "string", "title": "Key" }
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
           },
           {
             "name": "code",
             "in": "query",
             "required": true,
-            "schema": { "type": "string", "title": "Code" }
+            "schema": {
+              "type": "string",
+              "title": "Code"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -167,7 +233,9 @@
     },
     "/chunk/upload/init/": {
       "post": {
-        "tags": ["切片"],
+        "tags": [
+          "切片"
+        ],
         "summary": "Init Chunk Upload",
         "operationId": "init_chunk_upload_chunk_upload_init__post",
         "requestBody": {
@@ -183,13 +251,19 @@
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -198,7 +272,9 @@
     },
     "/chunk/upload/chunk/{upload_id}/{chunk_index}": {
       "post": {
-        "tags": ["切片"],
+        "tags": [
+          "切片"
+        ],
         "summary": "Upload Chunk",
         "operationId": "upload_chunk_chunk_upload_chunk__upload_id___chunk_index__post",
         "parameters": [
@@ -206,13 +282,19 @@
             "name": "upload_id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "title": "Upload Id" }
+            "schema": {
+              "type": "string",
+              "title": "Upload Id"
+            }
           },
           {
             "name": "chunk_index",
             "in": "path",
             "required": true,
-            "schema": { "type": "integer", "title": "Chunk Index" }
+            "schema": {
+              "type": "integer",
+              "title": "Chunk Index"
+            }
           }
         ],
         "requestBody": {
@@ -228,13 +310,19 @@
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -243,7 +331,9 @@
     },
     "/chunk/upload/complete/{upload_id}": {
       "post": {
-        "tags": ["切片"],
+        "tags": [
+          "切片"
+        ],
         "summary": "Complete Upload",
         "operationId": "complete_upload_chunk_upload_complete__upload_id__post",
         "parameters": [
@@ -251,7 +341,10 @@
             "name": "upload_id",
             "in": "path",
             "required": true,
-            "schema": { "type": "string", "title": "Upload Id" }
+            "schema": {
+              "type": "string",
+              "title": "Upload Id"
+            }
           }
         ],
         "requestBody": {
@@ -267,13 +360,19 @@
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -282,25 +381,37 @@
     },
     "/admin/login": {
       "post": {
-        "tags": ["管理"],
+        "tags": [
+          "管理"
+        ],
         "summary": "Login",
         "operationId": "login_admin_login_post",
         "requestBody": {
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/LoginData" } }
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginData"
+              }
+            }
           },
           "required": true
         },
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -309,7 +420,9 @@
     },
     "/admin/dashboard": {
       "get": {
-        "tags": ["管理"],
+        "tags": [
+          "管理"
+        ],
         "summary": "Dashboard",
         "operationId": "dashboard_admin_dashboard_get",
         "parameters": [
@@ -317,19 +430,28 @@
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -338,7 +460,9 @@
     },
     "/admin/file/delete": {
       "delete": {
-        "tags": ["管理"],
+        "tags": [
+          "管理"
+        ],
         "summary": "File Delete",
         "operationId": "file_delete_admin_file_delete_delete",
         "parameters": [
@@ -346,23 +470,38 @@
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/IDData" } } }
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IDData"
+              }
+            }
+          }
         },
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -371,7 +510,9 @@
     },
     "/admin/file/list": {
       "get": {
-        "tags": ["管理"],
+        "tags": [
+          "管理"
+        ],
         "summary": "File List",
         "operationId": "file_list_admin_file_list_get",
         "parameters": [
@@ -379,37 +520,58 @@
             "name": "page",
             "in": "query",
             "required": false,
-            "schema": { "type": "integer", "default": 1, "title": "Page" }
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Page"
+            }
           },
           {
             "name": "size",
             "in": "query",
             "required": false,
-            "schema": { "type": "integer", "default": 10, "title": "Size" }
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "title": "Size"
+            }
           },
           {
             "name": "keyword",
             "in": "query",
             "required": false,
-            "schema": { "type": "string", "default": "", "title": "Keyword" }
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Keyword"
+            }
           },
           {
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -418,7 +580,9 @@
     },
     "/admin/config/get": {
       "get": {
-        "tags": ["管理"],
+        "tags": [
+          "管理"
+        ],
         "summary": "Get Config",
         "operationId": "get_config_admin_config_get_get",
         "parameters": [
@@ -426,19 +590,28 @@
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -447,7 +620,9 @@
     },
     "/admin/config/update": {
       "patch": {
-        "tags": ["管理"],
+        "tags": [
+          "管理"
+        ],
         "summary": "Update Config",
         "operationId": "update_config_admin_config_update_patch",
         "parameters": [
@@ -455,23 +630,39 @@
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "requestBody": {
           "required": true,
-          "content": { "application/json": { "schema": { "type": "object", "title": "Data" } } }
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "title": "Data"
+              }
+            }
+          }
         },
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -480,7 +671,9 @@
     },
     "/admin/file/download": {
       "get": {
-        "tags": ["管理"],
+        "tags": [
+          "管理"
+        ],
         "summary": "File Download",
         "operationId": "file_download_admin_file_download_get",
         "parameters": [
@@ -488,25 +681,37 @@
             "name": "id",
             "in": "query",
             "required": true,
-            "schema": { "type": "integer", "title": "Id" }
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
           },
           {
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -515,7 +720,9 @@
     },
     "/admin/local/lists": {
       "get": {
-        "tags": ["管理"],
+        "tags": [
+          "管理"
+        ],
         "summary": "Get Local Lists",
         "operationId": "get_local_lists_admin_local_lists_get",
         "parameters": [
@@ -523,19 +730,28 @@
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -544,7 +760,9 @@
     },
     "/admin/local/delete": {
       "delete": {
-        "tags": ["管理"],
+        "tags": [
+          "管理"
+        ],
         "summary": "Delete Local File",
         "operationId": "delete_local_file_admin_local_delete_delete",
         "parameters": [
@@ -552,25 +770,38 @@
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/DeleteItem" } }
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteItem"
+              }
+            }
           }
         },
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -579,7 +810,9 @@
     },
     "/admin/local/share": {
       "post": {
-        "tags": ["管理"],
+        "tags": [
+          "管理"
+        ],
         "summary": "Share Local File",
         "operationId": "share_local_file_admin_local_share_post",
         "parameters": [
@@ -587,25 +820,38 @@
             "name": "authorization",
             "in": "header",
             "required": false,
-            "schema": { "type": "string", "title": "Authorization" }
+            "schema": {
+              "type": "string",
+              "title": "Authorization"
+            }
           }
         ],
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": { "schema": { "$ref": "#/components/schemas/ShareItem" } }
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareItem"
+              }
+            }
           }
         },
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -617,19 +863,39 @@
         "summary": "Index",
         "operationId": "index__get",
         "parameters": [
-          { "name": "request", "in": "query", "required": false, "schema": { "title": "Request" } },
-          { "name": "exc", "in": "query", "required": false, "schema": { "title": "Exc" } }
+          {
+            "name": "request",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "title": "Request"
+            }
+          },
+          {
+            "name": "exc",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "title": "Exc"
+            }
+          }
         ],
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "422": {
             "description": "Validation Error",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -641,7 +907,11 @@
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           }
         }
       }
@@ -653,7 +923,11 @@
         "responses": {
           "200": {
             "description": "Successful Response",
-            "content": { "application/json": { "schema": {} } }
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           }
         }
       }
@@ -663,22 +937,48 @@
     "schemas": {
       "Body_complete_upload_chunk_upload_complete__upload_id__post": {
         "properties": {
-          "expire_value": { "type": "integer", "title": "Expire Value" },
-          "expire_style": { "type": "string", "title": "Expire Style" }
+          "expire_value": {
+            "type": "integer",
+            "title": "Expire Value"
+          },
+          "expire_style": {
+            "type": "string",
+            "title": "Expire Style"
+          }
         },
         "type": "object",
-        "required": ["expire_value", "expire_style"],
+        "required": [
+          "expire_value",
+          "expire_style"
+        ],
         "title": "Body_complete_upload_chunk_upload_complete__upload_id__post"
       },
       "Body_init_chunk_upload_chunk_upload_init__post": {
         "properties": {
-          "file_name": { "type": "string", "title": "File Name" },
-          "file_size": { "type": "integer", "title": "File Size" },
-          "chunk_size": { "type": "integer", "title": "Chunk Size", "default": 5242880 },
-          "file_hash": { "type": "string", "title": "File Hash" }
+          "file_name": {
+            "type": "string",
+            "title": "File Name"
+          },
+          "file_size": {
+            "type": "integer",
+            "title": "File Size"
+          },
+          "chunk_size": {
+            "type": "integer",
+            "title": "Chunk Size",
+            "default": 5242880
+          },
+          "file_hash": {
+            "type": "string",
+            "title": "File Hash"
+          }
         },
         "type": "object",
-        "required": ["file_name", "file_size", "file_hash"],
+        "required": [
+          "file_name",
+          "file_size",
+          "file_hash"
+        ],
         "title": "Body_init_chunk_upload_chunk_upload_init__post"
       },
       "Body_share_file_share_file__post": {
@@ -689,44 +989,80 @@
             "title": "Expire Value",
             "default": 1
           },
-          "expire_style": { "type": "string", "title": "Expire Style", "default": "day" },
-          "file": { "type": "string", "format": "binary", "title": "File" }
+          "expire_style": {
+            "type": "string",
+            "title": "Expire Style",
+            "default": "day"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
         },
         "type": "object",
-        "required": ["file"],
+        "required": [
+          "file"
+        ],
         "title": "Body_share_file_share_file__post"
       },
       "Body_share_text_share_text__post": {
         "properties": {
-          "text": { "type": "string", "title": "Text" },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
           "expire_value": {
             "type": "integer",
             "exclusiveMinimum": 0.0,
             "title": "Expire Value",
             "default": 1
           },
-          "expire_style": { "type": "string", "title": "Expire Style", "default": "day" }
+          "expire_style": {
+            "type": "string",
+            "title": "Expire Style",
+            "default": "day"
+          }
         },
         "type": "object",
-        "required": ["text"],
+        "required": [
+          "text"
+        ],
         "title": "Body_share_text_share_text__post"
       },
       "Body_upload_chunk_chunk_upload_chunk__upload_id___chunk_index__post": {
-        "properties": { "chunk": { "type": "string", "format": "binary", "title": "Chunk" } },
+        "properties": {
+          "chunk": {
+            "type": "string",
+            "format": "binary",
+            "title": "Chunk"
+          }
+        },
         "type": "object",
-        "required": ["chunk"],
+        "required": [
+          "chunk"
+        ],
         "title": "Body_upload_chunk_chunk_upload_chunk__upload_id___chunk_index__post"
       },
       "DeleteItem": {
-        "properties": { "filename": { "type": "string", "title": "Filename" } },
+        "properties": {
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          }
+        },
         "type": "object",
-        "required": ["filename"],
+        "required": [
+          "filename"
+        ],
         "title": "DeleteItem"
       },
       "HTTPValidationError": {
         "properties": {
           "detail": {
-            "items": { "$ref": "#/components/schemas/ValidationError" },
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
             "type": "array",
             "title": "Detail"
           }
@@ -735,45 +1071,98 @@
         "title": "HTTPValidationError"
       },
       "IDData": {
-        "properties": { "id": { "type": "integer", "title": "Id" } },
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          }
+        },
         "type": "object",
-        "required": ["id"],
+        "required": [
+          "id"
+        ],
         "title": "IDData"
       },
       "LoginData": {
-        "properties": { "password": { "type": "string", "title": "Password" } },
+        "properties": {
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
         "type": "object",
-        "required": ["password"],
+        "required": [
+          "password"
+        ],
         "title": "LoginData"
       },
       "SelectFileModel": {
-        "properties": { "code": { "type": "string", "title": "Code" } },
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          }
+        },
         "type": "object",
-        "required": ["code"],
+        "required": [
+          "code"
+        ],
         "title": "SelectFileModel"
       },
       "ShareItem": {
         "properties": {
-          "expire_value": { "type": "integer", "title": "Expire Value" },
-          "expire_style": { "type": "string", "title": "Expire Style", "default": "day" },
-          "filename": { "type": "string", "title": "Filename" }
+          "expire_value": {
+            "type": "integer",
+            "title": "Expire Value"
+          },
+          "expire_style": {
+            "type": "string",
+            "title": "Expire Style",
+            "default": "day"
+          },
+          "filename": {
+            "type": "string",
+            "title": "Filename"
+          }
         },
         "type": "object",
-        "required": ["expire_value", "filename"],
+        "required": [
+          "expire_value",
+          "filename"
+        ],
         "title": "ShareItem"
       },
       "ValidationError": {
         "properties": {
           "loc": {
-            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
             "type": "array",
             "title": "Location"
           },
-          "msg": { "type": "string", "title": "Message" },
-          "type": { "type": "string", "title": "Error Type" }
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
         },
         "type": "object",
-        "required": ["loc", "msg", "type"],
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
         "title": "ValidationError"
       }
     }
