@@ -3,7 +3,6 @@
  */
 
 import { useAlertStore } from '@/stores/alertStore'
-const alertStore = useAlertStore();
 interface CopyOptions {
   successMsg?: string
   errorMsg?: string
@@ -21,17 +20,14 @@ export const copyToClipboard = async (
   options: CopyOptions = {}
 ): Promise<boolean> => {
   const { successMsg = '复制成功', errorMsg = '复制失败，请手动复制', showMsg = true } = options
-
   const alertStore = useAlertStore()
-
   try {
     // 优先使用 Clipboard API
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (document.hasFocus() && navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(text)
       if (showMsg) alertStore.showAlert(successMsg, 'success')
       return true
     }
-
     // 后备方案：使用传统的复制方法
     const textarea = document.createElement('textarea')
     textarea.value = text
@@ -41,7 +37,6 @@ export const copyToClipboard = async (
     textarea.select()
     const success = document.execCommand('copy')
     document.body.removeChild(textarea)
-
     if (success) {
       if (showMsg) alertStore.showAlert(successMsg, 'success')
       return true
@@ -115,7 +110,7 @@ function fallbackCopyTextToClipboard(text:string) {
   document.body.removeChild(textArea);
 }
 
-if (navigator.clipboard && navigator.clipboard.writeText) {
+if (document.hasFocus() && navigator.clipboard && navigator.clipboard.writeText) {
   navigator.clipboard.writeText("要复制的文本");
 } else {
   fallbackCopyTextToClipboard("要复制的文本");

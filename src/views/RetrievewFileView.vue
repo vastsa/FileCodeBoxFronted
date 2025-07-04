@@ -26,8 +26,8 @@
               <label for="code" class="block text-sm font-medium mb-2"
                 :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">取件码</label>
               <div class="relative">
-                <input id="code" v-model="code" type="text"
-                  class="w-full px-4 py-3 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 pr-10"
+                <input id="code" v-model="code" type="text" ref="codeInput"
+                       class="w-full px-4 py-3 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 pr-10"
                   :class="[
                     isDarkMode ? 'bg-gray-700 bg-opacity-50' : 'bg-gray-100',
                     { 'ring-2 ring-red-500': error },
@@ -175,7 +175,7 @@
               <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
                 <span class="font-medium">文件内容：</span>
               </p>
-              <div v-if="selectedRecord.filename == 'Text'" class="ml-2">
+              <div v-if="selectedRecord.filename === 'Text'" class="ml-2">
                 <button @click="showContentPreview"
                   class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300">
                   预览内容
@@ -304,8 +304,10 @@ const route = useRoute()
 // 使用 receiveData 替代原来的 records
 const records = receiveData
 const config = JSON.parse(localStorage.getItem('config') || '{}')
+const codeInput = ref(null)
 
 onMounted(() => {
+  codeInput.value && codeInput.value.focus()
   const query_code = route.query.code
   if (query_code) {
     code.value = query_code
@@ -359,12 +361,10 @@ const handleSubmit = async () => {
           content: isFile ? null : res.detail.text,
           date: new Date().toLocaleString()
         }
-
         let flag = true
         fileStore.receiveData.forEach((file) => {
           if (file.code === newFileData.code) {
             flag = false
-            return
           }
         })
         if (flag) {
@@ -484,22 +484,6 @@ const showContentPreview = () => {
   }
 }
 
-.animate-blob-1 {
-  animation: blob 25s infinite;
-}
-
-.animate-blob-2 {
-  animation: blob 30s infinite;
-}
-
-.animate-blob-3 {
-  animation: blob 35s infinite;
-}
-
-.animate-blob-4 {
-  animation: blob 40s infinite;
-}
-
 .animate-spin-slow {
   animation: spin 8s linear infinite;
 }
@@ -512,37 +496,6 @@ const showContentPreview = () => {
   to {
     transform: rotate(360deg);
   }
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.5s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-.drawer-enter-active,
-.drawer-leave-active {
-  transition: transform 0.3s ease;
-}
-
-.drawer-enter-from,
-.drawer-leave-to {
-  transform: translateX(100%);
 }
 
 .w-97-100 {
