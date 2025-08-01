@@ -257,8 +257,35 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, inject, onMounted, watch, computed } from 'vue'
+
+// 定义数据接口
+interface FileRecord {
+  id: number
+  code: string
+  filename: string
+  size: string
+  downloadUrl: string | null
+  content: string | null
+  date: string
+}
+
+interface InputStatus {
+  readonly: boolean
+  loading: boolean
+}
+
+interface ApiResponse {
+  code: number
+  message?: string
+  detail?: {
+    code: string
+    name: string
+    text: string
+    size: number
+  }
+}
 import {
   BoxIcon,
   EyeIcon,
@@ -280,6 +307,7 @@ import { storeToRefs } from 'pinia'
 import api from '@/utils/api'
 import { saveAs } from 'file-saver'
 import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import { useAlertStore } from '@/stores/alertStore'
 import { copyToClipboard } from '@/utils/clipboard'
 
@@ -291,25 +319,27 @@ const isDarkMode = inject('isDarkMode')
 const fileStore = useFileDataStore()
 const { receiveData } = storeToRefs(fileStore)
 const code = ref('')
-const inputStatus = ref({
+const inputStatus = ref<InputStatus>({
   readonly: false,
   loading: false
 })
 const isInputFocused = ref(false)
 const error = ref('')
-const selectedRecord = ref(null)
+const selectedRecord = ref<FileRecord | null>(null)
 const showDrawer = ref(false)
 const route = useRoute()
 
 // 使用 receiveData 替代原来的 records
 const records = receiveData
 const config = JSON.parse(localStorage.getItem('config') || '{}')
-const codeInput = ref(null)
+const codeInput = ref<HTMLInputElement | null>(null)
 
 onMounted(() => {
-  codeInput.value && codeInput.value.focus()
+  if (codeInput.value) {
+    codeInput.value.focus()
+  }
   const query_code = route.query.code
-  if (query_code) {
+  if (query_code && typeof query_code === 'string') {
     code.value = query_code
   }
 })
@@ -319,12 +349,15 @@ watch(code, (newVal) => {
   }
 })
 
-const getDownloadUrl = (record) => {
-  if (record.downloadUrl.startsWith('http')) {
-    return record.downloadUrl
-  } else {
-    return `${baseUrl}${record.downloadUrl}`
+const getDownloadUrl = (record: FileRecord) => {
+  if (record.downloadUrl) {
+    if (record.downloadUrl.startsWith('http')) {
+      return record.downloadUrl
+    } else {
+      return `${baseUrl}${record.downloadUrl}`
+    }
   }
+  return ''
 }
 // 在其他代码后添加复制功能
 const copyContent = async () => {
@@ -345,11 +378,12 @@ const handleSubmit = async () => {
   inputStatus.value.loading = true
 
   try {
-    const res = await api.post('/share/select/', {
+    const response = await api.post('/share/select/', {
       code: code.value
     })
+    const res = (response.data || response) as ApiResponse
 
-    if (res.code === 200) {
+    if (res && res.code === 200) {
       if (res.detail) {
         const isFile = res.detail.text.startsWith('/share/download') || res.detail.name !== 'Text'
         const newFileData = {
@@ -362,7 +396,7 @@ const handleSubmit = async () => {
           date: new Date().toLocaleString()
         }
         let flag = true
-        fileStore.receiveData.forEach((file) => {
+        fileStore.receiveData.forEach((file: FileRecord) => {
           if (file.code === newFileData.code) {
             flag = false
           }
@@ -381,7 +415,8 @@ const handleSubmit = async () => {
         alertStore.showAlert('无效的取件码', 'error')
       }
     } else {
-      alertStore.showAlert(res.detail || '获取文件失败', 'error')
+      alertStore.showAlert('获取文件失败', 'error')
+      console.log(res)
     }
   } catch (err) {
     console.error('取件失败:', err)
@@ -393,7 +428,7 @@ const handleSubmit = async () => {
   }
 }
 
-const formatFileSize = (bytes) => {
+const formatFileSize = (bytes: number) => {
   if (bytes === 0) return '0 Bytes'
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
@@ -401,12 +436,12 @@ const formatFileSize = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-const viewDetails = (record) => {
+const viewDetails = (record: FileRecord) => {
   selectedRecord.value = record
 }
 
-const deleteRecord = (id) => {
-  const index = records.value.findIndex((record) => record.id === id)
+const deleteRecord = (id: number) => {
+  const index = records.value.findIndex((record: FileRecord) => record.id === id)
   if (index !== -1) {
     fileStore.deleteReceiveData(index)
   }
@@ -420,7 +455,7 @@ const toSend = () => {
   router.push('/send')
 }
 
-const getQRCodeValue = (record) => {
+const getQRCodeValue = (record: FileRecord) => {
   if (record.downloadUrl) {
     return `${baseUrl}${record.downloadUrl}`
   } else {
@@ -428,7 +463,7 @@ const getQRCodeValue = (record) => {
   }
 }
 
-const downloadRecord = (record) => {
+const downloadRecord = (record: FileRecord) => {
   console.log(record)
 
   if (record.downloadUrl) {
@@ -445,12 +480,33 @@ const downloadRecord = (record) => {
 }
 
 const showPreview = ref(false)
-const renderedContent = computed(() => {
-  if (selectedRecord.value && selectedRecord.value.content) {
-    return marked(selectedRecord.value.content)
-  }
-  return ''
-})
+const renderedContent = ref('')
+
+// 监听selectedRecord变化，异步渲染内容
+watch(
+  () => selectedRecord.value?.content,
+  async (content) => {
+    if (content) {
+      try {
+        // 使用 marked 解析 Markdown，然后用 DOMPurify 清理 HTML 防止 XSS
+        const rawHtml = await marked(content)
+        renderedContent.value = DOMPurify.sanitize(rawHtml, {
+          // 允许的标签和属性
+          ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'img'],
+          ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class'],
+          // 禁用危险的协议
+          ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|xxx):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i
+        })
+      } catch (error) {
+        console.error('Markdown 渲染失败:', error)
+        renderedContent.value = content // fallback 到原始内容
+      }
+    } else {
+      renderedContent.value = ''
+    }
+  },
+  { immediate: true }
+)
 
 const showContentPreview = () => {
   showPreview.value = true

@@ -19,7 +19,7 @@
             <component :is="alertIcons[alert.type]" class="h-6 w-6 text-white" />
           </div>
           <div class="ml-3 flex-1 pt-0.5">
-            <p class="text-sm font-medium text-white" v-html="alert.message"></p>
+            <p class="text-sm font-medium text-white">{{ alert.message }}</p>
           </div>
           <div class="ml-4 flex-shrink-0 flex">
             <button

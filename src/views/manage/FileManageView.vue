@@ -568,14 +568,14 @@ const displayedPages = computed(() => {
   const total = totalPages.value
   const delta = 2 // 当前页码前后显示的页码数
 
-  let pages: (number | string)[] = []
+  const pages: (number | string)[] = []
 
   // 始终显示第一页
   pages.push(1)
 
   // 计算显示范围
-  let left = Math.max(2, current - delta)
-  let right = Math.min(total - 1, current + delta)
+  const left = Math.max(2, current - delta)
+  const right = Math.min(total - 1, current + delta)
 
   // 添加省略号和页码
   if (left > 2) {

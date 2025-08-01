@@ -108,7 +108,7 @@ const refreshData = () => {
     config.value = res.detail
 
     // 将字节转换为合适的单位
-    let size = config.value.uploadSize
+    const size = config.value.uploadSize
     if (size >= 1024 * 1024 * 1024) {
       fileSize.value = Math.round(size / (1024 * 1024 * 1024))
       sizeUnit.value = 'GB'
@@ -121,7 +121,7 @@ const refreshData = () => {
     }
 
     // 时间单位转换逻辑
-    let seconds = config.value.max_save_seconds
+    const seconds = config.value.max_save_seconds
     if (seconds === 0) {
       // 如果是0，显示为7天
       saveTime.value = 7
