@@ -1,8 +1,6 @@
 <template>
-  <div
-    class="min-h-screen flex flex-col lg:flex-row transition-colors duration-300"
-    :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']"
-  >
+  <div class="min-h-screen flex flex-col lg:flex-row transition-colors duration-300"
+    :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']">
     <!-- Sidebar -->
     <aside
       class="fixed inset-y-0 left-0 z-50 w-64 transform transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 border-r"
@@ -11,28 +9,17 @@
           ? 'bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-xl border-gray-700'
           : 'bg-white border-gray-200',
         { '-translate-x-full': !isSidebarOpen }
-      ]"
-    >
+      ]">
       <!-- Logo区域 -->
-      <div
-        class="flex items-center justify-between h-16 px-4 border-b"
-        :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']"
-      >
+      <div class="flex items-center justify-between h-16 px-4 border-b"
+        :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
         <div class="flex items-center">
-          <div
-            class="rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 animate-spin-slow"
-          >
+          <div class="rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 animate-spin-slow">
             <div class="rounded-full p-1" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
-              <BoxIcon
-                class="w-6 h-6"
-                :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
-              />
+              <BoxIcon class="w-6 h-6" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
             </div>
           </div>
-          <h1
-            class="ml-2 text-xl font-semibold"
-            :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
-          >
+          <h1 @click="router.push('/')" class="ml-2 text-xl font-semibold cursor-pointer" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
             FileCodeBox
           </h1>
         </div>
@@ -45,10 +32,8 @@
       <nav class="flex-1 overflow-y-auto">
         <ul class="p-4 space-y-2">
           <li v-for="item in menuItems" :key="item.id">
-            <a
-              @click="router.push(item.redirect)"
-              class="flex items-center p-2 rounded-lg transition-colors duration-200"
-              :class="[
+            <a @click="router.push(item.redirect)"
+              class="flex items-center p-2 rounded-lg transition-colors duration-200" :class="[
                 router.currentRoute.value.name === item.id
                   ? isDarkMode
                     ? 'bg-indigo-900 text-indigo-400'
@@ -56,8 +41,7 @@
                   : isDarkMode
                     ? 'text-gray-400 hover:bg-gray-700'
                     : 'text-gray-600 hover:bg-gray-100'
-              ]"
-            >
+              ]">
               <component :is="item.icon" class="w-5 h-5 mr-3" />
               {{ item.name }}
             </a>
@@ -69,10 +53,8 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col min-h-screen">
       <!-- Header -->
-      <header
-        class="shadow-md border-b transition-colors duration-300"
-        :class="[isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200']"
-      >
+      <header class="shadow-md border-b transition-colors duration-300"
+        :class="[isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200']">
         <div class="flex items-center justify-between h-16 px-4">
           <button @click="toggleSidebar" class="lg:hidden">
             <MenuIcon class="w-6 h-6" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']" />
@@ -81,10 +63,8 @@
       </header>
 
       <!-- Content -->
-      <main
-        class="flex-1 p-6 overflow-y-auto transition-colors duration-300"
-        :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']"
-      >
+      <main class="flex-1 p-6 overflow-y-auto transition-colors duration-300"
+        :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']">
         <router-view />
       </main>
     </div>
@@ -187,11 +167,11 @@ onMounted(() => {
   background-color: #4b5563;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: #4f46e5;
 }
 
-.dark input:checked + .slider {
+.dark input:checked+.slider {
   background-color: #4f46e5;
 }
 
@@ -222,6 +202,7 @@ input:checked + .slider {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
