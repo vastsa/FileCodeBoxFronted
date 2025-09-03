@@ -146,8 +146,7 @@
                   backgroundColor: isDarkMode ? 'rgba(31, 41, 55, 0.5)' : '#ffffff'
                 }">
                   <option v-for="item in config.expireStyle" :value="item" :key="item"
-                    :class="[isDarkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900']"
-                    :style="{
+                    :class="[isDarkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900']" :style="{
                       color: isDarkMode ? '#f3f4f6' : '#111827',
                       backgroundColor: isDarkMode ? '#1f2937' : '#ffffff'
                     }">
@@ -483,7 +482,47 @@ const handlePaste = async (event: ClipboardEvent) => {
     } else {
       sendType.value = 'text'
       items[0].getAsString((str: string) => {
-        textContent.value += str
+        const trimmedStr = str.trim()
+        if (!trimmedStr) return
+
+        // 获取文本框元素
+        const textareaElement = document.getElementById('text-content') as HTMLTextAreaElement
+        if (!textareaElement) {
+          // 如果无法获取文本框元素，则直接追加
+          textContent.value += trimmedStr
+          return
+        }
+
+        const selectionStart = textareaElement.selectionStart
+        const selectionEnd = textareaElement.selectionEnd
+        const hasSelection = selectionStart !== selectionEnd
+
+        if (hasSelection) {
+          // 如果有选中文字，则覆盖选中的部分
+          const beforeSelection = textContent.value.substring(0, selectionStart)
+          const afterSelection = textContent.value.substring(selectionEnd)
+          textContent.value = beforeSelection + trimmedStr + afterSelection
+
+          // 设置光标位置到粘贴内容的末尾
+          setTimeout(() => {
+            const newCursorPosition = selectionStart + trimmedStr.length
+            textareaElement.setSelectionRange(newCursorPosition, newCursorPosition)
+            textareaElement.focus()
+          }, 0)
+        } else {
+          // 如果没有选中文字，则在光标位置追加
+          const cursorPosition = selectionStart
+          const beforeCursor = textContent.value.substring(0, cursorPosition)
+          const afterCursor = textContent.value.substring(cursorPosition)
+          textContent.value = beforeCursor + trimmedStr + afterCursor
+
+          // 设置光标位置到粘贴内容的末尾
+          setTimeout(() => {
+            const newCursorPosition = cursorPosition + trimmedStr.length
+            textareaElement.setSelectionRange(newCursorPosition, newCursorPosition)
+            textareaElement.focus()
+          }, 0)
+        }
       })
     }
   }
