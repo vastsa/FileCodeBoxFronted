@@ -27,7 +27,7 @@
                 :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">取件码</label>
               <div class="relative">
                 <input id="code" v-model="code" type="text" ref="codeInput"
-                       class="w-full px-4 py-3 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 pr-10"
+                  class="w-full px-4 py-3 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 pr-10"
                   :class="[
                     isDarkMode ? 'bg-gray-700 bg-opacity-50' : 'bg-gray-100',
                     { 'ring-2 ring-red-500': error },
@@ -141,8 +141,8 @@
         <div
           class="p-8 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg overflow-hidden"
           :class="[
-            isDarkMode 
-              ? 'bg-gray-800 bg-opacity-70' 
+            isDarkMode
+              ? 'bg-gray-800 bg-opacity-70'
               : 'bg-white bg-opacity-95'
           ]">
           <h3 class="text-2xl font-bold mb-6 truncate" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
@@ -219,21 +219,20 @@
               内容预览
             </h3>
             <div class="flex items-center gap-3">
-              <button @click="copyContent" 
+              <button @click="copyContent"
                 class="px-4 py-1.5 rounded-lg transition duration-300 flex items-center gap-2 text-sm font-medium"
                 :class="[
-                  isDarkMode 
-                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white' 
+                  isDarkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white'
                     : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900'
                 ]">
                 <CopyIcon class="w-4 h-4" />
                 复制
               </button>
-              <button @click="showPreview = false" 
-                class="p-1.5 rounded-lg transition duration-300 hover:bg-opacity-10"
+              <button @click="showPreview = false" class="p-1.5 rounded-lg transition duration-300 hover:bg-opacity-10"
                 :class="[
-                  isDarkMode 
-                    ? 'text-gray-400 hover:text-white hover:bg-white' 
+                  isDarkMode
+                    ? 'text-gray-400 hover:text-white hover:bg-white'
                     : 'text-gray-500 hover:text-gray-900 hover:bg-black'
                 ]">
                 <XIcon class="w-5 h-5" />
@@ -241,13 +240,11 @@
             </div>
           </div>
           <div class="flex-1 overflow-y-auto custom-scrollbar">
-            <div class="prose max-w-none p-6 rounded-xl" 
-              :class="[
-                isDarkMode 
-                  ? 'prose-invert bg-gray-900 bg-opacity-50' 
-                  : 'bg-gray-50'
-              ]" 
-              v-html="renderedContent">
+            <div class="prose max-w-none p-6 rounded-xl" :class="[
+              isDarkMode
+                ? 'prose-invert bg-gray-900 bg-opacity-50'
+                : 'bg-gray-50'
+            ]" v-html="renderedContent">
             </div>
           </div>
         </div>
@@ -515,6 +512,7 @@ const showContentPreview = () => {
 
 <style scoped>
 @keyframes blob {
+
   0%,
   100% {
     transform: translate(0, 0) scale(1);

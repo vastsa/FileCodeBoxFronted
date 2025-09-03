@@ -638,7 +638,8 @@ const handlePaste = async (event: ClipboardEvent) => {
   const items = event.clipboardData?.items
   if (!items) return
 
-  for (const item of items) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]
     if (item.kind === 'file') {
       const file = item.getAsFile()
       if (file) {
@@ -760,6 +761,40 @@ const getUnit = (value: string = expirationMethod.value) => {
     default:
       return ''
   }
+}
+
+const getExpirationTime = (method: string, value: string) => {
+  if (method === 'forever') {
+    return '永久'
+  }
+  if (method === 'count') {
+    return `${value}次后过期`
+  }
+  
+  const now = new Date()
+  const expireValue = parseInt(value)
+  
+  switch (method) {
+    case 'minute':
+      now.setMinutes(now.getMinutes() + expireValue)
+      break
+    case 'hour':
+      now.setHours(now.getHours() + expireValue)
+      break
+    case 'day':
+      now.setDate(now.getDate() + expireValue)
+      break
+    default:
+      return `${value}${getUnit(method)}后过期`
+  }
+  
+  const year = now.getFullYear()
+  const month = (now.getMonth() + 1).toString().padStart(2, '0')
+  const day = now.getDate().toString().padStart(2, '0')
+  const hours = now.getHours().toString().padStart(2, '0')
+  const minutes = now.getMinutes().toString().padStart(2, '0')
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}过期`
 }
 
 const handleChunkUpload = async (file: File) => {
@@ -959,7 +994,7 @@ const handleSubmit = async () => {
         expiration:
           expirationMethod.value === 'forever'
             ? '永久'
-            : `${expirationValue.value}${getUnit()}后过期`,
+            : getExpirationTime(expirationMethod.value, expirationValue.value),
         retrieveCode: retrieveCode
       }
       fileDataStore.addShareData(newRecord)

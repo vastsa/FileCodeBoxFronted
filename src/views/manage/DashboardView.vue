@@ -3,7 +3,6 @@
     <h2 class="text-2xl font-bold mb-6" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
       仪表盘
     </h2>
-
     <!-- 统计卡片区域 -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div class="p-6 rounded-lg shadow-md transition-colors duration-300"
