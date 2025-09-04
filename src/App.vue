@@ -41,7 +41,6 @@ onMounted(() => {
   }
   ConfigService.getUserConfig().then((res: ApiResponse<ConfigState>) => {
     if (res.code === 200 && res.detail) {
-      console.log(res);
       localStorage.setItem('config', JSON.stringify(res.detail))
       if (
         res.detail.notify_title &&

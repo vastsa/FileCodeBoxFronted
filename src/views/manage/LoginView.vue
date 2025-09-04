@@ -85,16 +85,10 @@
 <script setup lang="ts">
 import { ref, inject } from 'vue'
 import { BoxIcon } from 'lucide-vue-next'
-import api from '@/utils/api'
-import type { ApiResponse } from '@/types'
 import { useAlertStore } from '@/stores/alertStore'
 import { useAdminData } from '@/stores/adminStore'
 import { useRouter } from 'vue-router'
-
-// 登录响应类型定义
-interface LoginResponse {
-  token: string
-}
+import { AuthService } from '@/services'
 const alertStore = useAlertStore()
 const password = ref('')
 const isLoading = ref(false)
@@ -116,22 +110,28 @@ const router = useRouter()
 
 const handleSubmit = async () => {
   if (!validateForm()) return
-  api
-    .post<ApiResponse<LoginResponse>>('/admin/login', { password: password.value })
-    .then((res) => {
-      adminStore.setToken(res.data.detail?.token || '')
-      router.push('/admin')
-    })
-    .catch((error) => {
-      alertStore.showAlert(error.response?.data?.detail || '登录失败', 'error')
-    })
+  
   isLoading.value = true
   try {
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    // 处理登录成功
-  } catch (error) {
-    console.log(error)
-    // 处理错误
+    const response = await AuthService.login(password.value)
+    if (response.detail?.token) {
+      adminStore.setToken(response.detail.token)
+      router.push('/admin')
+    } else {
+      alertStore.showAlert('登录失败：未获取到有效令牌', 'error')
+    }
+  } catch (error: unknown) {
+    interface ErrorWithResponse {
+      response?: {
+        data?: {
+          detail?: string
+        }
+      }
+    }
+    const errorMessage = error && typeof error === 'object' && 'response' in error 
+      ? (error as ErrorWithResponse).response?.data?.detail || '登录失败'
+      : '登录失败'
+    alertStore.showAlert(errorMessage, 'error')
   } finally {
     isLoading.value = false
   }
