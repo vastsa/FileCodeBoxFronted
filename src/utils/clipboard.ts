@@ -75,43 +75,43 @@ export const copyRetrieveCode = async (code: string): Promise<boolean> => {
   })
 }
 
-const baseUrl = window.location.origin + '/';
+const baseUrl = window.location.origin + '/'
 
 export const copyWgetCommand = (retrieveCode: string, fileName: string) => {
-  const command = `wget ${baseUrl}share/select?code=${retrieveCode} -O "${fileName}"`;
+  const command = `wget ${baseUrl}share/select?code=${retrieveCode} -O "${fileName}"`
 
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(command)
+    navigator.clipboard
+      .writeText(command)
       .then(() => {
-        console.log("命令已复制到剪贴板！");
+        console.log('命令已复制到剪贴板！')
       })
       .catch((err) => {
-        console.error("复制失败，使用回退方法：", err);
-        fallbackCopyTextToClipboard(command);
-      });
+        console.error('复制失败，使用回退方法：', err)
+        fallbackCopyTextToClipboard(command)
+      })
   } else {
-    console.warn("Clipboard API 不可用，使用回退方法。");
-    fallbackCopyTextToClipboard(command);
+    console.warn('Clipboard API 不可用，使用回退方法。')
+    fallbackCopyTextToClipboard(command)
   }
-};
-function fallbackCopyTextToClipboard(text:string) {
-  const textArea = document.createElement("textarea");
-  textArea.value = text;
-  textArea.style.position = "fixed"; // 避免滚动
-  document.body.appendChild(textArea);
-  textArea.focus();
-  textArea.select();
-  try {
-    const successful = document.execCommand("copy");
-    console.log("回退复制操作成功：", successful);
-  } catch (err) {
-    console.error("回退复制操作失败：", err);
-  }
-  document.body.removeChild(textArea);
 }
-
-if (document.hasFocus() && navigator.clipboard && navigator.clipboard.writeText) {
-  navigator.clipboard.writeText("要复制的文本");
-} else {
-  fallbackCopyTextToClipboard("要复制的文本");
+function fallbackCopyTextToClipboard(command: string) {
+  const textArea = document.createElement('textarea')
+  textArea.value = command
+  textArea.style.position = 'fixed' // 避免滚动
+  document.body.appendChild(textArea)
+  textArea.focus()
+  textArea.select()
+  try {
+    const successful = document.execCommand('copy')
+    console.log('回退复制操作成功：', successful)
+    if (document.hasFocus() && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(command)
+    } else {
+      fallbackCopyTextToClipboard(command)
+    }
+  } catch (err) {
+    console.error('回退复制操作失败：', err)
+  }
+  document.body.removeChild(textArea)
 }
