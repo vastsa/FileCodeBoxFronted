@@ -386,7 +386,6 @@ interface InputStatus {
   loading: boolean
 }
 
-
 import {
   BoxIcon,
   EyeIcon,
@@ -524,12 +523,13 @@ const handleSubmit = async () => {
         alertStore.showAlert('无效的取件码', 'error')
       }
     } else {
-      alertStore.showAlert('获取文件失败', 'error')
-      console.log(res)
+      alertStore.showAlert('获取文件失败：' + res.detail, 'error')
     }
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('取件失败:', err)
-    alertStore.showAlert('取件失败，请稍后重试', 'error')
+    const error = err as { response?: { data?: { detail?: string } }; message?: string }
+    const errorMessage = error?.response?.data?.detail || error?.message || '未知错误'
+    alertStore.showAlert('取件失败，请稍后重试：' + errorMessage, 'error')
   } finally {
     inputStatus.value.readonly = false
     inputStatus.value.loading = false

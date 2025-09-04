@@ -82,7 +82,9 @@ export class FileService {
   }
 
   static async deleteAdminFile(id: number): Promise<ApiResponse> {
-    return api.post('/admin/file/delete', { id })
+    return api.delete('/admin/file/delete', {
+      data: { id }
+    })
   }
 
   static async downloadAdminFile(id: number): Promise<{ data: Blob; headers: Record<string, string> }> {
