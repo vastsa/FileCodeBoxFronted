@@ -12,117 +12,28 @@
       ]"
     >
       <div class="p-8">
-        <h2
-          class="text-3xl font-extrabold text-center mb-8 cursor-pointer transition-colors duration-300"
-          :class="[
-            isDarkMode
-              ? 'text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300'
-              : 'text-indigo-600'
-          ]"
-          @click="toRetrieve"
-        >
-          {{ config.name }}
-        </h2>
+        <PageHeader :title="config.name" @title-click="toRetrieve" />
         <form @submit.prevent="handleSubmit" class="space-y-8">
-          <!-- 发送类型选择 -->
-          <div class="flex justify-center space-x-4 mb-6">
-            <button
-              type="button"
-              @click="sendType = 'file'"
-              :class="[
-                'px-4 py-2 rounded-lg',
-                sendType === 'file' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
-              ]"
-            >
-              发送文件
-            </button>
-            <button
-              type="button"
-              @click="sendType = 'text'"
-              :class="[
-                'px-4 py-2 rounded-lg',
-                sendType === 'text' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
-              ]"
-            >
-              发送文本
-            </button>
-            <!-- <button
-              type="button"
-              @click="sendType = 'collect'"
-              :class="[
-                'px-4 py-2 rounded-lg',
-                sendType === 'collect' ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-300'
-              ]"
-            >
-              收集文件
-            </button> -->
-          </div>
+          <SendTypeSelector
+            :selected-type="sendType as any"
+            @update:selected-type="sendType = $event"
+          />
 
           <transition name="fade" mode="out-in">
             <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8">
-              <!-- 文件上传区域 -->
-              <div
-                class="rounded-xl p-8 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative"
-                :class="[
-                  isDarkMode
-                    ? 'bg-gray-800 bg-opacity-50 border-gray-600 hover:border-indigo-500'
-                    : 'bg-gray-100 border-gray-300 hover:border-indigo-500'
-                ]"
-                @click="triggerFileUpload"
-                @dragover.prevent
-                @drop.prevent="handleFileDrop"
-              >
-                <input
-                  id="file-upload"
-                  type="file"
-                  class="hidden"
-                  @change="handleFileUpload"
-                  ref="fileInput"
-                />
-                <div class="absolute inset-0 w-full h-full" v-if="uploadProgress > 0">
-                  <BorderProgressBar :progress="uploadProgress" />
-                </div>
-                <UploadCloudIcon
-                  :class="[
-                    'w-16 h-16 transition-colors duration-300',
-                    isDarkMode
-                      ? 'text-gray-400 group-hover:text-indigo-400'
-                      : 'text-gray-600 group-hover:text-indigo-600'
-                  ]"
-                />
-                <p
-                  :class="[
-                    'mt-4 text-sm transition-colors duration-300 w-full text-center',
-                    isDarkMode
-                      ? 'text-gray-400 group-hover:text-indigo-400'
-                      : 'text-gray-600 group-hover:text-indigo-600'
-                  ]"
-                >
-                  <span class="block truncate">
-                    {{ selectedFile ? selectedFile.name : '点击或拖放文件到此处上传' }}
-                  </span>
-                </p>
-                <p :class="['mt-2 text-xs', isDarkMode ? 'text-gray-500' : 'text-gray-400']">
-                  支持各种常见格式，最大{{ getStorageUnit(config.uploadSize) }}
-                </p>
-              </div>
+              <FileUploadArea
+                :selected-file="selectedFile"
+                :progress="uploadProgress"
+                :description="`支持各种常见格式，最大${getStorageUnit(config.uploadSize)}`"
+                @file-selected="handleFileSelected"
+                @file-drop="handleFileDrop"
+              />
             </div>
             <div v-else key="text" class="grid grid-cols-1 gap-8">
-              <!-- 文本输入区域 -->
-              <div v-if="sendType === 'text'" class="flex flex-col">
-                <textarea
-                  id="text-content"
-                  v-model="textContent"
-                  rows="7"
-                  :class="[
-                    'flex-grow px-4 py-3 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 resize-none custom-scrollbar',
-                    isDarkMode
-                      ? 'bg-gray-800 bg-opacity-50 text-white'
-                      : 'bg-white text-gray-900 border border-gray-300'
-                  ]"
-                  placeholder="在此输入要发送的文本..."
-                ></textarea>
-              </div>
+              <TextInputArea
+                v-model="textContent"
+                placeholder="在此输入要发送的文本..."
+              />
             </div>
           </transition>
           <!-- 过期方式选择 -->
@@ -576,7 +487,6 @@
 <script setup lang="ts">
 import { ref, inject, onMounted, computed } from 'vue'
 import {
-  UploadCloudIcon,
   SendIcon,
   ClipboardListIcon,
   XIcon,
@@ -589,7 +499,6 @@ import {
   TerminalIcon
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-import BorderProgressBar from '@/components/common/BorderProgressBar.vue'
 import QRCode from 'qrcode.vue'
 import { useFileDataStore } from '@/stores/fileData'
 import { useAlertStore } from '@/stores/alertStore'
@@ -597,6 +506,10 @@ import api from '@/utils/api'
 import type { ApiResponse } from '@/types'
 import { copyRetrieveLink, copyRetrieveCode, copyWgetCommand } from '@/utils/clipboard'
 import { getStorageUnit } from '@/utils/convert'
+import PageHeader from '@/components/common/PageHeader.vue'
+import SendTypeSelector from '@/components/common/SendTypeSelector.vue'
+import FileUploadArea from '@/components/common/FileUploadArea.vue'
+import TextInputArea from '@/components/common/TextInputArea.vue'
 
 interface Config {
   name: string
@@ -627,7 +540,7 @@ const fileDataStore = useFileDataStore()
 const sendType = ref('file')
 const selectedFile = ref<File | null>(null)
 const textContent = ref('')
-const fileInput = ref<HTMLInputElement | null>(null)
+
 const expirationMethod = ref(config.expireStyle?.[0] || 'day')
 const expirationValue = ref('1')
 const uploadProgress = ref(0)
@@ -639,20 +552,13 @@ const sendRecords = computed(() => fileDataStore.shareData)
 
 const fileHash = ref('')
 
-const triggerFileUpload = () => {
-  fileInput.value?.click()
+
+
+const handleFileSelected = (file: File) => {
+  selectedFile.value = file
 }
 
-const handleFileUpload = async (event: Event) => {
-  const target = event.target as HTMLInputElement
-  if (target.files && target.files.length > 0) {
-    const file = target.files[0]
-    selectedFile.value = file
-    if (!checkUpload()) return
-    fileHash.value = await calculateFileHash(file)
-    console.log(fileHash.value)
-  }
-}
+
 
 const handleFileDrop = async (event: DragEvent) => {
   if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {

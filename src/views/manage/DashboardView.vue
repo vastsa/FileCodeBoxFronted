@@ -5,93 +5,51 @@
     </h2>
     <!-- 统计卡片区域 -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="p-6 rounded-lg shadow-md transition-colors duration-300"
-        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
-              总文件数
-            </p>
-            <h3 class="text-2xl font-bold mt-1" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-              {{ dashboardData.totalFiles }}
-            </h3>
-          </div>
-          <div class="p-3 rounded-full" :class="[isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100']">
-            <FileIcon class="w-6 h-6" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-          </div>
-        </div>
-        <p class="text-sm mt-2" :class="[isDarkMode ? 'text-green-400' : 'text-green-600']">
-          <span :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">昨天：</span>
-          <span>{{ dashboardData.yesterdayCount }} </span>
-          <span class="ml-2" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">今天：</span>
-          <span>{{ dashboardData.todayCount }} </span>
-        </p>
-      </div>
+      <StatCard
+        title="总文件数"
+        :value="dashboardData.totalFiles"
+        :icon="FileIcon"
+        icon-color="indigo"
+        description-type="success">
+        <template #description>
+          <span>昨天：{{ dashboardData.yesterdayCount }}</span>
+          <span class="ml-2">今天：{{ dashboardData.todayCount }}</span>
+        </template>
+      </StatCard>
 
-      <div class="p-6 rounded-lg shadow-md transition-colors duration-300"
-        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
-              存储空间
-            </p>
-            <h3 class="text-2xl font-bold mt-1" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-              {{ dashboardData.storageUsed }}
-            </h3>
-          </div>
-          <div class="p-3 rounded-full" :class="[isDarkMode ? 'bg-purple-900' : 'bg-purple-100']">
-            <HardDriveIcon class="w-6 h-6" :class="[isDarkMode ? 'text-purple-400' : 'text-purple-600']" />
-          </div>
-        </div>
+      <StatCard
+        title="存储空间"
+        :value="dashboardData.storageUsed"
+        :icon="HardDriveIcon"
+        icon-color="purple"
+        description-type="success">
+        <template #description>
+          <span>昨天：{{ dashboardData.yesterdaySize }}</span>
+          <span class="ml-2">今天：{{ dashboardData.todaySize }}</span>
+        </template>
+      </StatCard>
 
-        <p class="text-sm mt-2" :class="[isDarkMode ? 'text-green-400' : 'text-green-600']">
-          <span :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">昨天：</span>
-          <span>{{ dashboardData.yesterdaySize }} </span>
-          <span class="ml-2" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">今天：</span>
-          <span>{{ dashboardData.todaySize }} </span>
-        </p>
-      </div>
+      <StatCard
+        title="活跃用户"
+        value="25"
+        :icon="UsersIcon"
+        icon-color="green"
+        description-type="error">
+        <template #description>
+          <span>↓ 5% 较上周</span>
+        </template>
+      </StatCard>
 
-      <div class="p-6 rounded-lg shadow-md transition-colors duration-300"
-        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
-              活跃用户
-            </p>
-            <h3 class="text-2xl font-bold mt-1" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-              25
-            </h3>
-          </div>
-          <div class="p-3 rounded-full" :class="[isDarkMode ? 'bg-green-900' : 'bg-green-100']">
-            <UsersIcon class="w-6 h-6" :class="[isDarkMode ? 'text-green-400' : 'text-green-600']" />
-          </div>
-        </div>
-        <p class="text-sm mt-2" :class="[isDarkMode ? 'text-red-400' : 'text-red-600']">
-          <span>↓ 5% </span>
-          <span :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">较上周</span>
-        </p>
-      </div>
-
-      <div class="p-6 rounded-lg shadow-md transition-colors duration-300"
-        :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
-              系统状态
-            </p>
-            <h3 class="text-2xl font-bold mt-1" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-              正常
-            </h3>
-          </div>
-          <div class="p-3 rounded-full" :class="[isDarkMode ? 'bg-blue-900' : 'bg-blue-100']">
-            <ActivityIcon class="w-6 h-6" :class="[isDarkMode ? 'text-blue-400' : 'text-blue-600']" />
-          </div>
-        </div>
-        <p class="text-sm mt-2" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
+      <StatCard
+        title="系统状态"
+        value="正常"
+        :icon="ActivityIcon"
+        icon-color="blue"
+        description-type="neutral">
+        <template #description>
           服务器运行时间: {{ dashboardData.sysUptime }}
-        </p>
-      </div>
+        </template>
+      </StatCard>
     </div>
 
     <!-- 添加版本和版权信息 -->
@@ -116,6 +74,7 @@ import {
 } from 'lucide-vue-next'
 import { StatsService } from '@/services'
 import type { DashboardData } from '@/types'
+import StatCard from '@/components/common/StatCard.vue'
 const isDarkMode = inject('isDarkMode')
 
 const dashboardData = reactive<DashboardData>({

@@ -30,168 +30,96 @@
     </div>
 
     <!-- 文件列表 -->
-    <div class="rounded-lg shadow-sm overflow-hidden transition-all duration-300"
-      :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
-      <div class="px-6 py-4 border-b" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-        <h3 class="text-lg font-medium" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-          所有文件
-        </h3>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y" :class="[isDarkMode ? 'divide-gray-700' : 'divide-gray-200']">
-          <thead :class="[isDarkMode ? 'bg-gray-900/50' : 'bg-gray-50']">
-            <tr>
-              <th v-for="header in fileTableHeaders" :key="header"
-                class="px-6 py-3.5 text-left text-xs font-medium uppercase tracking-wider"
-                :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-                {{ header }}
-              </th>
-            </tr>
-          </thead>
-          <tbody :class="[
-            isDarkMode
-              ? 'bg-gray-800/50 divide-y divide-gray-700'
-              : 'bg-white divide-y divide-gray-200'
-          ]">
-            <tr v-for="file in tableData" :key="file.id" class="hover:bg-opacity-50 transition-colors duration-200"
-              :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50']">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <span class="font-medium select-all" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
-                    {{ file.code }}
-                  </span>
-                </div>
-              </td>
-              <td class="px-6 py-4">
-                <div class="flex items-center group relative">
-                  <FileIcon class="w-5 h-5 mr-2 flex-shrink-0"
-                    :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-500']" />
-                  <span class="font-medium truncate max-w-[200px]"
-                    :class="[isDarkMode ? 'text-white' : 'text-gray-900']" :title="file.prefix">
-                    {{ file.prefix }}
-                  </span>
-                  <!-- 悬浮提示 -->
-                  <div
-                    class="absolute left-0 -top-2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                    <div class="bg-gray-900 text-white text-sm rounded px-2 py-1 max-w-xs break-all">
-                      {{ file.prefix }}
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  :class="[isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800']">
-                  {{ Math.round((file.size / 1024 / 1024) * 100) / 100 }}MB
-                </span>
-              </td>
-              <td class="px-6 py-4">
-                <div class="group relative">
-                  <span class="block truncate max-w-[250px]" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-                    {{ file.text }}
-                  </span>
-                  <!-- 悬浮提示 -->
-                  <div
-                    class="absolute left-0 -top-2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
-                    <div class="bg-gray-900 text-white text-sm rounded px-2 py-1 max-w-xs break-all">
-                      {{ file.text }}
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="[
-                  file.expired_at
-                    ? (isDarkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-100 text-yellow-800')
-                    : (isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-800')
-                ]">
-                  {{ file.expired_at ? formatTimestamp(file.expired_at) : '永久' }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div class="flex items-center space-x-2">
-                  <button @click="openEditModal(file)"
-                    class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" :class="[
-                      isDarkMode
-                        ? 'bg-blue-900/20 text-blue-400 hover:bg-blue-900/30'
-                        : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                    ]">
-                    <PencilIcon class="w-4 h-4 mr-1.5" />
-                    编辑
-                  </button>
-                  <button @click="deleteFile(file.id)"
-                    class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" :class="[
-                      isDarkMode
-                        ? 'bg-red-900/20 text-red-400 hover:bg-red-900/30'
-                        : 'bg-red-50 text-red-600 hover:bg-red-100'
-                    ]">
-                    <TrashIcon class="w-4 h-4 mr-1.5" />
-                    删除
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 分页控件 -->
-      <div class="mt-4 flex items-center justify-between px-6 py-4 border-t"
-        :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-        <div class="flex items-center text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-          显示第 {{ (params.page - 1) * params.size + 1 }} 到
-          {{ Math.min(params.page * params.size, params.total) }} 条，共 {{ params.total }} 条
-        </div>
-
-        <div class="flex items-center space-x-2">
-          <button @click="handlePageChange(params.page - 1)" :disabled="params.page === 1"
-            class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" :class="[
-              isDarkMode
-                ? params.page === 1
-                  ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                : params.page === 1
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            ]">
-            <ChevronLeftIcon class="w-4 h-4" />
-            上一页
-          </button>
-
-          <div class="flex items-center space-x-1">
-            <template v-for="pageNum in displayedPages" :key="pageNum">
-              <button v-if="pageNum !== '...'" @click="handlePageChange(pageNum)"
-                class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" :class="[
-                  params.page === pageNum
-                    ? 'bg-indigo-600 text-white'
-                    : isDarkMode
-                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                ]">
-                {{ pageNum }}
-              </button>
-              <span v-else class="px-2" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-                ...
+    <DataTable title="所有文件" :headers="fileTableHeaders">
+      <template #body>
+        <tr v-for="file in tableData" :key="file.id" class="hover:bg-opacity-50 transition-colors duration-200"
+          :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50']">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <span class="font-medium select-all" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+                {{ file.code }}
               </span>
-            </template>
-          </div>
-
-          <button @click="handlePageChange(params.page + 1)" :disabled="params.page >= totalPages"
-            class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" :class="[
-              isDarkMode
-                ? params.page >= totalPages
-                  ? 'bg-gray-800 text-gray-600 cursor-not-allowed'
-                  : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                : params.page >= totalPages
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center group relative">
+              <FileIcon class="w-5 h-5 mr-2 flex-shrink-0"
+                :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-500']" />
+              <span class="font-medium truncate max-w-[200px]"
+                :class="[isDarkMode ? 'text-white' : 'text-gray-900']" :title="file.prefix">
+                {{ file.prefix }}
+              </span>
+              <!-- 悬浮提示 -->
+              <div
+                class="absolute left-0 -top-2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                <div class="bg-gray-900 text-white text-sm rounded px-2 py-1 max-w-xs break-all">
+                  {{ file.prefix }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              :class="[isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800']">
+              {{ Math.round((file.size / 1024 / 1024) * 100) / 100 }}MB
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="group relative">
+              <span class="block truncate max-w-[250px]" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+                {{ file.text }}
+              </span>
+              <!-- 悬浮提示 -->
+              <div
+                class="absolute left-0 -top-2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                <div class="bg-gray-900 text-white text-sm rounded px-2 py-1 max-w-xs break-all">
+                  {{ file.text }}
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="[
+              file.expired_at
+                ? (isDarkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-100 text-yellow-800')
+                : (isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-800')
             ]">
-            下一页
-            <ChevronRightIcon class="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </div>
+              {{ file.expired_at ? formatTimestamp(file.expired_at) : '永久' }}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <div class="flex items-center space-x-2">
+              <button @click="openEditModal(file)"
+                class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" :class="[
+                  isDarkMode
+                    ? 'bg-blue-900/20 text-blue-400 hover:bg-blue-900/30'
+                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                ]">
+                <PencilIcon class="w-4 h-4 mr-1.5" />
+                编辑
+              </button>
+              <button @click="deleteFile(file.id)"
+                class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" :class="[
+                  isDarkMode
+                    ? 'bg-red-900/20 text-red-400 hover:bg-red-900/30'
+                    : 'bg-red-50 text-red-600 hover:bg-red-100'
+                ]">
+                <TrashIcon class="w-4 h-4 mr-1.5" />
+                删除
+              </button>
+            </div>
+          </td>
+        </tr>
+      </template>
+      <template #footer>
+        <DataPagination
+          :current-page="params.page"
+          :page-size="params.size"
+          :total="params.total"
+          @page-change="handlePageChange"
+        />
+      </template>
+    </DataTable>
 
     <!-- 添加编辑模态框 -->
     <div v-if="showEditModal" class="fixed inset-0 z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -387,11 +315,11 @@ import {
   FileIcon,
   SearchIcon,
   TrashIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   PencilIcon,
   CheckIcon,
 } from 'lucide-vue-next'
+import DataTable from '@/components/common/DataTable.vue'
+import DataPagination from '@/components/common/DataPagination.vue'
 import { useAlertStore } from '@/stores/alertStore'
 
 function formatTimestamp(timestamp: string): string {
@@ -550,41 +478,7 @@ loadFiles()
 // 计算总页数
 const totalPages = computed(() => Math.ceil(params.value.total / params.value.size))
 
-// 计算要显示的页码
-const displayedPages = computed(() => {
-  const current = params.value.page
-  const total = totalPages.value
-  const delta = 2 // 当前页码前后显示的页码数
 
-  const pages: (number | string)[] = []
-
-  // 始终显示第一页
-  pages.push(1)
-
-  // 计算显示范围
-  const left = Math.max(2, current - delta)
-  const right = Math.min(total - 1, current + delta)
-
-  // 添加省略号和页码
-  if (left > 2) {
-    pages.push('...')
-  }
-
-  for (let i = left; i <= right; i++) {
-    pages.push(i)
-  }
-
-  if (right < total - 1) {
-    pages.push('...')
-  }
-
-  // 始终显示最后一页
-  if (total > 1) {
-    pages.push(total)
-  }
-
-  return pages
-})
 
 // 添加搜索处理函数
 const handleSearch = async () => {
