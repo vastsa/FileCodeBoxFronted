@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 h-screen overflow-y-auto custom-scrollbar">
+  <div class="p-6 overflow-y-auto custom-scrollbar">
     <!-- 页面标题和统计信息 -->
     <div class="mb-8">
       <h2 class="text-2xl font-bold mb-4" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">

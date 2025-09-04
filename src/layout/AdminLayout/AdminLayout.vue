@@ -1,13 +1,13 @@
 <template>
-  <div class="min-h-screen flex flex-col lg:flex-row transition-colors duration-300"
+  <div class="h-screen flex flex-col lg:flex-row transition-colors duration-300"
     :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']">
     <!-- Sidebar -->
     <aside
-      class="fixed inset-y-0 left-0 z-50 w-64 transform transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 border-r"
+      class="fixed inset-y-0 border-transparent left-0 z-50 w-64 transform transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 border-r flex flex-col h-full lg:h-screen"
       :class="[
         isDarkMode
-          ? 'bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-xl border-gray-700'
-          : 'bg-white border-gray-200',
+          ? 'bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-xl '
+          : 'bg-white ',
         { '-translate-x-full': !isSidebarOpen }
       ]">
       <!-- Logo区域 -->
@@ -29,7 +29,7 @@
       </div>
 
       <!-- 导航菜单 -->
-      <nav class="flex-1 overflow-y-auto">
+      <nav class="flex-1 overflow-y-auto custom-scrollbar">
         <ul class="p-4 space-y-2">
           <li v-for="item in menuItems" :key="item.id">
             <a @click="router.push(item.redirect)"
@@ -51,9 +51,9 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col min-h-screen">
+    <div class="flex-1 flex flex-col h-full">
       <!-- Header -->
-      <header class="shadow-md border-b transition-colors duration-300"
+      <header class="shadow-md border-b transition-colors duration-300 h-64px"
         :class="[isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200']">
         <div class="flex items-center justify-between h-16 px-4">
           <button @click="toggleSidebar" class="lg:hidden">
@@ -63,7 +63,7 @@
       </header>
 
       <!-- Content -->
-      <main class="flex-1 p-6 overflow-y-auto transition-colors duration-300"
+      <main class="overflow-y-auto transition-colors duration-300 custom-scrollbar"
         :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']">
         <router-view />
       </main>
@@ -79,7 +79,7 @@ import { useRouter } from 'vue-router'
 interface MenuItem {
   id: string
   name: string
-  icon: any
+  icon: typeof LayoutDashboardIcon
   redirect: string
 }
 
@@ -220,7 +220,7 @@ input:checked+.slider {
 
 .custom-scrollbar {
   &::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-track {
@@ -229,25 +229,22 @@ input:checked+.slider {
 
   &::-webkit-scrollbar-thumb {
     background-color: #cbd5e0;
-    border-radius: 4px;
+    border-radius: 3px;
 
     &:hover {
       background-color: #a0aec0;
     }
   }
+}
 
-  /* 适配暗黑模式 */
-  :deep(.dark &::-webkit-scrollbar-thumb) {
+/* 暗黑模式下的滚动条样式 */
+:global(.dark) .custom-scrollbar {
+  &::-webkit-scrollbar-thumb {
     background-color: #4a5568;
 
     &:hover {
       background-color: #2d3748;
     }
   }
-}
-
-/* 确保内容区域不会被截断 */
-.space-y-6 {
-  margin-bottom: 5rem;
 }
 </style>

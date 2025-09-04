@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 h-screen overflow-y-auto custom-scrollbar">
+  <div class="p-6 overflow-y-auto custom-scrollbar">
     <h2 class="text-2xl font-bold mb-6" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
       仪表盘
     </h2>
@@ -97,7 +97,7 @@
     <!-- 添加版本和版权信息 -->
     <div class="mt-auto text-center py-4" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
       <p class="text-sm">
-        版本 v2.0.3 更新时间：2025-03-03
+        版本 v2.2.1 更新时间：2025-09-04
       </p>
       <p class="text-sm mt-1">
         © {{ new Date().getFullYear() }} <a href="https://github.com/vastsa/FileCodeBox">FileCodeBox</a>
