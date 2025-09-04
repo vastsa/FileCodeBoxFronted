@@ -24,6 +24,7 @@
     "qrcode.vue": "^3.6.0",
     "spark-md5": "^3.0.2",
     "vue": "^3.5.18",
+    "vue-i18n": "9",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {

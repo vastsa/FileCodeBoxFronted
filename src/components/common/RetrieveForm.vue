@@ -5,7 +5,7 @@
         for="code"
         class="block text-sm font-medium mb-2"
         :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
-        >取件码</label
+        >{{ t('retrieve.codeInput.label') }}</label
       >
       <div class="relative">
         <input
@@ -19,7 +19,7 @@
             { 'ring-2 ring-red-500': error },
             isDarkMode ? 'text-gray-300' : 'text-gray-800'
           ]"
-          placeholder="请输入5位取件码"
+          :placeholder="t('retrieve.codeInput.placeholder')"
           required
           :readonly="inputStatus.readonly"
           maxlength="5"
@@ -46,7 +46,7 @@
       :disabled="inputStatus.loading"
     >
       <span class="flex items-center justify-center relative z-10">
-        <span>{{ inputStatus.loading ? '处理中...' : '提取文件' }}</span>
+        <span>{{ inputStatus.loading ? t('common.loading') : t('retrieve.submit') }}</span>
         <ArrowRightIcon
           class="w-5 h-5 ml-2 transition-transform duration-300 transform group-hover:translate-x-1"
         />
@@ -61,6 +61,9 @@
 <script setup lang="ts">
 import { ref, inject, watch } from 'vue'
 import { ArrowRightIcon } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface InputStatus {
   readonly: boolean

@@ -32,14 +32,14 @@
             <div v-else key="text" class="grid grid-cols-1 gap-8">
               <TextInputArea
                 v-model="textContent"
-                placeholder="在此输入要发送的文本..."
+                :placeholder="t('send.uploadArea.textInput')"
               />
             </div>
           </transition>
           <!-- 过期方式选择 -->
           <div class="flex flex-col space-y-3">
             <label :class="['text-sm font-medium', isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-              过期时间
+              {{ t('send.expiration.label') }}
             </label>
             <div class="relative flex-grow group">
               <div
@@ -173,13 +173,13 @@
             ></span>
             <span class="relative z-10 flex items-center justify-center text-lg">
               <SendIcon class="w-6 h-6 mr-2" />
-              <span>安全寄送</span>
+              <span>{{ t('send.submit') }}</span>
             </span>
           </button>
         </form>
         <div class="mt-6 text-center">
           <router-link to="/" class="text-indigo-400 hover:text-indigo-300 transition duration-300">
-            需要取件？点击这里
+            {{ t('send.needRetrieveFile') }}
           </router-link>
         </div>
       </div>
@@ -193,14 +193,14 @@
           :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
         >
           <ShieldCheckIcon class="w-4 h-4 mr-1 text-green-400" />
-          安全加密
+          {{ t('send.secureEncryption') }}
         </span>
         <button
           @click="toggleDrawer"
           class="text-sm hover:text-indigo-300 transition duration-300 flex items-center"
           :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
         >
-          发件记录
+          {{ t('send.sendRecords') }}
           <ClipboardListIcon class="w-4 h-4 ml-1" />
         </button>
       </div>
@@ -218,7 +218,7 @@
           :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']"
         >
           <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-            发件记录
+            {{ t('send.sendRecords') }}
           </h3>
           <button
             @click="toggleDrawer"
@@ -315,7 +315,7 @@
                 class="text-lg sm:text-xl font-semibold"
                 :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
               >
-                文件详情
+                {{ t('send.fileDetails') }}
               </h3>
               <button
                 @click="selectedRecord = null"
@@ -486,6 +486,7 @@
 
 <script setup lang="ts">
 import { ref, inject, onMounted, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import {
   SendIcon,
   ClipboardListIcon,
@@ -547,6 +548,7 @@ const uploadProgress = ref(0)
 const showDrawer = ref(false)
 const selectedRecord = ref<ShareRecord | null>(null)
 
+const { t } = useI18n()
 const alertStore = useAlertStore()
 const sendRecords = computed(() => fileDataStore.shareData)
 
@@ -580,7 +582,7 @@ const handlePaste = async (event: ClipboardEvent) => {
       if (file) {
         // 检查文件是否为空
         if (file.size === 0) {
-          alertStore.showAlert('无法读取空文件', 'error')
+          alertStore.showAlert(t('send.messages.emptyFileError'), 'error')
           return
         }
 
@@ -589,9 +591,9 @@ const handlePaste = async (event: ClipboardEvent) => {
 
         try {
           fileHash.value = await calculateFileHash(file)
-          alertStore.showAlert('已从剪贴板添加文件：' + file.name, 'success')
+          alertStore.showAlert(t('send.messages.fileAddedFromClipboard', { filename: file.name }), 'success')
         } catch (err) {
-          alertStore.showAlert('文件处理失败', 'error')
+          alertStore.showAlert(t('send.messages.fileProcessingFailed'), 'error')
           console.error('File hash calculation failed:', err)
         }
         break
@@ -708,32 +710,32 @@ const generateFallbackHash = (file: File): string => {
 const getPlaceholder = (value: string = expirationMethod.value) => {
   switch (value) {
     case 'day':
-      return '输入天数'
+      return t('send.expiration.placeholders.days')
     case 'hour':
-      return '输入小时数'
+      return t('send.expiration.placeholders.hours')
     case 'minute':
-      return '输入分钟数'
+      return t('send.expiration.placeholders.minutes')
     case 'count':
-      return '输入查看次数'
+      return t('send.expiration.placeholders.count')
     case 'forever':
-      return '永久'
+      return t('send.expiration.placeholders.forever')
     default:
-      return '输入值'
+      return t('send.expiration.placeholders.default')
   }
 }
 
 const getUnit = (value: string = expirationMethod.value) => {
   switch (value) {
     case 'day':
-      return '天'
+      return t('send.expiration.units.days')
     case 'hour':
-      return '小时'
+      return t('send.expiration.units.hours')
     case 'minute':
-      return '分钟'
+      return t('send.expiration.units.minutes')
     case 'count':
-      return '次'
+      return t('send.expiration.units.times')
     case 'forever':
-      return '永久'
+      return t('send.expiration.units.forever')
     default:
       return ''
   }
@@ -741,10 +743,10 @@ const getUnit = (value: string = expirationMethod.value) => {
 
 const getExpirationTime = (method: string, value: string) => {
   if (method === 'forever') {
-    return '永久'
+    return t('send.expiration.units.forever')
   }
   if (method === 'count') {
-    return `${value}次后过期`
+    return t('send.messages.expiresAfterCount', { count: value })
   }
 
   const now = new Date()
@@ -761,7 +763,7 @@ const getExpirationTime = (method: string, value: string) => {
       now.setDate(now.getDate() + expireValue)
       break
     default:
-      return `${value}${getUnit(method)}后过期`
+      return t('send.messages.expiresAfter', { value, unit: getUnit(method) })
   }
 
   const year = now.getFullYear()
@@ -770,7 +772,7 @@ const getExpirationTime = (method: string, value: string) => {
   const hours = now.getHours().toString().padStart(2, '0')
   const minutes = now.getMinutes().toString().padStart(2, '0')
 
-  return `${year}-${month}-${day} ${hours}:${minutes}过期`
+  return t('send.messages.expiresAt', { date: `${year}-${month}-${day} ${hours}:${minutes}` })
 }
 
 const handleChunkUpload = async (file: File) => {
@@ -792,7 +794,7 @@ const handleChunkUpload = async (file: File) => {
     })
 
     if (initResponse.code !== 200) {
-      throw new Error('初始化切片上传失败')
+      throw new Error(t('send.messages.initChunkUploadFailed'))
     }
     if (initResponse.detail?.existed) {
       return initResponse
@@ -826,7 +828,7 @@ const handleChunkUpload = async (file: File) => {
       )
 
       if (chunkResponse.code !== 200) {
-        throw new Error(`切片 ${i} 上传失败`)
+        throw new Error(t('send.messages.chunkUploadFailed', { index: i }))
       }
     }
 
@@ -837,7 +839,7 @@ const handleChunkUpload = async (file: File) => {
     })
 
     if (completeResponse.code !== 200) {
-      throw new Error('完成上传失败')
+      throw new Error(t('send.messages.completeUploadFailed'))
     }
 
     return completeResponse
@@ -849,7 +851,7 @@ const handleChunkUpload = async (file: File) => {
         alertStore.showAlert(axiosError.response.data.detail, 'error')
       }
     } else {
-      alertStore.showAlert('上传失败,请稍后重试', 'error')
+      alertStore.showAlert(t('send.messages.uploadFailed'), 'error')
     }
     throw error
   }
@@ -874,7 +876,7 @@ const handleDefaultFileUpload = async (file: File) => {
 }
 const checkOpenUpload = () => {
   if (config.openUpload === 0 && localStorage.getItem('token') === null) {
-    alertStore.showAlert('游客上传功能已关闭', 'error')
+    alertStore.showAlert(t('send.messages.guestUploadDisabled'), 'error')
     return false
   }
   return true
@@ -882,7 +884,7 @@ const checkOpenUpload = () => {
 
 const checkFileSize = (file: File) => {
   if (file.size > config.uploadSize) {
-    alertStore.showAlert(`文件大小超过限制 (${getStorageUnit(config.uploadSize)})`, 'error')
+    alertStore.showAlert(t('send.messages.fileSizeExceeded', { size: getStorageUnit(config.uploadSize) }), 'error')
     selectedFile.value = null
     return false
   }
@@ -921,22 +923,22 @@ const checkUpload = () => {
 }
 const handleSubmit = async () => {
   if (sendType.value === 'file' && !selectedFile.value) {
-    alertStore.showAlert('请选择要上传的文件', 'error')
+    alertStore.showAlert(t('send.messages.selectFile'), 'error')
     return
   }
   if (sendType.value === 'text' && !textContent.value.trim()) {
-    alertStore.showAlert('请输入要发送的文本', 'error')
+    alertStore.showAlert(t('send.messages.enterText'), 'error')
     return
   }
   if (expirationMethod.value !== 'forever' && !expirationValue.value) {
-    alertStore.showAlert('请输入过期值', 'error')
+    alertStore.showAlert(t('send.messages.enterExpirationValue'), 'error')
     return
   }
 
   // 添加过期时间验证
   if (!checkExpirationTime(expirationMethod.value, expirationValue.value)) {
     const maxDays = Math.floor(config.max_save_seconds / 86400)
-    alertStore.showAlert(`过期时间不能超过${maxDays}天`, 'error')
+    alertStore.showAlert(t('send.messages.expirationTooLong', { days: maxDays }), 'error')
     return
   }
 
@@ -977,14 +979,14 @@ const handleSubmit = async () => {
             : `${(selectedFile.value!.size / (1024 * 1024)).toFixed(1)} MB`,
         expiration:
           expirationMethod.value === 'forever'
-            ? '永久'
+            ? t('send.expiration.forever')
             : getExpirationTime(expirationMethod.value, expirationValue.value),
         retrieveCode: retrieveCode
       }
       fileDataStore.addShareDataRecord(newRecord)
 
       // 显示发送成功消息
-      alertStore.showAlert(`文件发送成功！取件码：${retrieveCode}`, 'success')
+      alertStore.showAlert(t('send.messages.sendSuccess', { code: retrieveCode }), 'success')
       // 重置表单 - 只重置文件和文本内容,保留过期信息
       selectedFile.value = null
       textContent.value = ''
@@ -994,7 +996,7 @@ const handleSubmit = async () => {
       // 自动复制取件码链接
       await copyRetrieveLink(retrieveCode)
     } else {
-      throw new Error('服务器响应异常')
+      throw new Error(t('send.messages.serverError'))
     }
   } catch (error: unknown) {
     if (error && typeof error === 'object' && 'response' in error) {
@@ -1003,7 +1005,7 @@ const handleSubmit = async () => {
         alertStore.showAlert(axiosError.response.data.detail, 'error')
       }
     } else {
-      alertStore.showAlert('发送失败,请稍后重试', 'error')
+      alertStore.showAlert(t('send.messages.sendFailed'), 'error')
     }
   } finally {
     uploadProgress.value = 0

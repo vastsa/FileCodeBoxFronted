@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col space-y-3">
     <label :class="['text-sm font-medium', isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-      过期时间
+      {{ t('send.expiration.label') }}
     </label>
     <div class="relative flex-grow group">
       <div
@@ -85,11 +85,11 @@
               : 'border-gray-200 text-gray-700 focus:ring-indigo-500/60'
           ]"
         >
-          <option value="count">次数</option>
-          <option value="minute">分钟</option>
-          <option value="hour">小时</option>
-          <option value="day">天</option>
-          <option value="forever">永久</option>
+          <option value="count">{{ t('send.expiration.units.times') }}</option>
+          <option value="minute">{{ t('send.expiration.units.minutes') }}</option>
+          <option value="hour">{{ t('send.expiration.units.hours') }}</option>
+          <option value="day">{{ t('send.expiration.units.days') }}</option>
+          <option value="forever">{{ t('send.expiration.units.forever') }}</option>
         </select>
         <div
           class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none"
@@ -111,6 +111,9 @@
 
 <script setup lang="ts">
 import { inject } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Props {
   expirationMethod: string
@@ -145,15 +148,15 @@ const incrementValue = (delta: number) => {
 const getPlaceholder = () => {
   switch (props.expirationMethod) {
     case 'count':
-      return '输入次数'
+      return t('send.expiration.placeholders.count')
     case 'minute':
-      return '输入分钟数'
+      return t('send.expiration.placeholders.minutes')
     case 'hour':
-      return '输入小时数'
+      return t('send.expiration.placeholders.hours')
     case 'day':
-      return '输入天数'
+      return t('send.expiration.placeholders.days')
     default:
-      return '输入数值'
+      return t('send.expiration.placeholders.default')
   }
 }
 </script>

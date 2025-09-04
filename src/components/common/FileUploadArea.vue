@@ -37,19 +37,22 @@
       ]"
     >
       <span class="block truncate">
-        {{ selectedFile ? selectedFile.name : placeholder }}
+        {{ selectedFile ? selectedFile.name : placeholderText }}
       </span>
     </p>
     <p :class="['mt-2 text-xs', isDarkMode ? 'text-gray-500' : 'text-gray-400']">
-      {{ description }}
+      {{ descriptionText }}
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from 'vue'
+import { ref, inject, computed } from 'vue'
 import { UploadCloudIcon } from 'lucide-vue-next'
 import BorderProgressBar from './BorderProgressBar.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 interface Props {
   selectedFile?: File | null
   progress?: number
@@ -63,17 +66,21 @@ interface Emits {
   fileDrop: [event: DragEvent]
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   selectedFile: null,
   progress: 0,
-  placeholder: '点击或拖放文件到此处上传',
-  description: '支持各种常见格式',
+  placeholder: '',
+  description: '',
   acceptedTypes: '*'
 })
 
 const emit = defineEmits<Emits>()
 
 const isDarkMode = inject('isDarkMode')
+
+// 使用computed属性处理多语言文本
+const placeholderText = computed(() => props.placeholder || t('send.uploadArea.placeholder'))
+const descriptionText = computed(() => props.description || t('send.uploadArea.description'))
 const fileInput = ref<HTMLInputElement | null>(null)
 
 const triggerFileUpload = () => {

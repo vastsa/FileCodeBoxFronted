@@ -1,53 +1,53 @@
 <template>
   <div class="p-6 overflow-y-auto custom-scrollbar">
     <h2 class="text-2xl font-bold mb-6" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-      仪表盘
+      {{ t('admin.dashboard.title') }}
     </h2>
     <!-- 统计卡片区域 -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <StatCard
-        title="总文件数"
+        :title="t('admin.dashboard.totalFiles')"
         :value="dashboardData.totalFiles"
         :icon="FileIcon"
         icon-color="indigo"
         description-type="success">
         <template #description>
-          <span>昨天：{{ dashboardData.yesterdayCount }}</span>
-          <span class="ml-2">今天：{{ dashboardData.todayCount }}</span>
+          <span>{{ t('admin.dashboard.yesterday') }}：{{ dashboardData.yesterdayCount }}</span>
+          <span class="ml-2">{{ t('admin.dashboard.today') }}：{{ dashboardData.todayCount }}</span>
         </template>
       </StatCard>
 
       <StatCard
-        title="存储空间"
+        :title="t('admin.dashboard.storageSpace')"
         :value="dashboardData.storageUsed"
         :icon="HardDriveIcon"
         icon-color="purple"
         description-type="success">
         <template #description>
-          <span>昨天：{{ dashboardData.yesterdaySize }}</span>
-          <span class="ml-2">今天：{{ dashboardData.todaySize }}</span>
+          <span>{{ t('admin.dashboard.yesterday') }}：{{ dashboardData.yesterdaySize }}</span>
+          <span class="ml-2">{{ t('admin.dashboard.today') }}：{{ dashboardData.todaySize }}</span>
         </template>
       </StatCard>
 
       <StatCard
-        title="活跃用户"
+:title="t('admin.dashboard.activeUsers')"
         value="25"
         :icon="UsersIcon"
         icon-color="green"
         description-type="error">
         <template #description>
-          <span>↓ 5% 较上周</span>
+          <span>{{ t('admin.dashboard.weeklyChange') }}</span>
         </template>
       </StatCard>
 
       <StatCard
-        title="系统状态"
-        value="正常"
+:title="t('admin.dashboard.systemStatus')"
+:value="t('admin.dashboard.normal')"
         :icon="ActivityIcon"
         icon-color="blue"
         description-type="neutral">
         <template #description>
-          服务器运行时间: {{ dashboardData.sysUptime }}
+          {{ t('admin.dashboard.serverUptime') }}: {{ dashboardData.sysUptime }}
         </template>
       </StatCard>
     </div>
@@ -75,7 +75,9 @@ import {
 import { StatsService } from '@/services'
 import type { DashboardData } from '@/types'
 import StatCard from '@/components/common/StatCard.vue'
+import { useI18n } from 'vue-i18n'
 const isDarkMode = inject('isDarkMode')
+const { t } = useI18n()
 
 const dashboardData = reactive<DashboardData>({
   totalFiles: 0,

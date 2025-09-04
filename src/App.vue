@@ -1,44 +1,29 @@
 <script setup lang="ts">
-import { ref, watchEffect, provide, onMounted } from 'vue'
+import { ref, provide, onMounted, onUnmounted } from 'vue'
 import { RouterView } from 'vue-router'
 import ThemeToggle from './components/common/ThemeToggle.vue'
-import { useRouter } from 'vue-router'
-const isDarkMode = ref(false)
-const isLoading = ref(false)
-const router = useRouter()
+import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
+import { useRouter, useRoute } from 'vue-router'
 import AlertComponent from '@/components/common/AlertComponent.vue'
 import { useAlertStore } from '@/stores/alertStore'
 import { ConfigService } from '@/services'
 import type { ApiResponse, ConfigState } from '@/types'
+import { useTheme } from '@/composables/useTheme'
 
+const isLoading = ref(false)
+const router = useRouter()
+const route = useRoute()
 const alertStore = useAlertStore()
-// 检查系统颜色模式
-const checkSystemColorScheme = () => {
-  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-}
 
-// 从本地存储获取用户之前的选择
-const getUserPreference = () => {
-  const storedPreference = localStorage.getItem('colorMode')
-  if (storedPreference) {
-    return storedPreference === 'dark'
-  }
-  return null
-}
+// 使用主题 composable
+const { isDarkMode, toggleTheme, initTheme } = useTheme()
 
-// 设置颜色模式
-const setColorMode = (isDark: boolean) => {
-  isDarkMode.value = isDark
-  localStorage.setItem('colorMode', isDark ? 'dark' : 'light')
-}
+// 清理函数
+let cleanupThemeListener: (() => void) | null = null
 
 onMounted(() => {
-  const userPreference = getUserPreference()
-  if (userPreference !== null) {
-    setColorMode(userPreference)
-  } else {
-    setColorMode(checkSystemColorScheme())
-  }
+  // 初始化主题并设置监听器
+  cleanupThemeListener = initTheme()
   ConfigService.getUserConfig().then((res: ApiResponse<ConfigState>) => {
     if (res.code === 200 && res.detail) {
       localStorage.setItem('config', JSON.stringify(res.detail))
@@ -54,8 +39,11 @@ onMounted(() => {
   })
 })
 
-watchEffect(() => {
-  document.documentElement.classList.toggle('dark', isDarkMode.value)
+onUnmounted(() => {
+  // 清理主题监听器
+  if (cleanupThemeListener) {
+    cleanupThemeListener()
+  }
 })
 
 router.beforeEach((to, from, next) => {
@@ -70,19 +58,22 @@ router.afterEach(() => {
 })
 
 provide('isDarkMode', isDarkMode)
-provide('setColorMode', setColorMode)
+provide('toggleTheme', toggleTheme)
 provide('isLoading', isLoading)
 </script>
 
 <template>
   <div :class="['app-container', isDarkMode ? 'dark' : 'light']">
-    <ThemeToggle v-model="isDarkMode" />
+    <div class="fixed top-4 right-4 z-50 flex items-center space-x-3">
+      <LanguageSwitcher />
+      <ThemeToggle v-model="isDarkMode" />
+    </div>
     <div v-if="isLoading" class="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
     <RouterView v-slot="{ Component }">
       <transition name="fade" mode="out-in">
-        <component :is="Component" :key="$route.fullPath" />
+        <component :is="Component" :key="route.fullPath" />
       </transition>
     </RouterView>
 

@@ -22,15 +22,15 @@
           />
         </div>
         <PageFooter
-          link-text="需要发送文件？点击这里"
+          :link-text="$t('retrieve.needSendFile')"
           link-to="/send"
-          drawer-text="取件记录"
+          :drawer-text="$t('retrieve.recordsDrawer')"
           @toggle-drawer="toggleDrawer"
         />
       </div>
     </div>
 
-    <SideDrawer :visible="showDrawer" title="取件记录" @close="toggleDrawer">
+    <SideDrawer :visible="showDrawer" :title="$t('retrieve.recordsDrawer')" @close="toggleDrawer">
       <FileRecordList
         :records="records"
         @view-details="viewDetails"
@@ -59,6 +59,7 @@
 
 <script setup lang="ts">
 import { ref, inject, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import PageHeader from '@/components/common/PageHeader.vue'
 import RetrieveForm from '@/components/common/RetrieveForm.vue'
 import PageFooter from '@/components/common/PageFooter.vue'
@@ -101,6 +102,7 @@ import DOMPurify from 'dompurify'
 import { useAlertStore } from '@/stores/alertStore'
 import { copyToClipboard } from '@/utils/clipboard'
 
+const { t } = useI18n()
 const alertStore = useAlertStore()
 const baseUrl = window.location.origin
 
@@ -153,14 +155,14 @@ const getDownloadUrl = (record: FileRecord) => {
 const copyContent = async () => {
   if (selectedRecord.value && selectedRecord.value.content) {
     await copyToClipboard(selectedRecord.value.content, {
-      successMsg: '内容已复制到剪贴板',
-      errorMsg: '复制失败，请重试'
+      successMsg: t('fileRecord.contentCopied'),
+      errorMsg: t('fileRecord.copyFailed')
     })
   }
 }
 const handleSubmit = async () => {
   if (code.value.length !== 5) {
-    alertStore.showAlert('请输入5位取件码', 'error')
+    alertStore.showAlert(t('retrieve.messages.invalidCode'), 'error')
     return
   }
 
@@ -200,18 +202,18 @@ const handleSubmit = async () => {
           selectedRecord.value = newFileData
           showPreview.value = true
         }
-        alertStore.showAlert('文件获取成功', 'success')
+        alertStore.showAlert(t('retrieve.messages.retrieveSuccess'), 'success')
       } else {
-        alertStore.showAlert('无效的取件码', 'error')
+        alertStore.showAlert(t('retrieve.messages.invalidCodeError'), 'error')
       }
     } else {
-      alertStore.showAlert('获取文件失败：' + res.detail, 'error')
+      alertStore.showAlert(t('retrieve.messages.retrieveFailure') + res.detail, 'error')
     }
   } catch (err: unknown) {
-    console.error('取件失败:', err)
+    console.error('Retrieve failed:', err)
     const error = err as { response?: { data?: { detail?: string } }; message?: string }
-    const errorMessage = error?.response?.data?.detail || error?.message || '未知错误'
-    alertStore.showAlert('取件失败，请稍后重试：' + errorMessage, 'error')
+    const errorMessage = error?.response?.data?.detail || error?.message || t('retrieve.messages.unknownError')
+    alertStore.showAlert(t('retrieve.messages.networkError') + errorMessage, 'error')
   } finally {
     inputStatus.value.readonly = false
     inputStatus.value.loading = false
@@ -220,9 +222,9 @@ const handleSubmit = async () => {
 }
 
 const formatFileSize = (bytes: number) => {
-  if (bytes === 0) return '0 Bytes'
+  if (bytes === 0) return '0 ' + t('fileSize.bytes')
   const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  const sizes = [t('fileSize.bytes'), t('fileSize.kb'), t('fileSize.mb'), t('fileSize.gb'), t('fileSize.tb')]
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }

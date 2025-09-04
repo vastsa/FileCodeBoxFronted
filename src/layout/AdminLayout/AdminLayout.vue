@@ -20,7 +20,7 @@
             </div>
           </div>
           <h1 @click="router.push('/')" class="ml-2 text-xl font-semibold cursor-pointer" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-            FileCodeBox
+            {{ t('common.appName') }}
           </h1>
         </div>
         <button @click="toggleSidebar" class="lg:hidden">
@@ -75,6 +75,7 @@
 import { ref, inject, onMounted, onUnmounted } from 'vue'
 import { BoxIcon, MenuIcon, XIcon, FolderIcon, CogIcon, LayoutDashboardIcon } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 interface MenuItem {
   id: string
@@ -84,11 +85,12 @@ interface MenuItem {
 }
 
 const router = useRouter()
+const { t } = useI18n()
 const isDarkMode = inject('isDarkMode')
 const menuItems: MenuItem[] = [
-  { id: 'Dashboard', name: '仪表盘', icon: LayoutDashboardIcon, redirect: '/admin/dashboard' },
-  { id: 'FileManage', name: '文件管理', icon: FolderIcon, redirect: '/admin/files' },
-  { id: 'Settings', name: '系统设置', icon: CogIcon, redirect: '/admin/settings' }
+  { id: 'Dashboard', name: t('admin.dashboard.title'), icon: LayoutDashboardIcon, redirect: '/admin/dashboard' },
+  { id: 'FileManage', name: t('admin.fileManage.title'), icon: FolderIcon, redirect: '/admin/files' },
+  { id: 'Settings', name: t('admin.settings.title'), icon: CogIcon, redirect: '/admin/settings' }
 ]
 
 const isSidebarOpen = ref(true)

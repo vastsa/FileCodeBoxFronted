@@ -13,7 +13,7 @@
           class="text-2xl font-bold mb-6 truncate"
           :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
         >
-          文件详情
+          {{ t('fileDetail.title') }}
         </h3>
         <div class="space-y-4" v-if="record">
           <div class="flex items-center">
@@ -25,7 +25,7 @@
               :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
               class="truncate flex-grow"
             >
-              <span class="font-medium">文件名：</span>{{ record.filename }}
+              <span class="font-medium">{{ t('fileRecord.filename') }}：</span>{{ record.filename }}
             </p>
           </div>
           <div class="flex items-center">
@@ -37,7 +37,7 @@
               :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
               class="truncate flex-grow"
             >
-              <span class="font-medium">取件日期：</span>{{ record.date }}
+              <span class="font-medium">{{ t('fileRecord.date') }}：</span>{{ record.date }}
             </p>
           </div>
           <div class="flex items-center">
@@ -49,7 +49,7 @@
               :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
               class="truncate flex-grow"
             >
-              <span class="font-medium">文件大小：</span>{{ record.size }}
+              <span class="font-medium">{{ t('fileRecord.size') }}：</span>{{ record.size }}
             </p>
           </div>
           <div class="flex items-center">
@@ -58,14 +58,14 @@
               :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
             />
             <p :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']">
-              <span class="font-medium">文件内容：</span>
+              <span class="font-medium">{{ t('fileDetail.content') }}：</span>
             </p>
             <div v-if="record.filename === 'Text'" class="ml-2">
               <button
                 @click="$emit('preview-content')"
                 class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
               >
-                预览内容
+                {{ t('fileDetail.previewContent') }}
               </button>
             </div>
             <div v-else>
@@ -75,7 +75,7 @@
                 rel="noopener noreferrer"
                 class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition duration-300"
               >
-                点击下载
+                {{ t('fileDetail.download') }}
               </a>
             </div>
           </div>
@@ -86,13 +86,13 @@
             class="text-lg font-semibold mb-3"
             :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
           >
-            取件二维码
+            {{ t('fileDetail.qrCode') }}
           </h4>
           <div class="bg-white p-2 rounded-lg shadow-md">
             <QRCode :value="getQRCodeValue(record)" :size="128" level="M" />
           </div>
           <p class="mt-2 text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
-            扫描二维码快速取件
+            {{ t('fileDetail.scanQrCode') }}
           </p>
         </div>
 
@@ -100,7 +100,7 @@
           @click="$emit('close')"
           class="mt-8 w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition duration-300 transform hover:scale-105"
         >
-          关闭
+          {{ t('common.close') }}
         </button>
       </div>
     </div>
@@ -109,6 +109,7 @@
 
 <script setup lang="ts">
 import { inject } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { FileIcon, CalendarIcon, HardDriveIcon, DownloadIcon } from 'lucide-vue-next'
 import QRCode from 'qrcode.vue'
 
@@ -134,6 +135,7 @@ interface Emits {
 
 defineProps<Props>()
 defineEmits<Emits>()
+const { t } = useI18n()
 const isDarkMode = inject('isDarkMode')
 const baseUrl = window.location.origin
 

@@ -12,7 +12,7 @@
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
       ]"
     >
-      发送文件
+      {{ t('nav.sendFile') }}
     </button>
     <button
       type="button"
@@ -26,7 +26,7 @@
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
       ]"
     >
-      发送文本
+      {{ t('send.sendText') }}
     </button>
   </div>
 </template>
@@ -34,6 +34,9 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 import type { SendType } from '@/types'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Props {
   selectedType: SendType

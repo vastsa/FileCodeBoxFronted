@@ -3,7 +3,7 @@
     <!-- 页面标题和统计信息 -->
     <div class="mb-8">
       <h2 class="text-2xl font-bold mb-4" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-        文件管理
+        {{ t('fileManage.title') }}
       </h2>
     </div>
 
@@ -18,19 +18,19 @@
               ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
               : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400',
             'w-full pl-10 pr-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
-          ]" placeholder="搜索文件名称、描述..." />
+          ]" :placeholder="t('fileManage.searchPlaceholder')" />
           <SearchIcon class="absolute left-3 top-3 w-5 h-5" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
         </div>
         <button @click="handleSearch"
           class="px-4 py-2.5 rounded-lg inline-flex items-center transition-all duration-200 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
           <SearchIcon class="w-5 h-5 mr-2" />
-          搜索
+          {{ t('common.search') }}
         </button>
       </div>
     </div>
 
     <!-- 文件列表 -->
-    <DataTable title="所有文件" :headers="fileTableHeaders">
+    <DataTable :title="t('fileManage.allFiles')" :headers="fileTableHeaders">
       <template #body>
         <tr v-for="file in tableData" :key="file.id" class="hover:bg-opacity-50 transition-colors duration-200"
           :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50']">
@@ -84,7 +84,7 @@
                 ? (isDarkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-100 text-yellow-800')
                 : (isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-800')
             ]">
-              {{ file.expired_at ? formatTimestamp(file.expired_at) : '永久' }}
+              {{ file.expired_at ? formatTimestamp(file.expired_at) : t('send.expiration.units.forever') }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -96,7 +96,7 @@
                     : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
                 ]">
                 <PencilIcon class="w-4 h-4 mr-1.5" />
-                编辑
+                {{ t('common.edit') }}
               </button>
               <button @click="deleteFile(file.id)"
                 class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" :class="[
@@ -105,7 +105,7 @@
                     : 'bg-red-50 text-red-600 hover:bg-red-100'
                 ]">
                 <TrashIcon class="w-4 h-4 mr-1.5" />
-                删除
+                {{ t('common.delete') }}
               </button>
             </div>
           </td>
@@ -144,7 +144,7 @@
                     <PencilIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
                   </div>
                   <h3 class="text-xl font-semibold leading-6" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
-                    编辑文件信息
+                    {{ t('fileManage.editFileInfo') }}
                   </h3>
                 </div>
                 <!-- 优化的关闭按钮 -->
@@ -164,7 +164,7 @@
                 <div class="space-y-2 group">
                   <label class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
                     :class="[isDarkMode ? 'text-gray-300 group-focus-within:text-indigo-400' : 'text-gray-700 group-focus-within:text-indigo-600']">
-                    <span>取件码</span>
+                    <span>{{ t('fileManage.form.code') }}</span>
                     <div class="h-px flex-1 transition-colors duration-200"
                       :class="[isDarkMode ? 'bg-gray-700 group-focus-within:bg-indigo-500/50' : 'bg-gray-200 group-focus-within:bg-indigo-500/30']">
                     </div>
@@ -176,7 +176,7 @@
                         isDarkMode
                           ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-indigo-500/50'
                           : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-indigo-500'
-                      ]" placeholder="输入取件码">
+                      ]" :placeholder="t('fileManage.form.codePlaceholder')">
                     <div
                       class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200 opacity-0 group-focus-within:opacity-100">
                       <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
@@ -188,7 +188,7 @@
                 <div class="space-y-2 group">
                   <label class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
                     :class="[isDarkMode ? 'text-gray-300 group-focus-within:text-indigo-400' : 'text-gray-700 group-focus-within:text-indigo-600']">
-                    <span>文件名称</span>
+                    <span>{{ t('fileManage.form.filename') }}</span>
                     <div class="h-px flex-1 transition-colors duration-200"
                       :class="[isDarkMode ? 'bg-gray-700 group-focus-within:bg-indigo-500/50' : 'bg-gray-200 group-focus-within:bg-indigo-500/30']">
                     </div>
@@ -200,7 +200,7 @@
                         isDarkMode
                           ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-indigo-500/50'
                           : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-indigo-500'
-                      ]" placeholder="输入文件名称">
+                      ]" :placeholder="t('fileManage.form.filenamePlaceholder')">
                     <div
                       class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200 opacity-0 group-focus-within:opacity-100">
                       <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
@@ -212,7 +212,7 @@
                 <div class="space-y-2 group">
                   <label class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
                     :class="[isDarkMode ? 'text-gray-300 group-focus-within:text-indigo-400' : 'text-gray-700 group-focus-within:text-indigo-600']">
-                    <span>文件后缀</span>
+                    <span>{{ t('fileManage.form.suffix') }}</span>
                     <div class="h-px flex-1 transition-colors duration-200"
                       :class="[isDarkMode ? 'bg-gray-700 group-focus-within:bg-indigo-500/50' : 'bg-gray-200 group-focus-within:bg-indigo-500/30']">
                     </div>
@@ -224,7 +224,7 @@
                         isDarkMode
                           ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-indigo-500/50'
                           : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-indigo-500'
-                      ]" placeholder="输入文件后缀">
+                      ]" :placeholder="t('fileManage.form.suffixPlaceholder')">
                     <div
                       class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200 opacity-0 group-focus-within:opacity-100">
                       <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
@@ -236,7 +236,7 @@
                 <div class="space-y-2 group">
                   <label class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
                     :class="[isDarkMode ? 'text-gray-300 group-focus-within:text-indigo-400' : 'text-gray-700 group-focus-within:text-indigo-600']">
-                    <span>过期时间</span>
+                    <span>{{ t('send.expiration.label') }}</span>
                     <div class="h-px flex-1 transition-colors duration-200"
                       :class="[isDarkMode ? 'bg-gray-700 group-focus-within:bg-indigo-500/50' : 'bg-gray-200 group-focus-within:bg-indigo-500/30']">
                     </div>
@@ -260,7 +260,7 @@
                 <div class="space-y-2 group">
                   <label class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
                     :class="[isDarkMode ? 'text-gray-300 group-focus-within:text-indigo-400' : 'text-gray-700 group-focus-within:text-indigo-600']">
-                    <span>下载次数限制</span>
+                    <span>{{ t('fileManage.form.downloadLimit') }}</span>
                     <div class="h-px flex-1 transition-colors duration-200"
                       :class="[isDarkMode ? 'bg-gray-700 group-focus-within:bg-indigo-500/50' : 'bg-gray-200 group-focus-within:bg-indigo-500/30']">
                     </div>
@@ -272,7 +272,7 @@
                         isDarkMode
                           ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-indigo-500/50'
                           : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-indigo-500'
-                      ]" placeholder="输入下载次数限制">
+                      ]" :placeholder="t('fileManage.form.downloadLimitPlaceholder')">
                     <div
                       class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200 opacity-0 group-focus-within:opacity-100">
                       <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
@@ -292,12 +292,12 @@
                     ? 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 ]">
-                取消
+                {{ t('common.cancel') }}
               </button>
               <button @click="handleUpdate"
                 class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/35">
                 <CheckIcon class="w-4 h-4 mr-2" />
-                保存更改
+                {{ t('fileManage.saveChanges') }}
               </button>
             </div>
           </div>
@@ -309,6 +309,7 @@
 
 <script setup lang="ts">
 import { inject, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { FileService } from '@/services'
 import type { FileListItem, FileEditForm } from '@/types'
 import {
@@ -333,11 +334,19 @@ function formatTimestamp(timestamp: string): string {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 }
 
+const { t } = useI18n()
 const isDarkMode = inject('isDarkMode')
 const tableData = ref<FileListItem[]>([])
 const alertStore = useAlertStore()
 // 修改文件表头
-const fileTableHeaders = ['取件码', '名称', '大小', '描述', '过期时间', '操作']
+const fileTableHeaders = computed(() => [
+  t('fileManage.headers.code'),
+  t('fileManage.headers.name'),
+  t('fileManage.headers.size'),
+  t('fileManage.headers.description'),
+  t('fileManage.headers.expiration'),
+  t('fileManage.headers.actions')
+])
 
 // 分页参数
 const params = ref({
@@ -392,7 +401,7 @@ const handleUpdate = async () => {
     closeEditModal()
   } catch (error: unknown) {
     const err = error as { response?: { data?: { detail?: string } } }
-    alertStore.showAlert(err.response?.data?.detail || '更新失败', 'error')
+    alertStore.showAlert(err.response?.data?.detail || t('manage.fileManage.updateFailed'), 'error')
   }
 }
 
@@ -425,7 +434,7 @@ const deleteFile = async (id: number) => {
     await FileService.deleteAdminFile(id)
     await loadFiles()
   } catch (error) {
-    console.error('删除失败:', error)
+    console.error(t('manage.fileManage.deleteFailed'), error)
   }
 }
 
@@ -460,7 +469,7 @@ const loadFiles = async () => {
       params.value.total = res.detail.total
     }
   } catch (error) {
-    console.error('加载文件列表失败:', error)
+    console.error(t('manage.fileManage.loadFileListFailed'), error)
   }
 }
 

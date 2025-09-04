@@ -11,7 +11,7 @@
       >
         <div class="flex justify-between items-center mb-4 flex-shrink-0">
           <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-            内容预览
+            {{ t('contentPreview.title') }}
           </h3>
           <div class="flex items-center gap-3">
             <button
@@ -24,7 +24,7 @@
               ]"
             >
               <CopyIcon class="w-4 h-4" />
-              复制
+              {{ t('common.copy') }}
             </button>
             <button
               @click="$emit('close')"
@@ -53,6 +53,7 @@
 
 <script setup lang="ts">
 import { inject } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { CopyIcon, XIcon } from 'lucide-vue-next'
 
 interface Props {
@@ -67,6 +68,7 @@ interface Emits {
 
 defineProps<Props>()
 defineEmits<Emits>()
+const { t } = useI18n()
 const isDarkMode = inject('isDarkMode')
 </script>
 

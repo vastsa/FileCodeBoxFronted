@@ -4,7 +4,7 @@
       :value="modelValue"
       @input="updateValue"
       :rows="rows"
-      :placeholder="placeholder"
+      :placeholder="placeholderText"
       :class="[
         'flex-grow px-4 py-3 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 resize-none custom-scrollbar',
         isDarkMode
@@ -16,7 +16,10 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue'
+import { inject, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Props {
   modelValue: string
@@ -28,13 +31,16 @@ interface Emits {
   'update:modelValue': [value: string]
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   rows: 7,
   placeholder: '在此输入要发送的文本...'
 })
 
 const emit = defineEmits<Emits>()
 const isDarkMode = inject('isDarkMode')
+
+// 使用computed属性处理多语言文本
+const placeholderText = computed(() => props.placeholder || t('send.uploadArea.textInput'))
 
 const updateValue = (event: Event) => {
   const target = event.target as HTMLTextAreaElement

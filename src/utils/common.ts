@@ -49,26 +49,29 @@ export function formatFileSize(bytes: number, decimals: number = 2): string {
 /**
  * 格式化持续时间
  * @param seconds 秒数
+ * @param t 翻译函数
  * @returns 格式化后的持续时间字符串
  */
-export function formatDuration(seconds: number): string {
-  if (seconds === 0) return '永久'
+export function formatDuration(seconds: number, t?: (key: string) => string): string {
+  if (seconds === 0) return t ? t('utils.time.forever') : 'Forever'
 
   const units = [
-    { name: '天', value: 86400 },
-    { name: '小时', value: 3600 },
-    { name: '分钟', value: 60 },
-    { name: '秒', value: 1 }
+    { key: 'utils.time.day', value: 86400 },
+    { key: 'utils.time.hour', value: 3600 },
+    { key: 'utils.time.minute', value: 60 },
+    { key: 'utils.time.second', value: 1 }
   ]
 
   for (const unit of units) {
     if (seconds >= unit.value) {
       const value = Math.floor(seconds / unit.value)
-      return `${value}${unit.name}`
+      const unitName = t ? t(unit.key) : unit.key.split('.').pop()
+      return `${value}${unitName}`
     }
   }
 
-  return `${seconds}秒`
+  const secondName = t ? t('utils.time.second') : 'second'
+  return `${seconds}${secondName}`
 }
 
 /**
@@ -96,7 +99,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       return result
     }
   } catch (error) {
-    console.error('复制失败:', error)
+    console.error('Copy failed:', error)
     return false
   }
 }

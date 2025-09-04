@@ -26,7 +26,7 @@
               @click="removeAlert(alert.id)"
               class="inline-flex text-white hover:text-gray-200 focus:outline-none transition-colors duration-200"
             >
-              <span class="sr-only">关闭</span>
+              <span class="sr-only">{{ t('common.close') }}</span>
               <X class="h-5 w-5" />
             </button>
           </div>
@@ -47,6 +47,9 @@ import { storeToRefs } from 'pinia'
 import { useAlertStore } from '@/stores/alertStore'
 import { CheckCircle, AlertTriangle, AlertCircle, Info, X } from 'lucide-vue-next'
 import { onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const alertStore = useAlertStore()
 const { alerts } = storeToRefs(alertStore)

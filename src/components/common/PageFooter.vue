@@ -18,7 +18,7 @@
         :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
       >
         <ShieldCheckIcon class="w-4 h-4 mr-1 text-green-400" />
-        安全加密
+        {{ t('send.secureEncryption') }}
       </span>
       <button
         @click="$emit('toggle-drawer')"
@@ -35,6 +35,9 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 import { ShieldCheckIcon, ClipboardListIcon } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 interface Props {
   linkText?: string
