@@ -381,7 +381,8 @@
 
 <script setup lang="ts">
 import { inject, ref, computed } from 'vue'
-import api from '@/utils/api'
+import { FileService } from '@/services'
+import type { FileListItem, FileEditForm } from '@/types'
 import {
   FileIcon,
   SearchIcon,
@@ -405,7 +406,7 @@ function formatTimestamp(timestamp: string): string {
 }
 
 const isDarkMode = inject('isDarkMode')
-const tableData: any = ref([])
+const tableData = ref<FileListItem[]>([])
 const alertStore = useAlertStore()
 // 修改文件表头
 const fileTableHeaders = ['取件码', '名称', '大小', '描述', '过期时间', '操作']
@@ -420,7 +421,7 @@ const params = ref({
 
 // 添加编辑相关的状态
 const showEditModal = ref(false)
-const editForm = ref({
+const editForm = ref<FileEditForm>({
   id: null,
   code: '',
   prefix: '',
@@ -430,7 +431,7 @@ const editForm = ref({
 })
 
 // 打开编辑模态框
-const openEditModal = (file: any) => {
+const openEditModal = (file: FileListItem) => {
   editForm.value = {
     id: file.id,
     code: file.code,
@@ -458,99 +459,86 @@ const closeEditModal = () => {
 // 处理更新
 const handleUpdate = async () => {
   try {
-    await api({
-      url: 'admin/file/update',
-      method: 'patch',
-      data: editForm.value
-    })
+    await FileService.updateFile(editForm.value)
     await loadFiles()
     closeEditModal()
-  } catch (error: any) {
-    alertStore.showAlert(error.response.data.detail, 'error')
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { detail?: string } } }
+    alertStore.showAlert(err.response?.data?.detail || '更新失败', 'error')
   }
 }
 
-// 下载文件处理
-const downloadFile = async (id: number) => {
-  try {
-    const response = await api({
-      url: 'admin/file/download',
-      method: 'get',
-      params: { id },
-      responseType: 'blob'
-    })
+// 下载文件处理 - 暂时移除未使用的函数
+// const downloadFile = async (id: number) => {
+//   try {
+//     const response = await FileService.downloadAdminFile(id)
 
-    const contentDisposition = response.headers['content-disposition']
-    let filename = 'file'
-    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
-    if (filenameMatch != null && filenameMatch[1]) {
-      filename = filenameMatch[1].replace(/['"]/g, '')
-    }
+//     const contentDisposition = response.headers['content-disposition']
+//     let filename = 'file'
+//     const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+//     if (filenameMatch != null && filenameMatch[1]) {
+//       filename = filenameMatch[1].replace(/['"]/g, '')
+//     }
 
-    // @ts-ignore
-    if (window.showSaveFilePicker) {
-      await saveFileByWebApi(response.data, filename)
-    } else {
-      await saveFileByElementA(response.data, filename)
-    }
-  } catch (error) {
-    console.error('下载失败:', error)
-  }
-}
+//     // @ts-expect-error - showSaveFilePicker is not in standard Window interface
+//     if (window.showSaveFilePicker) {
+//       await saveFileByWebApi(response.data, filename)
+//     } else {
+//       await saveFileByElementA(response.data, filename)
+//     }
+//   } catch (error) {
+//     console.error('下载失败:', error)
+//   }
+// }
 
 // 删除文件处理
 const deleteFile = async (id: number) => {
   try {
-    await api({
-      url: 'admin/file/delete',
-      method: 'delete',
-      data: { id }
-    })
+    await FileService.deleteAdminFile(id)
     await loadFiles()
   } catch (error) {
     console.error('删除失败:', error)
   }
 }
 
-// 文件保存辅助函数
-async function saveFileByElementA(fileBlob: Blob, filename: string) {
-  const downloadUrl = window.URL.createObjectURL(fileBlob)
-  const link = document.createElement('a')
-  link.href = downloadUrl
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  window.URL.revokeObjectURL(downloadUrl)
-  document.body.removeChild(link)
-}
+// 文件保存辅助函数 - 暂时移除未使用的函数
+// async function saveFileByElementA(fileBlob: Blob, filename: string) {
+//   const downloadUrl = window.URL.createObjectURL(fileBlob)
+//   const link = document.createElement('a')
+//   link.href = downloadUrl
+//   link.download = filename
+//   document.body.appendChild(link)
+//   link.click()
+//   window.URL.revokeObjectURL(downloadUrl)
+//   document.body.removeChild(link)
+// }
 
-async function saveFileByWebApi(fileBlob: Blob, filename: string) {
-  // @ts-ignore
-  const newHandle = await window.showSaveFilePicker({
-    suggestedName: filename
-  })
-  const writableStream = await newHandle.createWritable()
-  await writableStream.write(fileBlob)
-  await writableStream.close()
-}
+// async function saveFileByWebApi(fileBlob: Blob, filename: string) {
+//   // @ts-expect-error - showSaveFilePicker is not in standard Window interface
+//   const newHandle = await window.showSaveFilePicker({
+//     suggestedName: filename
+//   })
+//   const writableStream = await newHandle.createWritable()
+//   await writableStream.write(fileBlob)
+//   await writableStream.close()
+// }
 
 // 加载文件列表
 const loadFiles = async () => {
   try {
-    const res: any = await api({
-      url: '/admin/file/list',
-      method: 'get',
-      params: params.value
-    })
-    tableData.value = res.detail.data
-    params.value.total = res.detail.total
+    const res = await FileService.getAdminFileList(params.value)
+    if (res.detail) {
+      tableData.value = res.detail.data
+      params.value.total = res.detail.total
+    }
   } catch (error) {
     console.error('加载文件列表失败:', error)
   }
 }
 
 // 页码改变处理函数
-const handlePageChange = async (page: any) => {
+const handlePageChange = async (page: number | string) => {
+  if (typeof page === 'string') return // 忽略省略号
   if (page < 1 || page > totalPages.value) return
   params.value.page = page
   await loadFiles()

@@ -1,13 +1,6 @@
 import { defineStore } from 'pinia'
-
-interface Alert {
-  id: number
-  message: string
-  type: 'success' | 'error' | 'warning' | 'info'
-  progress: number
-  duration: number
-  startTime: number
-}
+import type { Alert, AlertType } from '@/types'
+import { TIME_CONSTANTS } from '@/constants'
 
 export const useAlertStore = defineStore('alert', {
   state: () => ({
@@ -16,8 +9,8 @@ export const useAlertStore = defineStore('alert', {
   actions: {
     showAlert(
       message: string,
-      type: 'success' | 'error' | 'warning' | 'info' = 'info',
-      duration = 5000
+      type: AlertType = 'info',
+      duration = TIME_CONSTANTS.ALERT_DURATION
     ) {
       const id = Date.now()
       const startTime = Date.now()

@@ -1,18 +1,18 @@
 import axios from 'axios'
+import { TIME_CONSTANTS } from '@/constants'
 
 // 从环境变量中获取 API 基础 URL
 const baseURL =
   import.meta.env.MODE === 'production'
     ? import.meta.env.VITE_API_BASE_URL_PROD
     : import.meta.env.VITE_API_BASE_URL_DEV
-
 // 确保 baseURL 是一个有效的字符串
 const sanitizedBaseURL = typeof baseURL === 'string' ? baseURL : ''
 
 // 创建 axios 实例
 const api = axios.create({
   baseURL: sanitizedBaseURL,
-  timeout: 1000000000000000, // 请求超时时间
+  timeout: TIME_CONSTANTS.REQUEST_TIMEOUT, // 30秒超时
   headers: {
     'Content-Type': 'application/json'
   }
@@ -46,27 +46,26 @@ api.interceptors.response.use(
   (error) => {
     // 处理错误响应
     if (error.response) {
-      switch (error.response.status) {
+      const { status } = error.response
+      switch (status) {
         case 401:
-          console.error('未授权，请重新登录')
-          localStorage.clear()
-          window.location.href = '/#/login'
+          localStorage.removeItem('token')
+          // 使用 router 进行导航而不是直接修改 location
+          if (window.location.hash !== '#/login') {
+            window.location.href = '/#/login'
+          }
           break
         case 403:
-          // 禁止访问
-          console.error('禁止访问')
-          break
         case 404:
-          // 未找到
-          console.error('请求的资源不存在')
-          break
+        case 500:
         default:
-          console.error('发生错误:', error.response.data)
+          // 错误信息通过Promise.reject传递给调用方处理
+          break
       }
     } else if (error.request) {
-      console.error('未收到响应:', error.request)
+      // 网络错误，通过Promise.reject传递给调用方处理
     } else {
-      console.error('请求配置错误:', error.message)
+      // 请求配置错误，通过Promise.reject传递给调用方处理
     }
     return Promise.reject(error)
   }

@@ -3,12 +3,13 @@ import { ref, watchEffect, provide, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 import ThemeToggle from './components/common/ThemeToggle.vue'
 import { useRouter } from 'vue-router'
-import api from './utils/api'
 const isDarkMode = ref(false)
 const isLoading = ref(false)
 const router = useRouter()
 import AlertComponent from '@/components/common/AlertComponent.vue'
 import { useAlertStore } from '@/stores/alertStore'
+import { ConfigService } from '@/services'
+import type { ApiResponse, ConfigState } from '@/types'
 
 const alertStore = useAlertStore()
 // 检查系统颜色模式
@@ -38,8 +39,9 @@ onMounted(() => {
   } else {
     setColorMode(checkSystemColorScheme())
   }
-  api.post('/', {}).then((res: any) => {
-    if (res.code === 200) {
+  ConfigService.getUserConfig().then((res: ApiResponse<ConfigState>) => {
+    if (res.code === 200 && res.detail) {
+      console.log(res);
       localStorage.setItem('config', JSON.stringify(res.detail))
       if (
         res.detail.notify_title &&

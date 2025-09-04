@@ -386,16 +386,7 @@ interface InputStatus {
   loading: boolean
 }
 
-interface ApiResponse {
-  code: number
-  message?: string
-  detail?: {
-    code: string
-    name: string
-    text: string
-    size: number
-  }
-}
+
 import {
   BoxIcon,
   EyeIcon,
@@ -415,6 +406,14 @@ import QRCode from 'qrcode.vue'
 import { useFileDataStore } from '@/stores/fileData'
 import { storeToRefs } from 'pinia'
 import api from '@/utils/api'
+import type { ApiResponse } from '@/types'
+
+interface RetrieveResponse {
+  code: string
+  name: string
+  text: string
+  size: number
+}
 import { saveAs } from 'file-saver'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
@@ -491,7 +490,7 @@ const handleSubmit = async () => {
     const response = await api.post('/share/select/', {
       code: code.value
     })
-    const res = (response.data || response) as ApiResponse
+    const res = (response.data || response) as ApiResponse<RetrieveResponse>
 
     if (res && res.code === 200) {
       if (res.detail) {
@@ -574,8 +573,6 @@ const getQRCodeValue = (record: FileRecord) => {
 }
 
 const downloadRecord = (record: FileRecord) => {
-  console.log(record)
-
   if (record.downloadUrl) {
     // 如果是文件,直接下载
     window.open(

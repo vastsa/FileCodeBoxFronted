@@ -1,47 +1,10 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue'
-import api from '@/utils/api'
+import { ConfigService } from '@/services'
+import type { ConfigState } from '@/types'
 import { useAlertStore } from '@/stores/alertStore'
 
 const isDarkMode = inject('isDarkMode')
-interface ConfigState {
-  name: string
-  description: string
-  file_storage: string
-  themesChoices: any[]
-  expireStyle: string[]
-  admin_token: string
-  robotsText: string
-  keywords: string
-  notify_title: string
-  notify_content: string
-  openUpload: number
-  uploadSize: number
-  storage_path: string
-  uploadMinute: number
-  max_save_seconds: number
-  opacity: number
-  enableChunk: number
-  s3_access_key_id: string
-  background: string
-  showAdminAddr: number
-  page_explain: string
-  s3_secret_access_key: string
-  aws_session_token: string
-  s3_signature_version: string
-  s3_region_name: string
-  s3_bucket_name: string
-  s3_endpoint_url: string
-  s3_hostname: string
-  uploadCount: number
-  errorMinute: number
-  errorCount: number
-  s3_proxy: number
-  themesSelect: string
-  webdav_url: string
-  webdav_username: string
-  webdav_password: string
-}
 
 const config = ref<ConfigState>({
   name: '',
@@ -100,48 +63,54 @@ const convertToSeconds = (time: number, unit: string): number => {
   return time * units[unit as keyof typeof units]
 }
 
-const refreshData = () => {
-  api({
-    url: 'admin/config/get',
-    method: 'get'
-  }).then((res: any) => {
-    config.value = res.detail
-
-    // 将字节转换为合适的单位
-    const size = config.value.uploadSize
-    if (size >= 1024 * 1024 * 1024) {
-      fileSize.value = Math.round(size / (1024 * 1024 * 1024))
-      sizeUnit.value = 'GB'
-    } else if (size >= 1024 * 1024) {
-      fileSize.value = Math.round(size / (1024 * 1024))
-      sizeUnit.value = 'MB'
-    } else {
-      fileSize.value = Math.round(size / 1024)
-      sizeUnit.value = 'KB'
-    }
-
-    // 时间单位转换逻辑
-    const seconds = config.value.max_save_seconds
-    if (seconds === 0) {
-      // 如果是0，显示为7天
-      saveTime.value = 7
-      saveTimeUnit.value = '天'
-    } else if (seconds % 86400 === 0 && seconds >= 86400) {
-      saveTime.value = seconds / 86400
-      saveTimeUnit.value = '天'
-    } else if (seconds % 3600 === 0 && seconds >= 3600) {
-      saveTime.value = seconds / 3600
-      saveTimeUnit.value = '时'
-    } else if (seconds % 60 === 0 && seconds >= 60) {
-      saveTime.value = seconds / 60
-      saveTimeUnit.value = '分'
-    } else {
-      saveTime.value = seconds
-      saveTimeUnit.value = '秒'
-    }
-  })
-}
 const alertStore = useAlertStore()
+
+const refreshData = async () => {
+  try {
+    const res = await ConfigService.getConfig()
+    if (res.code === 200 && res.detail) {
+      // 直接使用ConfigState类型的响应数据
+      config.value = res.detail
+      
+      // 将字节转换为合适的单位
+      const size = config.value.uploadSize
+      if (size >= 1024 * 1024 * 1024) {
+        fileSize.value = Math.round(size / (1024 * 1024 * 1024))
+        sizeUnit.value = 'GB'
+      } else if (size >= 1024 * 1024) {
+        fileSize.value = Math.round(size / (1024 * 1024))
+        sizeUnit.value = 'MB'
+      } else {
+        fileSize.value = Math.round(size / 1024)
+        sizeUnit.value = 'KB'
+      }
+
+      // 时间单位转换逻辑
+      const seconds = config.value.max_save_seconds
+      if (seconds === 0) {
+        // 如果是0，显示为7天
+        saveTime.value = 7
+        saveTimeUnit.value = '天'
+      } else if (seconds % 86400 === 0 && seconds >= 86400) {
+        saveTime.value = seconds / 86400
+        saveTimeUnit.value = '天'
+      } else if (seconds % 3600 === 0 && seconds >= 3600) {
+        saveTime.value = seconds / 3600
+        saveTimeUnit.value = '时'
+      } else if (seconds % 60 === 0 && seconds >= 60) {
+        saveTime.value = seconds / 60
+        saveTimeUnit.value = '分'
+      } else {
+        saveTime.value = seconds
+        saveTimeUnit.value = '秒'
+      }
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : '获取配置失败'
+    alertStore.showAlert(errorMessage, 'error')
+    console.error('获取系统配置失败:', error)
+  }
+}
 // 转换文件大小为字节
 const convertToBytes = (size: number, unit: string): number => {
   const units = {
@@ -163,16 +132,15 @@ const submitSave = () => {
     formData.max_save_seconds = convertToSeconds(saveTime.value, saveTimeUnit.value)
   }
 
-  api({
-    url: 'admin/config/update',
-    method: 'patch',
-    data: formData
-  }).then((res: any) => {
+  ConfigService.updateConfig(formData).then((res) => {
     if (res.code == 200) {
       alertStore.showAlert('保存成功', 'success')
     } else {
-      alertStore.showAlert(res.message, 'error')
+      alertStore.showAlert(res.message || '保存失败', 'error')
     }
+  }).catch((error) => {
+    const errorMessage = error instanceof Error ? error.message : '保存失败'
+    alertStore.showAlert(errorMessage, 'error')
   })
 }
 

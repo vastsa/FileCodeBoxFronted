@@ -594,6 +594,7 @@ import QRCode from 'qrcode.vue'
 import { useFileDataStore } from '@/stores/fileData'
 import { useAlertStore } from '@/stores/alertStore'
 import api from '@/utils/api'
+import type { ApiResponse } from '@/types'
 import { copyRetrieveLink, copyRetrieveCode, copyWgetCommand } from '@/utils/clipboard'
 import { getStorageUnit } from '@/utils/convert'
 
@@ -615,15 +616,7 @@ interface ShareRecord {
   retrieveCode: string
 }
 
-interface ApiResponse {
-  code: number
-  detail: {
-    code?: string
-    name?: string
-    upload_id?: string
-    existed?: boolean
-  }
-}
+
 
 const config: Config = JSON.parse(localStorage.getItem('config') || '{}') as Config
 
@@ -635,7 +628,7 @@ const sendType = ref('file')
 const selectedFile = ref<File | null>(null)
 const textContent = ref('')
 const fileInput = ref<HTMLInputElement | null>(null)
-const expirationMethod = ref('day')
+const expirationMethod = ref(config.expireStyle?.[0] || 'day')
 const expirationValue = ref('1')
 const uploadProgress = ref(0)
 const showDrawer = ref(false)
@@ -880,7 +873,12 @@ const handleChunkUpload = async (file: File) => {
     const chunkSize = 5 * 1024 * 1024
     const chunks = Math.ceil(file.size / chunkSize)
     // 1. 初始化切片上传
-    const initResponse: ApiResponse = await api.post('chunk/upload/init/', {
+    const initResponse: ApiResponse<{
+      code?: string
+      name?: string
+      upload_id?: string
+      existed?: boolean
+    }> = await api.post('chunk/upload/init/', {
       file_name: file.name,
       file_size: file.size,
       chunk_size: chunkSize,
@@ -890,10 +888,10 @@ const handleChunkUpload = async (file: File) => {
     if (initResponse.code !== 200) {
       throw new Error('初始化切片上传失败')
     }
-    if (initResponse.detail.existed) {
+    if (initResponse.detail?.existed) {
       return initResponse
     }
-    const uploadId = initResponse.detail.upload_id
+    const uploadId = initResponse.detail?.upload_id
 
     // 2. 上传切片
     for (let i = 0; i < chunks; i++) {
@@ -905,7 +903,7 @@ const handleChunkUpload = async (file: File) => {
       chunkFormData.append('chunk', new Blob([chunk], { type: file.type })) // 确保以Blob形式添加
 
       // 使用 application/x-www-form-urlencoded 格式
-      const chunkResponse: ApiResponse = await api.post(
+      const chunkResponse: ApiResponse<unknown> = await api.post(
         `chunk/upload/chunk/${uploadId}/${i}`,
         chunkFormData,
         {
@@ -927,7 +925,7 @@ const handleChunkUpload = async (file: File) => {
     }
 
     // 3. 完成上传
-    const completeResponse: ApiResponse = await api.post(`chunk/upload/complete/${uploadId}`, {
+    const completeResponse: ApiResponse<{ code?: string; name?: string }> = await api.post(`chunk/upload/complete/${uploadId}`, {
       expire_value: expirationValue.value ? parseInt(expirationValue.value) : 1,
       expire_style: expirationMethod.value
     })
@@ -965,7 +963,7 @@ const handleDefaultFileUpload = async (file: File) => {
   formData.append('file', file)
   formData.append('expire_value', expirationValue.value)
   formData.append('expire_style', expirationMethod.value)
-  const response: ApiResponse = await api.post('share/file/', formData, config)
+  const response: ApiResponse<{ code?: string; name?: string }> = await api.post('share/file/', formData, config)
   return response
 }
 const checkOpenUpload = () => {
@@ -1060,8 +1058,8 @@ const handleSubmit = async () => {
     }
 
     if (response && response.code === 200) {
-      const retrieveCode = response.detail.code || ''
-      const fileName = response.detail.name || ''
+       const retrieveCode = (response.detail as unknown as { code?: string })?.code || ''
+       const fileName = (response.detail as unknown as { name?: string })?.name || ''
       // 添加新的发送记录
       const newRecord: ShareRecord = {
         id: Date.now(),
@@ -1077,7 +1075,7 @@ const handleSubmit = async () => {
             : getExpirationTime(expirationMethod.value, expirationValue.value),
         retrieveCode: retrieveCode
       }
-      fileDataStore.addShareData(newRecord)
+      fileDataStore.addShareDataRecord(newRecord)
 
       // 显示发送成功消息
       alertStore.showAlert(`文件发送成功！取件码：${retrieveCode}`, 'success')
@@ -1093,7 +1091,6 @@ const handleSubmit = async () => {
       throw new Error('服务器响应异常')
     }
   } catch (error: unknown) {
-    console.error('发送失败:', error)
     if (error && typeof error === 'object' && 'response' in error) {
       const axiosError = error as { response?: { data?: { detail?: string } } }
       if (axiosError.response?.data?.detail) {

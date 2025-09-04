@@ -113,14 +113,12 @@ import {
   HardDriveIcon,
   UsersIcon,
   ActivityIcon,
-  UploadIcon,
-  TrashIcon,
-  UserIcon
 } from 'lucide-vue-next'
+import { StatsService } from '@/services'
+import type { DashboardData } from '@/types'
 const isDarkMode = inject('isDarkMode')
-import api from '@/utils/api'
 
-const dashboardData: any = reactive({
+const dashboardData = reactive<DashboardData>({
   totalFiles: 0,
   storageUsed: 0,
   yesterdayCount: 0,
@@ -129,30 +127,6 @@ const dashboardData: any = reactive({
   todaySize: 0,
   sysUptime: 0
 })
-
-// 添加最近活动数据
-const recentActivities = [
-  {
-    icon: UploadIcon,
-    description: '张三上传了文件 "项目计划.pdf"',
-    time: '10分钟前'
-  },
-  {
-    icon: UserIcon,
-    description: '新用户李四加入了系统',
-    time: '30分钟前'
-  },
-  {
-    icon: TrashIcon,
-    description: '王五删除了文件 "旧文档.doc"',
-    time: '1小时前'
-  },
-  {
-    icon: FileIcon,
-    description: '系统自动备份完成',
-    time: '2小时前'
-  }
-]
 
 const getSysUptime = (startTimestamp: number) => {
   const now = new Date().getTime()
@@ -181,14 +155,16 @@ const getLocalstorageUsed = (nowUsedBit: string) => {
   }
 }
 const getDashboardData = async () => {
-  const response: any = await api.get('admin/dashboard')
-  dashboardData.totalFiles = response.detail.totalFiles
-  dashboardData.storageUsed = getLocalstorageUsed(response.detail.storageUsed)
-  dashboardData.yesterdaySize = getLocalstorageUsed(response.detail.yesterdaySize)
-  dashboardData.todaySize = getLocalstorageUsed(response.detail.todaySize)
-  dashboardData.yesterdayCount = response.detail.yesterdayCount
-  dashboardData.todayCount = response.detail.todayCount
-  dashboardData.sysUptime = getSysUptime(response.detail.sysUptime)
+  const response = await StatsService.getDashboard()
+  if (response.detail) {
+    dashboardData.totalFiles = response.detail.totalFiles
+    dashboardData.storageUsed = getLocalstorageUsed(response.detail.storageUsed.toString())
+    dashboardData.yesterdaySize = getLocalstorageUsed(response.detail.yesterdaySize.toString())
+    dashboardData.todaySize = getLocalstorageUsed(response.detail.todaySize.toString())
+    dashboardData.yesterdayCount = response.detail.yesterdayCount
+    dashboardData.todayCount = response.detail.todayCount
+    dashboardData.sysUptime = getSysUptime(Number(response.detail.sysUptime))
+  }
 }
 
 onMounted(() => {
