@@ -78,7 +78,7 @@ export class FileService {
   }
 
   static async updateFile(data: FileEditForm): Promise<ApiResponse> {
-    return api.post('/admin/file/update', data)
+    return api.patch('/admin/file/update', data)
   }
 
   static async deleteAdminFile(id: number): Promise<ApiResponse> {
