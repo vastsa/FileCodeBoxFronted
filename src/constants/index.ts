@@ -56,7 +56,7 @@ export const FILE_SIZE_LIMITS = {
 // 时间相关常量
 export const TIME_CONSTANTS = {
   ALERT_DURATION: 5000, // 5秒
-  REQUEST_TIMEOUT: 30000, // 30秒
+  REQUEST_TIMEOUT: 300000000,
   PROGRESS_UPDATE_INTERVAL: 100 // 100毫秒
 } as const
 
