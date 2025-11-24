@@ -405,29 +405,6 @@ const handleUpdate = async () => {
   }
 }
 
-// 下载文件处理 - 暂时移除未使用的函数
-// const downloadFile = async (id: number) => {
-//   try {
-//     const response = await FileService.downloadAdminFile(id)
-
-//     const contentDisposition = response.headers['content-disposition']
-//     let filename = 'file'
-//     const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
-//     if (filenameMatch != null && filenameMatch[1]) {
-//       filename = filenameMatch[1].replace(/['"]/g, '')
-//     }
-
-//     // @ts-expect-error - showSaveFilePicker is not in standard Window interface
-//     if (window.showSaveFilePicker) {
-//       await saveFileByWebApi(response.data, filename)
-//     } else {
-//       await saveFileByElementA(response.data, filename)
-//     }
-//   } catch (error) {
-//     console.error('下载失败:', error)
-//   }
-// }
-
 // 删除文件处理
 const deleteFile = async (id: number) => {
   try {
@@ -437,28 +414,6 @@ const deleteFile = async (id: number) => {
     console.error(t('manage.fileManage.deleteFailed'), error)
   }
 }
-
-// 文件保存辅助函数 - 暂时移除未使用的函数
-// async function saveFileByElementA(fileBlob: Blob, filename: string) {
-//   const downloadUrl = window.URL.createObjectURL(fileBlob)
-//   const link = document.createElement('a')
-//   link.href = downloadUrl
-//   link.download = filename
-//   document.body.appendChild(link)
-//   link.click()
-//   window.URL.revokeObjectURL(downloadUrl)
-//   document.body.removeChild(link)
-// }
-
-// async function saveFileByWebApi(fileBlob: Blob, filename: string) {
-//   // @ts-expect-error - showSaveFilePicker is not in standard Window interface
-//   const newHandle = await window.showSaveFilePicker({
-//     suggestedName: filename
-//   })
-//   const writableStream = await newHandle.createWritable()
-//   await writableStream.write(fileBlob)
-//   await writableStream.close()
-// }
 
 // 加载文件列表
 const loadFiles = async () => {
