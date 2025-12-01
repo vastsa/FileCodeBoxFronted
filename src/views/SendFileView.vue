@@ -556,8 +556,11 @@ const fileHash = ref('')
 
 
 
-const handleFileSelected = (file: File) => {
+const handleFileSelected = async (file: File) => {
   selectedFile.value = file
+  if (!checkOpenUpload()) return
+  if (!checkFileSize(file)) return
+  fileHash.value = await calculateFileHash(file)
 }
 
 
@@ -648,49 +651,46 @@ const handlePaste = async (event: ClipboardEvent) => {
 }
 
 const calculateFileHash = async (file: File): Promise<string> => {
-  return new Promise((resolve) => {
-    const chunkSize = 2097152 // 保持 2MB 的切片大小用于计算哈希
-    const fileReader = new FileReader()
-    let currentChunk = 0
-    const chunks = Math.ceil(file.size / chunkSize)
-
-    fileReader.onload = async (e) => {
-      const chunk = new Uint8Array(e.target!.result as ArrayBuffer)
-
-      try {
-        // 尝试使用 crypto.subtle.digest
-        if (window.isSecureContext) {
-          const hashBuffer = await crypto.subtle.digest('SHA-256', chunk)
-          const hashArray = Array.from(new Uint8Array(hashBuffer))
-          const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-
-          currentChunk++
-          if (currentChunk < chunks) {
-            loadNext()
-          } else {
-            resolve(hashHex)
-          }
-        } else {
-          // 如果不是安全上下文（HTTP），则返回一个基于文件信息的替代哈希
-          const fallbackHash = generateFallbackHash(file)
-          resolve(fallbackHash)
-        }
-      } catch (err) {
-        // 如果 crypto.subtle.digest 失败，使用替代方案
-        const fallbackHash = generateFallbackHash(file)
-        console.error('File hash calculation failed:', err)
-        resolve(fallbackHash)
+  try {
+    // 对于小文件，直接计算整个文件的哈希
+    if (file.size <= 10 * 1024 * 1024) {
+      const buffer = await file.arrayBuffer()
+      if (window.isSecureContext) {
+        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer)
+        const hashArray = Array.from(new Uint8Array(hashBuffer))
+        return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
       }
+      return generateFallbackHash(file)
     }
 
-    const loadNext = () => {
-      const start = currentChunk * chunkSize
-      const end = start + chunkSize >= file.size ? file.size : start + chunkSize
-      fileReader.readAsArrayBuffer(file.slice(start, end))
-    }
+    // 对于大文件，取首尾各5MB计算哈希
+    const chunkSize = 5 * 1024 * 1024
+    const firstChunk = file.slice(0, chunkSize)
+    const lastChunk = file.slice(-chunkSize)
 
-    loadNext()
-  })
+    const [firstBuffer, lastBuffer] = await Promise.all([
+      firstChunk.arrayBuffer(),
+      lastChunk.arrayBuffer()
+    ])
+
+    // 合并首尾数据
+    const combined = new Uint8Array(firstBuffer.byteLength + lastBuffer.byteLength + 16)
+    combined.set(new Uint8Array(firstBuffer), 0)
+    combined.set(new Uint8Array(lastBuffer), firstBuffer.byteLength)
+    // 添加文件大小信息
+    const sizeBytes = new TextEncoder().encode(file.size.toString())
+    combined.set(sizeBytes, firstBuffer.byteLength + lastBuffer.byteLength)
+
+    if (window.isSecureContext) {
+      const hashBuffer = await crypto.subtle.digest('SHA-256', combined)
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+    }
+    return generateFallbackHash(file)
+  } catch (err) {
+    console.error('File hash calculation failed:', err)
+    return generateFallbackHash(file)
+  }
 }
 
 // 生成替代哈希的函数
@@ -777,6 +777,11 @@ const getExpirationTime = (method: string, value: string) => {
 
 const handleChunkUpload = async (file: File) => {
   try {
+    // 确保文件哈希已计算
+    // 每次上传都重新计算哈希，确保哈希值正确
+    const hash = await calculateFileHash(file)
+    fileHash.value = hash
+    console.log('Calculated file hash:', hash)
     // 默认切片大小为5MB
     const chunkSize = 5 * 1024 * 1024
     const chunks = Math.ceil(file.size / chunkSize)
@@ -786,6 +791,7 @@ const handleChunkUpload = async (file: File) => {
       name?: string
       upload_id?: string
       existed?: boolean
+      uploaded_chunks?: number[]
     }> = await api.post('chunk/upload/init/', {
       file_name: file.name,
       file_size: file.size,
@@ -800,17 +806,22 @@ const handleChunkUpload = async (file: File) => {
       return initResponse
     }
     const uploadId = initResponse.detail?.upload_id
+    const uploadedChunks = new Set(initResponse.detail?.uploaded_chunks || [])
 
-    // 2. 上传切片
+    // 2. 上传切片（跳过已上传的）
     for (let i = 0; i < chunks; i++) {
+      // 跳过已上传的块
+      if (uploadedChunks.has(i)) {
+        continue
+      }
+
       const start = i * chunkSize
       const end = Math.min(start + chunkSize, file.size)
       const chunk = file.slice(start, end)
 
       const chunkFormData = new FormData()
-      chunkFormData.append('chunk', new Blob([chunk], { type: file.type })) // 确保以Blob形式添加
+      chunkFormData.append('chunk', new Blob([chunk], { type: file.type }))
 
-      // 使用 application/x-www-form-urlencoded 格式
       const chunkResponse: ApiResponse<unknown> = await api.post(
         `chunk/upload/chunk/${uploadId}/${i}`,
         chunkFormData,
@@ -819,10 +830,16 @@ const handleChunkUpload = async (file: File) => {
             'Content-Type': 'multipart/form-data'
           },
           onUploadProgress: (progressEvent: { loaded: number; total?: number }) => {
+            // 计算已上传块的大小
+            const uploadedSize = Array.from(uploadedChunks).reduce((acc, idx) => {
+              const chunkEnd = Math.min((idx + 1) * chunkSize, file.size)
+              const chunkStart = idx * chunkSize
+              return acc + (chunkEnd - chunkStart)
+            }, 0)
             const percentCompleted = Math.round(
-              ((i * chunkSize + progressEvent.loaded) * 100) / file.size
+              ((uploadedSize + i * chunkSize + progressEvent.loaded) * 100) / file.size
             )
-            uploadProgress.value = percentCompleted
+            uploadProgress.value = Math.min(percentCompleted, 99)
           }
         }
       )
