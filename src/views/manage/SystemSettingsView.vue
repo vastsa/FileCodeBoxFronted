@@ -108,9 +108,9 @@ const refreshData = async () => {
       }
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '获取配置失败'
+    const errorMessage = error instanceof Error ? error.message : t('manage.systemSettings.getConfigFailed')
     alertStore.showAlert(errorMessage, 'error')
-    console.error('获取系统配置失败:', error)
+    console.error('Failed to get system config:', error)
   }
 }
 // 转换文件大小为字节
@@ -136,12 +136,12 @@ const submitSave = () => {
 
   ConfigService.updateConfig(formData).then((res) => {
     if (res.code == 200) {
-      alertStore.showAlert('保存成功', 'success')
+      alertStore.showAlert(t('manage.systemSettings.saveSuccess'), 'success')
     } else {
-      alertStore.showAlert(res.message || '保存失败', 'error')
+      alertStore.showAlert(res.message || t('manage.systemSettings.saveFailed'), 'error')
     }
   }).catch((error) => {
-    const errorMessage = error instanceof Error ? error.message : '保存失败'
+    const errorMessage = error instanceof Error ? error.message : t('manage.systemSettings.saveFailed')
     alertStore.showAlert(errorMessage, 'error')
   })
 }
@@ -501,6 +501,29 @@ refreshData()
                     </button>
                     <span class="ml-3 text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
                       {{ config.s3_proxy === 1 ? t('common.enabled') : t('common.disabled') }}
+                    </span>
+                  </div>
+                </div>
+
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium mb-2"
+                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+                    {{ t('manage.settings.chunkUploadNote') }}
+                  </label>
+                  <div class="flex items-center">
+                    <button type="button" @click="config.enableChunk = config.enableChunk === 1 ? 0 : 1"
+                      class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                      :class="[config.enableChunk === 1 ? 'bg-indigo-600' : 'bg-gray-200']" role="switch"
+                      :aria-checked="config.enableChunk === 1">
+                      <span
+                        class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                        :class="[
+                          config.enableChunk === 1 ? 'translate-x-5' : 'translate-x-0',
+                          isDarkMode && config.enableChunk !== 1 ? 'bg-gray-100' : 'bg-white'
+                        ]" />
+                    </button>
+                    <span class="ml-3 text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+                      {{ config.enableChunk === 1 ? t('common.enabled') : t('common.disabled') }}
                     </span>
                   </div>
                 </div>
