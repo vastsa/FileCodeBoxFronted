@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.16",
-    "axios": "^1.11.0",
+    "axios": "^1.13.2",
     "dompurify": "^3.2.6",
     "file-saver": "^2.0.5",
     "lru-cache": "^11.1.0",
@@ -41,16 +41,16 @@
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
-    "eslint": "^9.32.0",
+    "eslint": "^9.39.2",
     "eslint-plugin-vue": "^10.4.0",
-    "glob": "^11.0.3",
+    "glob": "^13.0.0",
     "npm-run-all2": "^8.0.4",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.8.3",
-    "vite": "^7.0.6",
+    "vite": "^7.3.0",
     "vite-plugin-vue-devtools": "^8.0.0",
     "vue-tsc": "^3.0.4"
   }
