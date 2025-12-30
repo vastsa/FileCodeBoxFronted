@@ -178,3 +178,67 @@ export interface RouteConfig {
     title?: string
   }
 }
+
+
+// ==================== 预签名上传相关类型 ====================
+
+// 预签名上传模式
+export type PresignUploadMode = 'direct' | 'proxy'
+
+// 预签名上传状态
+export type PresignUploadStatus =
+  | 'idle'
+  | 'initializing'
+  | 'uploading'
+  | 'confirming'
+  | 'success'
+  | 'error'
+
+// 过期类型
+export type ExpireStyle = 'day' | 'hour' | 'minute' | 'forever' | 'count'
+
+// 初始化上传请求
+export interface PresignInitRequest {
+  file_name: string
+  file_size: number
+  expire_value?: number
+  expire_style?: ExpireStyle
+}
+
+// 初始化上传响应
+export interface PresignInitResponse {
+  upload_id: string
+  upload_url: string
+  mode: PresignUploadMode
+  expires_in: number
+}
+
+// 确认上传请求
+export interface PresignConfirmRequest {
+  expire_value?: number
+  expire_style?: ExpireStyle
+}
+
+// 上传结果
+export interface PresignUploadResult {
+  code: string
+  name: string
+}
+
+// 上传状态查询响应
+export interface PresignStatusResponse {
+  upload_id: string
+  file_name: string
+  file_size: number
+  mode: PresignUploadMode
+  created_at: string
+  expires_at: string
+  is_expired: boolean
+}
+
+// 上传配置选项
+export interface PresignUploadOptions {
+  expireValue?: number
+  expireStyle?: ExpireStyle
+  onProgress?: (progress: UploadProgress) => void
+}

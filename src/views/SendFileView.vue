@@ -511,6 +511,8 @@ import PageHeader from '@/components/common/PageHeader.vue'
 import SendTypeSelector from '@/components/common/SendTypeSelector.vue'
 import FileUploadArea from '@/components/common/FileUploadArea.vue'
 import TextInputArea from '@/components/common/TextInputArea.vue'
+import { usePresignedUpload } from '@/composables/usePresignedUpload'
+import type { ExpireStyle } from '@/types'
 
 interface Config {
   name: string
@@ -551,6 +553,14 @@ const selectedRecord = ref<ShareRecord | null>(null)
 const { t } = useI18n()
 const alertStore = useAlertStore()
 const sendRecords = computed(() => fileDataStore.shareData)
+
+// 预签名上传
+const {
+  presignStatus,
+  uploadProgress: presignProgress,
+  uploadFile: presignUploadFile,
+  reset: resetPresignUpload
+} = usePresignedUpload()
 
 const fileHash = ref('')
 
@@ -891,6 +901,28 @@ const handleDefaultFileUpload = async (file: File) => {
   const response: ApiResponse<{ code?: string; name?: string }> = await api.post('share/file/', formData, config)
   return response
 }
+
+// 预签名上传处理
+const handlePresignedUpload = async (file: File) => {
+  const code = await presignUploadFile(file, {
+    expireValue: expirationValue.value ? parseInt(expirationValue.value) : 1,
+    expireStyle: expirationMethod.value as ExpireStyle,
+    onProgress: (progress) => {
+      uploadProgress.value = progress.percentage
+    }
+  })
+  
+  if (code) {
+    return {
+      code: 200,
+      detail: {
+        code: code,
+        name: file.name
+      }
+    } as ApiResponse<{ code?: string; name?: string }>
+  }
+  throw new Error(t('send.messages.uploadFailed'))
+}
 const checkOpenUpload = () => {
   if (config.openUpload === 0 && localStorage.getItem('token') === null) {
     alertStore.showAlert(t('send.messages.guestUploadDisabled'), 'error')
@@ -963,11 +995,16 @@ const handleSubmit = async () => {
     let response: ApiResponse
 
     if (sendType.value === 'file') {
-      // 使用切片上传替代原来的直接上传
-      if (config.enableChunk) {
-        response = await handleChunkUpload(selectedFile.value!)
-      } else {
-        response = await handleDefaultFileUpload(selectedFile.value!)
+      // 优先使用预签名上传，如果失败则回退到其他方式
+      try {
+        response = await handlePresignedUpload(selectedFile.value!)
+      } catch {
+        // 预签名上传失败，回退到切片上传或默认上传
+        if (config.enableChunk) {
+          response = await handleChunkUpload(selectedFile.value!)
+        } else {
+          response = await handleDefaultFileUpload(selectedFile.value!)
+        }
       }
     } else {
       // 文本上传保持不变
@@ -1008,6 +1045,7 @@ const handleSubmit = async () => {
       selectedFile.value = null
       textContent.value = ''
       uploadProgress.value = 0
+      resetPresignUpload()
       // 显示详情
       selectedRecord.value = newRecord
       // 自动复制取件码链接

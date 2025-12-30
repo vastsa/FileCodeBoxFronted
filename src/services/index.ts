@@ -1,7 +1,8 @@
 // API 服务层
 import api from '@/utils/api'
+import axios from 'axios'
 import type { ApiResponse, FileInfo, ConfigState, AdminUser, FileUploadResponse, TextSendResponse, DashboardData, FileListResponse, FileEditForm } from '@/types'
-import type { UploadProgress } from '@/types'
+import type { UploadProgress, PresignInitRequest, PresignInitResponse, PresignConfirmRequest, PresignUploadResult, PresignStatusResponse } from '@/types'
 
 // 系统配置服务
 export class ConfigService {
@@ -128,12 +129,105 @@ export class StatsService {
   }
 }
 
+// 预签名上传服务
+export class PresignUploadService {
+  /**
+   * 初始化上传会话
+   */
+  static async initUpload(request: PresignInitRequest): Promise<ApiResponse<PresignInitResponse>> {
+    return api.post('/presign/upload/init', request)
+  }
+
+  /**
+   * 代理模式上传
+   */
+  static async proxyUpload(
+    uploadId: string,
+    file: File,
+    onProgress?: (progress: UploadProgress) => void
+  ): Promise<ApiResponse<PresignUploadResult>> {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    return api.put(`/presign/upload/proxy/${uploadId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const progress: UploadProgress = {
+            loaded: progressEvent.loaded,
+            total: progressEvent.total,
+            percentage: Math.round((progressEvent.loaded * 100) / progressEvent.total)
+          }
+          onProgress(progress)
+        }
+      }
+    })
+  }
+
+  /**
+   * 确认直传上传
+   */
+  static async confirmUpload(
+    uploadId: string,
+    request?: PresignConfirmRequest
+  ): Promise<ApiResponse<PresignUploadResult>> {
+    return api.post(`/presign/upload/confirm/${uploadId}`, request || {})
+  }
+
+  /**
+   * 查询上传状态
+   */
+  static async getUploadStatus(uploadId: string): Promise<ApiResponse<PresignStatusResponse>> {
+    return api.get(`/presign/upload/status/${uploadId}`)
+  }
+
+  /**
+   * 取消上传
+   */
+  static async cancelUpload(uploadId: string): Promise<ApiResponse<{ message: string }>> {
+    return api.delete(`/presign/upload/${uploadId}`)
+  }
+
+  /**
+   * S3 直传（不经过后端）
+   */
+  static async directUploadToS3(
+    uploadUrl: string,
+    file: File,
+    onProgress?: (progress: UploadProgress) => void
+  ): Promise<boolean> {
+    try {
+      await axios.put(uploadUrl, file, {
+        headers: {
+          'Content-Type': 'application/octet-stream'
+        },
+        onUploadProgress: (progressEvent) => {
+          if (onProgress && progressEvent.total) {
+            const progress: UploadProgress = {
+              loaded: progressEvent.loaded,
+              total: progressEvent.total,
+              percentage: Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            }
+            onProgress(progress)
+          }
+        }
+      })
+      return true
+    } catch {
+      return false
+    }
+  }
+}
+
 // 导出所有服务
 export const services = {
   config: ConfigService,
   file: FileService,
   auth: AuthService,
-  stats: StatsService
+  stats: StatsService,
+  presignUpload: PresignUploadService
 }
 
 export default services

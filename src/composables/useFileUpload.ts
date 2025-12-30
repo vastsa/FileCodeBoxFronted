@@ -1,11 +1,29 @@
 import { ref, computed, readonly } from 'vue'
 import { FileService } from '@/services'
 import { useAlertStore } from '@/stores/alertStore'
-import type { UploadProgress, UploadStatus } from '@/types'
+import { usePresignedUpload } from '@/composables/usePresignedUpload'
+import type { UploadProgress, UploadStatus, PresignUploadOptions, ExpireStyle } from '@/types'
 import { UPLOAD_STATUS, FILE_SIZE_LIMITS } from '@/constants'
 
-export function useFileUpload() {
+export interface FileUploadOptions {
+  /** 是否使用预签名上传，默认 false 保持向后兼容 */
+  usePresigned?: boolean
+  /** 过期时间值 */
+  expireValue?: number
+  /** 过期时间类型 */
+  expireStyle?: ExpireStyle
+  /** 进度回调 */
+  onProgress?: (progress: UploadProgress) => void
+}
+
+export function useFileUpload(options?: { defaultUsePresigned?: boolean }) {
   const alertStore = useAlertStore()
+  
+  // 预签名上传 composable
+  const presignedUpload = usePresignedUpload()
+  
+  // 是否默认使用预签名上传
+  const defaultUsePresigned = options?.defaultUsePresigned ?? false
   
   // 状态管理
   const uploadStatus = ref<UploadStatus>(UPLOAD_STATUS.IDLE)
@@ -17,11 +35,34 @@ export function useFileUpload() {
   const uploadedCode = ref<string>('')
   const currentFile = ref<File | null>(null)
   
+  // 当前是否使用预签名上传
+  const isUsingPresigned = ref<boolean>(false)
+  
   // 计算属性
-  const isUploading = computed(() => uploadStatus.value === UPLOAD_STATUS.UPLOADING)
-  const isSuccess = computed(() => uploadStatus.value === UPLOAD_STATUS.SUCCESS)
-  const isError = computed(() => uploadStatus.value === UPLOAD_STATUS.ERROR)
-  const isIdle = computed(() => uploadStatus.value === UPLOAD_STATUS.IDLE)
+  const isUploading = computed(() => {
+    if (isUsingPresigned.value) {
+      return presignedUpload.isUploading.value || presignedUpload.isInitializing.value || presignedUpload.isConfirming.value
+    }
+    return uploadStatus.value === UPLOAD_STATUS.UPLOADING
+  })
+  const isSuccess = computed(() => {
+    if (isUsingPresigned.value) {
+      return presignedUpload.isSuccess.value
+    }
+    return uploadStatus.value === UPLOAD_STATUS.SUCCESS
+  })
+  const isError = computed(() => {
+    if (isUsingPresigned.value) {
+      return presignedUpload.isError.value
+    }
+    return uploadStatus.value === UPLOAD_STATUS.ERROR
+  })
+  const isIdle = computed(() => {
+    if (isUsingPresigned.value) {
+      return presignedUpload.presignStatus.value === 'idle'
+    }
+    return uploadStatus.value === UPLOAD_STATUS.IDLE
+  })
   
   // 文件验证
   const validateFile = (file: File): boolean => {
@@ -35,19 +76,43 @@ export function useFileUpload() {
     return true
   }
   
-  // 上传文件
-  const uploadFile = async (file: File): Promise<string | null> => {
+  /**
+   * 上传文件（支持预签名上传和传统上传）
+   */
+  const uploadFile = async (file: File, uploadOptions?: FileUploadOptions): Promise<string | null> => {
+    const shouldUsePresigned = uploadOptions?.usePresigned ?? defaultUsePresigned
+    
     if (!validateFile(file)) {
       return null
     }
     
+    // 记录当前使用的上传方式
+    isUsingPresigned.value = shouldUsePresigned
+    currentFile.value = file
+    
+    if (shouldUsePresigned) {
+      // 使用预签名上传
+      return await uploadFileWithPresigned(file, uploadOptions)
+    } else {
+      // 使用传统上传方式
+      return await uploadFileTraditional(file, uploadOptions?.onProgress)
+    }
+  }
+  
+  /**
+   * 传统上传方式
+   */
+  const uploadFileTraditional = async (
+    file: File, 
+    onProgress?: (progress: UploadProgress) => void
+  ): Promise<string | null> => {
     try {
       uploadStatus.value = UPLOAD_STATUS.UPLOADING
-      currentFile.value = file
       uploadedCode.value = ''
       
       const response = await FileService.uploadFile(file, (progress) => {
         uploadProgress.value = progress
+        onProgress?.(progress)
       })
       
       if (response.code === 200 && response.detail?.code) {
@@ -64,6 +129,37 @@ export function useFileUpload() {
       alertStore.showAlert(errorMessage, 'error')
       return null
     }
+  }
+  
+  /**
+   * 预签名上传方式
+   */
+  const uploadFileWithPresigned = async (
+    file: File,
+    uploadOptions?: FileUploadOptions
+  ): Promise<string | null> => {
+    // 构建预签名上传选项
+    const presignOptions: PresignUploadOptions = {
+      expireValue: uploadOptions?.expireValue,
+      expireStyle: uploadOptions?.expireStyle,
+      onProgress: (progress) => {
+        // 同步进度到本 composable 的状态
+        uploadProgress.value = progress
+        uploadOptions?.onProgress?.(progress)
+      }
+    }
+    
+    const result = await presignedUpload.uploadFile(file, presignOptions)
+    
+    if (result) {
+      // 同步预签名上传的结果到本 composable 的状态
+      uploadedCode.value = result
+      uploadStatus.value = UPLOAD_STATUS.SUCCESS
+    } else {
+      uploadStatus.value = UPLOAD_STATUS.ERROR
+    }
+    
+    return result
   }
   
   // 上传文本
@@ -105,6 +201,22 @@ export function useFileUpload() {
     }
     uploadedCode.value = ''
     currentFile.value = null
+    
+    // 如果使用预签名上传，也重置预签名状态
+    if (isUsingPresigned.value) {
+      presignedUpload.reset()
+    }
+    isUsingPresigned.value = false
+  }
+  
+  /**
+   * 取消上传
+   */
+  const cancelUpload = async (): Promise<void> => {
+    if (isUsingPresigned.value) {
+      await presignedUpload.cancelUpload()
+    }
+    resetUpload()
   }
   
   // 格式化文件大小
@@ -122,6 +234,13 @@ export function useFileUpload() {
     uploadProgress: readonly(uploadProgress),
     uploadedCode: readonly(uploadedCode),
     currentFile: readonly(currentFile),
+    isUsingPresigned: readonly(isUsingPresigned),
+    
+    // 预签名上传相关状态（透传）
+    presignStatus: presignedUpload.presignStatus,
+    uploadSession: presignedUpload.uploadSession,
+    currentMode: presignedUpload.currentMode,
+    presignErrorMessage: presignedUpload.errorMessage,
     
     // 计算属性
     isUploading,
@@ -129,11 +248,19 @@ export function useFileUpload() {
     isError,
     isIdle,
     
+    // 预签名上传计算属性（透传）
+    isInitializing: presignedUpload.isInitializing,
+    isConfirming: presignedUpload.isConfirming,
+    
     // 方法
     uploadFile,
     uploadText,
     resetUpload,
+    cancelUpload,
     validateFile,
-    formatFileSize
+    formatFileSize,
+    
+    // 预签名上传方法（透传）
+    getPresignStatus: presignedUpload.getStatus
   }
 }
