@@ -284,6 +284,12 @@ export default {
     allFiles: '所有文件',
     editFileInfo: '编辑文件信息',
     saveChanges: '保存更改',
+    viewText: '查看',
+    textPreview: '文本预览',
+    copyText: '复制文本',
+    copySuccess: '文本已复制到剪贴板',
+    copyFailed: '复制失败，请重试',
+    charCount: '共 {count} 个字符',
     headers: {
       code: '取件码',
       name: '名称',

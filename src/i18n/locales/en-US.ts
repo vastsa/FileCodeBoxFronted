@@ -285,6 +285,12 @@ export default {
     allFiles: 'All Files',
     editFileInfo: 'Edit File Information',
     saveChanges: 'Save Changes',
+    viewText: 'View',
+    textPreview: 'Text Preview',
+    copyText: 'Copy Text',
+    copySuccess: 'Text copied to clipboard',
+    copyFailed: 'Copy failed, please try again',
+    charCount: '{count} characters',
     headers: {
       code: 'Retrieve Code',
       name: 'Name',
