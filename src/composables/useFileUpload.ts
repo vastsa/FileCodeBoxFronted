@@ -2,8 +2,28 @@ import { ref, computed, readonly } from 'vue'
 import { FileService } from '@/services'
 import { useAlertStore } from '@/stores/alertStore'
 import { usePresignedUpload } from '@/composables/usePresignedUpload'
-import type { UploadProgress, UploadStatus, PresignUploadOptions, ExpireStyle } from '@/types'
-import { UPLOAD_STATUS, FILE_SIZE_LIMITS } from '@/constants'
+import type { UploadProgress, UploadStatus, PresignUploadOptions, ExpireStyle, ConfigState } from '@/types'
+import { UPLOAD_STATUS, FILE_SIZE_LIMITS, STORAGE_KEYS } from '@/constants'
+
+/**
+ * 获取最大文件大小限制（字节）
+ * 优先从后端配置获取，否则使用默认值
+ */
+function getMaxFileSize(): number {
+  try {
+    const configStr = localStorage.getItem(STORAGE_KEYS.CONFIG)
+    if (configStr) {
+      const config = JSON.parse(configStr) as Partial<ConfigState>
+      if (config.uploadSize && config.uploadSize > 0) {
+        // uploadSize 单位是字节
+        return config.uploadSize
+      }
+    }
+  } catch {
+    // 解析失败时使用默认值
+  }
+  return FILE_SIZE_LIMITS.MAX_FILE_SIZE
+}
 
 export interface FileUploadOptions {
   /** 是否使用预签名上传，默认 false 保持向后兼容 */
@@ -66,9 +86,10 @@ export function useFileUpload(options?: { defaultUsePresigned?: boolean }) {
   
   // 文件验证
   const validateFile = (file: File): boolean => {
-    if (file.size > FILE_SIZE_LIMITS.MAX_FILE_SIZE) {
+    const maxFileSize = getMaxFileSize()
+    if (file.size > maxFileSize) {
       alertStore.showAlert(
-        `文件大小不能超过 ${Math.round(FILE_SIZE_LIMITS.MAX_FILE_SIZE / 1024 / 1024)}MB`,
+        `文件大小不能超过 ${Math.round(maxFileSize / 1024 / 1024)}MB`,
         'error'
       )
       return false

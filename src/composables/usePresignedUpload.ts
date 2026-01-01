@@ -1,7 +1,7 @@
 import { ref, computed, readonly } from 'vue'
 import { PresignUploadService } from '@/services'
 import { useAlertStore } from '@/stores/alertStore'
-import { FILE_SIZE_LIMITS } from '@/constants'
+import { FILE_SIZE_LIMITS, STORAGE_KEYS } from '@/constants'
 import type {
   PresignUploadStatus,
   PresignUploadMode,
@@ -9,9 +9,30 @@ import type {
   PresignUploadOptions,
   PresignStatusResponse,
   UploadProgress,
-  ExpireStyle
+  ExpireStyle,
+  ConfigState
 } from '@/types'
 import axios from 'axios'
+
+/**
+ * 获取最大文件大小限制（字节）
+ * 优先从后端配置获取，否则使用默认值
+ */
+function getMaxFileSize(): number {
+  try {
+    const configStr = localStorage.getItem(STORAGE_KEYS.CONFIG)
+    if (configStr) {
+      const config = JSON.parse(configStr) as Partial<ConfigState>
+      if (config.uploadSize && config.uploadSize > 0) {
+        // uploadSize 单位是字节
+        return config.uploadSize
+      }
+    }
+  } catch {
+    // 解析失败时使用默认值
+  }
+  return FILE_SIZE_LIMITS.MAX_FILE_SIZE
+}
 
 // 预签名上传状态常量
 export const PRESIGN_UPLOAD_STATUS = {
@@ -58,8 +79,9 @@ export function usePresignedUpload() {
    * 文件大小验证
    */
   const validateFileSize = (file: File): boolean => {
-    if (file.size > FILE_SIZE_LIMITS.MAX_FILE_SIZE) {
-      const maxSizeMB = Math.round(FILE_SIZE_LIMITS.MAX_FILE_SIZE / 1024 / 1024)
+    const maxFileSize = getMaxFileSize()
+    if (file.size > maxFileSize) {
+      const maxSizeMB = Math.round(maxFileSize / 1024 / 1024)
       errorMessage.value = `文件大小不能超过 ${maxSizeMB}MB`
       alertStore.showAlert(errorMessage.value, 'error')
       return false
