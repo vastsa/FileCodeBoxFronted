@@ -1,8 +1,25 @@
 // API 服务层
 import api from '@/utils/api'
 import axios from 'axios'
-import type { ApiResponse, FileInfo, ConfigState, AdminUser, FileUploadResponse, TextSendResponse, DashboardData, FileListResponse, FileEditForm } from '@/types'
-import type { UploadProgress, PresignInitRequest, PresignInitResponse, PresignConfirmRequest, PresignUploadResult, PresignStatusResponse } from '@/types'
+import type {
+  ApiResponse,
+  FileInfo,
+  ConfigState,
+  AdminUser,
+  FileUploadResponse,
+  TextSendResponse,
+  DashboardData,
+  FileListResponse,
+  FileEditForm
+} from '@/types'
+import type {
+  UploadProgress,
+  PresignInitRequest,
+  PresignInitResponse,
+  PresignConfirmRequest,
+  PresignUploadResult,
+  PresignStatusResponse
+} from '@/types'
 
 // 系统配置服务
 export class ConfigService {
@@ -30,6 +47,7 @@ export class FileService {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
+      timeout: 0, // 禁用超时限制
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
           const progress: UploadProgress = {
@@ -62,19 +80,28 @@ export class FileService {
     return api.post('/admin/file/delete', { id: fileId })
   }
 
-  static async getFileList(page = 1, limit = 10): Promise<ApiResponse<{
-    files: FileInfo[]
-    total: number
-    page: number
-    limit: number
-  }>> {
+  static async getFileList(
+    page = 1,
+    limit = 10
+  ): Promise<
+    ApiResponse<{
+      files: FileInfo[]
+      total: number
+      page: number
+      limit: number
+    }>
+  > {
     return api.get('/admin/file/list', {
       params: { page, size: limit }
     })
   }
 
   // 文件管理相关方法
-  static async getAdminFileList(params: { page: number; size: number; keyword?: string }): Promise<ApiResponse<FileListResponse>> {
+  static async getAdminFileList(params: {
+    page: number
+    size: number
+    keyword?: string
+  }): Promise<ApiResponse<FileListResponse>> {
     return api.get('/admin/file/list', { params })
   }
 
@@ -88,7 +115,9 @@ export class FileService {
     })
   }
 
-  static async downloadAdminFile(id: number): Promise<{ data: Blob; headers: Record<string, string> }> {
+  static async downloadAdminFile(
+    id: number
+  ): Promise<{ data: Blob; headers: Record<string, string> }> {
     return api.get('/admin/file/download', {
       params: { id },
       responseType: 'blob'
@@ -113,14 +142,16 @@ export class AuthService {
 
 // 统计服务
 export class StatsService {
-  static async getDashboardStats(): Promise<ApiResponse<{
-    totalFiles: number
-    totalDownloads: number
-    todayUploads: number
-    todayDownloads: number
-    storageUsed: number
-    recentFiles: FileInfo[]
-  }>> {
+  static async getDashboardStats(): Promise<
+    ApiResponse<{
+      totalFiles: number
+      totalDownloads: number
+      todayUploads: number
+      todayDownloads: number
+      storageUsed: number
+      recentFiles: FileInfo[]
+    }>
+  > {
     return api.get('/admin/dashboard')
   }
 
@@ -153,6 +184,7 @@ export class PresignUploadService {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
+      timeout: 0,
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
           const progress: UploadProgress = {
@@ -203,6 +235,7 @@ export class PresignUploadService {
         headers: {
           'Content-Type': 'application/octet-stream'
         },
+        timeout: 0,
         onUploadProgress: (progressEvent) => {
           if (onProgress && progressEvent.total) {
             const progress: UploadProgress = {

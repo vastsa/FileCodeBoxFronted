@@ -858,6 +858,7 @@ const handleChunkUpload = async (file: File) => {
           headers: {
             'Content-Type': 'multipart/form-data'
           },
+          timeout: 0, // 禁用超时限制
           onUploadProgress: (progressEvent: { loaded: number; total?: number }) => {
             // 计算已上传块的大小
             const uploadedSize = Array.from(uploadedChunks).reduce((acc, idx) => {
@@ -912,6 +913,7 @@ const handleDefaultFileUpload = async (file: File) => {
     headers: {
       'Content-Type': 'multipart/form-data'
     },
+    timeout: 0, // 禁用超时限制
     onUploadProgress: (progressEvent: { loaded: number; total?: number }) => {
       const percentCompleted = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1))
       uploadProgress.value = percentCompleted
@@ -937,7 +939,7 @@ const handlePresignedUpload = async (file: File) => {
       uploadProgress.value = progress.percentage
     }
   })
-  
+
   if (code) {
     return {
       code: 200,
