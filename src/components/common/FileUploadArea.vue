@@ -22,16 +22,13 @@
     <div class="absolute inset-0 w-full h-full" v-if="progress > 0">
       <BorderProgressBar :progress="progress" />
     </div>
-    
+
     <!-- 上传状态图标 -->
     <component
       :is="statusIcon"
-      :class="[
-        'w-16 h-16 transition-colors duration-300',
-        statusIconClass
-      ]"
+      :class="['w-16 h-16 transition-colors duration-300', statusIconClass]"
     />
-    
+
     <!-- 文件名或占位文本 -->
     <p
       :class="[
@@ -45,20 +42,23 @@
         {{ displayText }}
       </span>
     </p>
-    
+
     <!-- 状态描述或默认描述 -->
     <p :class="['mt-2 text-xs', statusDescriptionClass]">
       {{ statusDescription }}
     </p>
-    
+
     <!-- 进度详情（上传中显示） -->
     <div v-if="isUploading && showProgressDetails" class="mt-3 w-full">
-      <div class="flex justify-between text-xs mb-1" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+      <div
+        class="flex justify-between text-xs mb-1"
+        :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+      >
         <span>{{ formatBytes(uploadedBytes) }} / {{ formatBytes(totalBytes) }}</span>
         <span>{{ progress }}%</span>
       </div>
     </div>
-    
+
     <!-- 错误重试按钮 -->
     <button
       v-if="hasError && allowRetry"
@@ -161,19 +161,13 @@ const statusIcon = computed(() => {
 
 const statusIconClass = computed(() => {
   if (isUploading.value) {
-    return isDarkMode
-      ? 'text-indigo-400 animate-spin'
-      : 'text-indigo-600 animate-spin'
+    return isDarkMode ? 'text-indigo-400 animate-spin' : 'text-indigo-600 animate-spin'
   }
   if (isSuccess.value) {
-    return isDarkMode
-      ? 'text-green-400'
-      : 'text-green-600'
+    return isDarkMode ? 'text-green-400' : 'text-green-600'
   }
   if (hasError.value) {
-    return isDarkMode
-      ? 'text-red-400'
-      : 'text-red-600'
+    return isDarkMode ? 'text-red-400' : 'text-red-600'
   }
   return isDarkMode
     ? 'text-gray-400 group-hover:text-indigo-400'
@@ -182,14 +176,10 @@ const statusIconClass = computed(() => {
 
 const statusClass = computed(() => {
   if (hasError.value) {
-    return isDarkMode
-      ? 'border-red-500/50'
-      : 'border-red-300'
+    return isDarkMode ? 'border-red-500/50' : 'border-red-300'
   }
   if (isSuccess.value) {
-    return isDarkMode
-      ? 'border-green-500/50'
-      : 'border-green-300'
+    return isDarkMode ? 'border-green-500/50' : 'border-green-300'
   }
   return ''
 })
@@ -243,6 +233,8 @@ const handleFileUpload = (event: Event) => {
   if (file) {
     emit('fileSelected', file)
   }
+  // 重置 input 值，允许选择同名文件
+  target.value = ''
 }
 
 const handleFileDrop = (event: DragEvent) => {
