@@ -189,6 +189,7 @@ export default {
       description: 'Supports various common formats'
     },
     submit: 'Secure Send',
+    submitting: 'Sending...',
     needRetrieveFile: 'Need to retrieve? Click here',
     sendRecords: 'Send Records',
     secureEncryption: 'Secure Encryption',
@@ -217,7 +218,7 @@ export default {
         forever: 'Forever'
       }
     },
-     time: {
+    time: {
       day: 'By Day',
       hour: 'By Hour',
       minute: 'By Minute',
@@ -311,7 +312,7 @@ export default {
     }
   },
 
-   // Side drawer
+  // Side drawer
   drawer: {
     noRecords: 'No records'
   },
@@ -466,42 +467,42 @@ export default {
       version: 'Version v2.2.1 Updated: 2025-09-04'
     },
     fileManage: {
-       title: 'File Management',
-       searchPlaceholder: 'Search file name, description...',
-       allFiles: 'All Files',
-       editFileInfo: 'Edit File Info',
-       saveChanges: 'Save Changes',
-       headers: {
-         code: 'Code',
-         name: 'Name',
-         size: 'Size',
-         description: 'Description',
-         expiration: 'Expiration',
-         actions: 'Actions'
-       },
-       form: {
-         code: 'Code',
-         codePlaceholder: 'Enter code',
-         filename: 'File Name',
-         filenamePlaceholder: 'Enter file name',
-         suffix: 'File Suffix',
-         suffixPlaceholder: 'Enter file suffix',
-         downloadLimit: 'Download Limit',
-         downloadLimitPlaceholder: 'Enter download limit'
-       },
-       updateFailed: 'Update failed',
-       deleteFailed: 'Delete failed',
-       loadFileListFailed: 'Failed to load file list'
-     },
-     login: {
-       title: 'Login',
-       password: 'Password',
-       passwordPlaceholder: 'Password',
-       loginButton: 'Login',
-       loggingIn: 'Logging in...',
-       invalidPassword: 'Invalid password',
-       passwordTooShort: 'Password must be at least 6 characters',
-       loginFailed: 'Login failed',
+      title: 'File Management',
+      searchPlaceholder: 'Search file name, description...',
+      allFiles: 'All Files',
+      editFileInfo: 'Edit File Info',
+      saveChanges: 'Save Changes',
+      headers: {
+        code: 'Code',
+        name: 'Name',
+        size: 'Size',
+        description: 'Description',
+        expiration: 'Expiration',
+        actions: 'Actions'
+      },
+      form: {
+        code: 'Code',
+        codePlaceholder: 'Enter code',
+        filename: 'File Name',
+        filenamePlaceholder: 'Enter file name',
+        suffix: 'File Suffix',
+        suffixPlaceholder: 'Enter file suffix',
+        downloadLimit: 'Download Limit',
+        downloadLimitPlaceholder: 'Enter download limit'
+      },
+      updateFailed: 'Update failed',
+      deleteFailed: 'Delete failed',
+      loadFileListFailed: 'Failed to load file list'
+    },
+    login: {
+      title: 'Login',
+      password: 'Password',
+      passwordPlaceholder: 'Password',
+      loginButton: 'Login',
+      loggingIn: 'Logging in...',
+      invalidPassword: 'Invalid password',
+      passwordTooShort: 'Password must be at least 6 characters',
+      loginFailed: 'Login failed',
       noValidToken: 'Login failed: No valid token received'
     }
   },

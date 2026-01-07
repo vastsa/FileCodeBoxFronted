@@ -190,6 +190,7 @@ export default {
       description: '支持各种常见格式'
     },
     submit: '安全寄送',
+    submitting: '发送中...',
     needRetrieveFile: '需要取件？点击这里',
     sendRecords: '发件记录',
     secureEncryption: '安全加密',
@@ -311,35 +312,35 @@ export default {
   },
 
   // 文件记录
-   fileRecord: {
-      filename: '文件名',
-      size: '文件大小',
-      date: '取件日期',
-      code: '取件码',
-      actions: '操作',
-      download: '下载',
-      viewDetails: '查看详情',
-      deleteRecord: '删除记录',
-      preview: '预览',
-      copyContent: '复制内容',
-      contentCopied: '内容已复制到剪贴板',
-      copyFailed: '复制失败，请重试'
-    },
+  fileRecord: {
+    filename: '文件名',
+    size: '文件大小',
+    date: '取件日期',
+    code: '取件码',
+    actions: '操作',
+    download: '下载',
+    viewDetails: '查看详情',
+    deleteRecord: '删除记录',
+    preview: '预览',
+    copyContent: '复制内容',
+    contentCopied: '内容已复制到剪贴板',
+    copyFailed: '复制失败，请重试'
+  },
 
   // 文件详情模态框
   fileDetail: {
-     title: '文件详情',
-     content: '文件内容',
-     previewContent: '预览内容',
-     download: '点击下载',
-     qrCode: '取件二维码',
-     scanQrCode: '扫描二维码快速取件'
-   },
+    title: '文件详情',
+    content: '文件内容',
+    previewContent: '预览内容',
+    download: '点击下载',
+    qrCode: '取件二维码',
+    scanQrCode: '扫描二维码快速取件'
+  },
 
-   // 内容预览
-   contentPreview: {
-     title: '内容预览'
-   },
+  // 内容预览
+  contentPreview: {
+    title: '内容预览'
+  },
 
   // 侧边抽屉
   drawer: {

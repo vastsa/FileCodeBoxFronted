@@ -30,10 +30,7 @@
               />
             </div>
             <div v-else key="text" class="grid grid-cols-1 gap-8">
-              <TextInputArea
-                v-model="textContent"
-                :placeholder="t('send.uploadArea.textInput')"
-              />
+              <TextInputArea v-model="textContent" :placeholder="t('send.uploadArea.textInput')" />
             </div>
           </transition>
           <!-- 过期方式选择 -->
@@ -115,7 +112,9 @@
                   :class="[
                     'absolute right-0 top-0 h-full appearance-none cursor-pointer transition-all duration-300',
                     'focus:outline-none focus:ring-2 focus:ring-offset-0',
-                    expirationMethod === 'forever' ? 'w-full px-5 rounded-2xl' : 'w-28 pl-4 pr-9 border-l rounded-r-2xl',
+                    expirationMethod === 'forever'
+                      ? 'w-full px-5 rounded-2xl'
+                      : 'w-28 pl-4 pr-9 border-l rounded-r-2xl',
                     isDarkMode
                       ? 'text-gray-100 border-gray-700/60 focus:ring-indigo-500/80 bg-gray-800/60'
                       : 'text-gray-900 border-gray-200 focus:ring-indigo-500/60 bg-white'
@@ -166,14 +165,36 @@
           <!-- 提交按钮 -->
           <button
             type="submit"
-            class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105 hover:shadow-lg relative overflow-hidden group"
+            :disabled="isSubmitting"
+            class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105 hover:shadow-lg relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100"
           >
             <span
               class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"
             ></span>
             <span class="relative z-10 flex items-center justify-center text-lg">
-              <SendIcon class="w-6 h-6 mr-2" />
-              <span>{{ t('send.submit') }}</span>
+              <svg
+                v-if="isSubmitting"
+                class="w-6 h-6 mr-2 animate-spin"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              <SendIcon v-else class="w-6 h-6 mr-2" />
+              <span>{{ isSubmitting ? t('send.submitting') : t('send.submit') }}</span>
             </span>
           </button>
         </form>
@@ -532,8 +553,6 @@ interface ShareRecord {
   retrieveCode: string
 }
 
-
-
 const config: Config = JSON.parse(localStorage.getItem('config') || '{}') as Config
 
 const router = useRouter()
@@ -549,6 +568,7 @@ const expirationValue = ref('1')
 const uploadProgress = ref(0)
 const showDrawer = ref(false)
 const selectedRecord = ref<ShareRecord | null>(null)
+const isSubmitting = ref(false)
 
 const { t } = useI18n()
 const alertStore = useAlertStore()
@@ -564,16 +584,12 @@ const {
 
 const fileHash = ref('')
 
-
-
 const handleFileSelected = async (file: File) => {
   selectedFile.value = file
   if (!checkOpenUpload()) return
   if (!checkFileSize(file)) return
   fileHash.value = await calculateFileHash(file)
 }
-
-
 
 const handleFileDrop = async (event: DragEvent) => {
   if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
@@ -604,7 +620,10 @@ const handlePaste = async (event: ClipboardEvent) => {
 
         try {
           fileHash.value = await calculateFileHash(file)
-          alertStore.showAlert(t('send.messages.fileAddedFromClipboard', { filename: file.name }), 'success')
+          alertStore.showAlert(
+            t('send.messages.fileAddedFromClipboard', { filename: file.name }),
+            'success'
+          )
         } catch (err) {
           alertStore.showAlert(t('send.messages.fileProcessingFailed'), 'error')
           console.error('File hash calculation failed:', err)
@@ -860,10 +879,13 @@ const handleChunkUpload = async (file: File) => {
     }
 
     // 3. 完成上传
-    const completeResponse: ApiResponse<{ code?: string; name?: string }> = await api.post(`chunk/upload/complete/${uploadId}`, {
-      expire_value: expirationValue.value ? parseInt(expirationValue.value) : 1,
-      expire_style: expirationMethod.value
-    })
+    const completeResponse: ApiResponse<{ code?: string; name?: string }> = await api.post(
+      `chunk/upload/complete/${uploadId}`,
+      {
+        expire_value: expirationValue.value ? parseInt(expirationValue.value) : 1,
+        expire_style: expirationMethod.value
+      }
+    )
 
     if (completeResponse.code !== 200) {
       throw new Error(t('send.messages.completeUploadFailed'))
@@ -898,7 +920,11 @@ const handleDefaultFileUpload = async (file: File) => {
   formData.append('file', file)
   formData.append('expire_value', expirationValue.value)
   formData.append('expire_style', expirationMethod.value)
-  const response: ApiResponse<{ code?: string; name?: string }> = await api.post('share/file/', formData, config)
+  const response: ApiResponse<{ code?: string; name?: string }> = await api.post(
+    'share/file/',
+    formData,
+    config
+  )
   return response
 }
 
@@ -933,7 +959,10 @@ const checkOpenUpload = () => {
 
 const checkFileSize = (file: File) => {
   if (file.size > config.uploadSize) {
-    alertStore.showAlert(t('send.messages.fileSizeExceeded', { size: getStorageUnit(config.uploadSize) }), 'error')
+    alertStore.showAlert(
+      t('send.messages.fileSizeExceeded', { size: getStorageUnit(config.uploadSize) }),
+      'error'
+    )
     selectedFile.value = null
     return false
   }
@@ -971,27 +1000,30 @@ const checkUpload = () => {
   return true
 }
 const handleSubmit = async () => {
-  if (sendType.value === 'file' && !selectedFile.value) {
-    alertStore.showAlert(t('send.messages.selectFile'), 'error')
-    return
-  }
-  if (sendType.value === 'text' && !textContent.value.trim()) {
-    alertStore.showAlert(t('send.messages.enterText'), 'error')
-    return
-  }
-  if (expirationMethod.value !== 'forever' && !expirationValue.value) {
-    alertStore.showAlert(t('send.messages.enterExpirationValue'), 'error')
-    return
-  }
-
-  // 添加过期时间验证
-  if (!checkExpirationTime(expirationMethod.value, expirationValue.value)) {
-    const maxDays = Math.floor(config.max_save_seconds / 86400)
-    alertStore.showAlert(t('send.messages.expirationTooLong', { days: maxDays }), 'error')
-    return
-  }
+  if (isSubmitting.value) return
+  isSubmitting.value = true
 
   try {
+    if (sendType.value === 'file' && !selectedFile.value) {
+      alertStore.showAlert(t('send.messages.selectFile'), 'error')
+      return
+    }
+    if (sendType.value === 'text' && !textContent.value.trim()) {
+      alertStore.showAlert(t('send.messages.enterText'), 'error')
+      return
+    }
+    if (expirationMethod.value !== 'forever' && !expirationValue.value) {
+      alertStore.showAlert(t('send.messages.enterExpirationValue'), 'error')
+      return
+    }
+
+    // 添加过期时间验证
+    if (!checkExpirationTime(expirationMethod.value, expirationValue.value)) {
+      const maxDays = Math.floor(config.max_save_seconds / 86400)
+      alertStore.showAlert(t('send.messages.expirationTooLong', { days: maxDays }), 'error')
+      return
+    }
+
     let response: ApiResponse
 
     if (sendType.value === 'file') {
@@ -1020,8 +1052,8 @@ const handleSubmit = async () => {
     }
 
     if (response && response.code === 200) {
-       const retrieveCode = (response.detail as unknown as { code?: string })?.code || ''
-       const fileName = (response.detail as unknown as { name?: string })?.name || ''
+      const retrieveCode = (response.detail as unknown as { code?: string })?.code || ''
+      const fileName = (response.detail as unknown as { name?: string })?.name || ''
       // 添加新的发送记录
       const newRecord: ShareRecord = {
         id: Date.now(),
@@ -1064,6 +1096,7 @@ const handleSubmit = async () => {
     }
   } finally {
     uploadProgress.value = 0
+    isSubmitting.value = false
   }
 }
 
