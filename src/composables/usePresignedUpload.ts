@@ -74,7 +74,6 @@ export function usePresignedUpload() {
   const isError = computed(() => presignStatus.value === PRESIGN_UPLOAD_STATUS.ERROR)
   const currentMode = computed<PresignUploadMode | null>(() => uploadSession.value?.mode ?? null)
 
-
   /**
    * 文件大小验证
    */
@@ -143,7 +142,6 @@ export function usePresignedUpload() {
 
     alertStore.showAlert(errorMessage.value, 'error')
   }
-
 
   /**
    * 初始化上传会话
@@ -224,7 +222,6 @@ export function usePresignedUpload() {
     }
   }
 
-
   /**
    * 代理模式上传
    */
@@ -263,37 +260,25 @@ export function usePresignedUpload() {
     }
   }
 
-  /**
-   * 上传文件（主入口方法）
-   * 根据 mode 自动选择直传或代理上传
-   */
-  const uploadFile = async (
-    file: File,
-    options?: PresignUploadOptions
-  ): Promise<string | null> => {
-    // 重置状态
+  const uploadFile = async (file: File, options?: PresignUploadOptions): Promise<string | null> => {
     reset()
 
-    // 验证文件大小
     if (!validateFileSize(file)) {
       presignStatus.value = PRESIGN_UPLOAD_STATUS.ERROR
       return null
     }
 
-    // 初始化上传会话
     const session = await initUploadSession(file, options)
     if (!session) {
       return null
     }
 
-    // 根据模式选择上传方式
     if (session.mode === 'direct') {
       return await uploadDirect(file, session, options)
     } else {
       return await uploadProxy(file, session, options)
     }
   }
-
 
   /**
    * 取消上传

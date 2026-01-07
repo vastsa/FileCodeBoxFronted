@@ -1029,16 +1029,10 @@ const handleSubmit = async () => {
     let response: ApiResponse
 
     if (sendType.value === 'file') {
-      // 优先使用预签名上传，如果失败则回退到其他方式
-      try {
+      if (config.enableChunk) {
+        response = await handleChunkUpload(selectedFile.value!)
+      } else {
         response = await handlePresignedUpload(selectedFile.value!)
-      } catch {
-        // 预签名上传失败，回退到切片上传或默认上传
-        if (config.enableChunk) {
-          response = await handleChunkUpload(selectedFile.value!)
-        } else {
-          response = await handleDefaultFileUpload(selectedFile.value!)
-        }
       }
     } else {
       // 文本上传保持不变
