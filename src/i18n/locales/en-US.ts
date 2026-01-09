@@ -53,6 +53,7 @@ export default {
 
   // Admin module
   admin: {
+    logout: 'Logout',
     dashboard: {
       title: 'Dashboard',
       totalFiles: 'Total Files',

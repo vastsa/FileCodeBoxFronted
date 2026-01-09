@@ -52,6 +52,7 @@ export default {
 
   // 管理员模块
   admin: {
+    logout: '退出登录',
     dashboard: {
       title: '仪表盘',
       totalFiles: '总文件数',

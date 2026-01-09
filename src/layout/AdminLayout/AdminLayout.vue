@@ -1,25 +1,37 @@
 <template>
-  <div class="h-screen flex flex-col lg:flex-row transition-colors duration-300"
-    :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']">
+  <div
+    class="h-screen flex flex-col lg:flex-row transition-colors duration-300"
+    :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']"
+  >
     <!-- Sidebar -->
     <aside
       class="fixed inset-y-0 border-transparent left-0 z-50 w-64 transform transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 border-r flex flex-col h-full lg:h-screen"
       :class="[
-        isDarkMode
-          ? 'bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-xl '
-          : 'bg-white ',
+        isDarkMode ? 'bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-xl ' : 'bg-white ',
         { '-translate-x-full': !isSidebarOpen }
-      ]">
+      ]"
+    >
       <!-- Logo区域 -->
-      <div class="flex items-center justify-between h-16 px-4 border-b"
-        :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
+      <div
+        class="flex items-center justify-between h-16 px-4 border-b"
+        :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']"
+      >
         <div class="flex items-center">
-          <div class="rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 animate-spin-slow">
+          <div
+            class="rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 animate-spin-slow"
+          >
             <div class="rounded-full p-1" :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
-              <BoxIcon class="w-6 h-6" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+              <BoxIcon
+                class="w-6 h-6"
+                :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+              />
             </div>
           </div>
-          <h1 @click="router.push('/')" class="ml-2 text-xl font-semibold cursor-pointer" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
+          <h1
+            @click="router.push('/')"
+            class="ml-2 text-xl font-semibold cursor-pointer"
+            :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
+          >
             {{ t('common.appName') }}
           </h1>
         </div>
@@ -32,8 +44,10 @@
       <nav class="flex-1 overflow-y-auto custom-scrollbar">
         <ul class="p-4 space-y-2">
           <li v-for="item in menuItems" :key="item.id">
-            <a @click="router.push(item.redirect)"
-              class="flex items-center p-2 rounded-lg transition-colors duration-200" :class="[
+            <a
+              @click="router.push(item.redirect)"
+              class="flex items-center p-2 rounded-lg transition-colors duration-200"
+              :class="[
                 router.currentRoute.value.name === item.id
                   ? isDarkMode
                     ? 'bg-indigo-900 text-indigo-400'
@@ -41,20 +55,39 @@
                   : isDarkMode
                     ? 'text-gray-400 hover:bg-gray-700'
                     : 'text-gray-600 hover:bg-gray-100'
-              ]">
+              ]"
+            >
               <component :is="item.icon" class="w-5 h-5 mr-3" />
               {{ item.name }}
             </a>
           </li>
         </ul>
       </nav>
+
+      <!-- 退出登录按钮 -->
+      <div class="p-4 border-t" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
+        <button
+          @click="handleLogout"
+          class="flex items-center w-full p-2 rounded-lg transition-colors duration-200"
+          :class="[
+            isDarkMode
+              ? 'text-gray-400 hover:bg-gray-700 hover:text-white'
+              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+          ]"
+        >
+          <LogOutIcon class="w-5 h-5 mr-3" />
+          {{ t('admin.logout') }}
+        </button>
+      </div>
     </aside>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col h-full">
       <!-- Header -->
-      <header class="shadow-md border-b transition-colors duration-300 h-16"
-        :class="[isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200']">
+      <header
+        class="shadow-md border-b transition-colors duration-300 h-16"
+        :class="[isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200']"
+      >
         <div class="flex items-center justify-between h-16 px-4">
           <button @click="toggleSidebar" class="lg:hidden">
             <MenuIcon class="w-6 h-6" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']" />
@@ -63,8 +96,10 @@
       </header>
 
       <!-- Content -->
-      <main class="overflow-y-auto transition-colors duration-300 custom-scrollbar"
-        :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']">
+      <main
+        class="overflow-y-auto transition-colors duration-300 custom-scrollbar"
+        :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']"
+      >
         <router-view />
       </main>
     </div>
@@ -73,9 +108,18 @@
 
 <script setup lang="ts">
 import { ref, inject, onMounted, onUnmounted } from 'vue'
-import { BoxIcon, MenuIcon, XIcon, FolderIcon, CogIcon, LayoutDashboardIcon } from 'lucide-vue-next'
+import {
+  BoxIcon,
+  MenuIcon,
+  XIcon,
+  FolderIcon,
+  CogIcon,
+  LayoutDashboardIcon,
+  LogOutIcon
+} from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useAdminStore } from '@/stores/adminStore'
 
 interface MenuItem {
   id: string
@@ -87,9 +131,20 @@ interface MenuItem {
 const router = useRouter()
 const { t } = useI18n()
 const isDarkMode = inject('isDarkMode')
+const adminStore = useAdminStore()
 const menuItems: MenuItem[] = [
-  { id: 'Dashboard', name: t('admin.dashboard.title'), icon: LayoutDashboardIcon, redirect: '/admin/dashboard' },
-  { id: 'FileManage', name: t('admin.fileManage.title'), icon: FolderIcon, redirect: '/admin/files' },
+  {
+    id: 'Dashboard',
+    name: t('admin.dashboard.title'),
+    icon: LayoutDashboardIcon,
+    redirect: '/admin/dashboard'
+  },
+  {
+    id: 'FileManage',
+    name: t('admin.fileManage.title'),
+    icon: FolderIcon,
+    redirect: '/admin/files'
+  },
   { id: 'Settings', name: t('admin.settings.title'), icon: CogIcon, redirect: '/admin/settings' }
 ]
 
@@ -138,6 +193,12 @@ const loadFiles = async () => {
 onMounted(() => {
   loadFiles()
 })
+
+// 登出处理
+const handleLogout = () => {
+  adminStore.logout()
+  router.push('/login')
+}
 </script>
 
 <style>
@@ -169,11 +230,11 @@ onMounted(() => {
   background-color: #4b5563;
 }
 
-input:checked+.slider {
+input:checked + .slider {
   background-color: #4f46e5;
 }
 
-.dark input:checked+.slider {
+.dark input:checked + .slider {
   background-color: #4f46e5;
 }
 
