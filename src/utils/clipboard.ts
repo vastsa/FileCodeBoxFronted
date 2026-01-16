@@ -108,7 +108,7 @@ function fallbackCopyTextToClipboard(command: string) {
     if (document.hasFocus() && navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(command)
     } else {
-      fallbackCopyTextToClipboard(command)
+      console.error('回退复制操作失败')
     }
   } catch (err) {
     console.error('回退复制操作失败：', err)
