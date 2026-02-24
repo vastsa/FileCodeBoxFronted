@@ -14,10 +14,10 @@
         <div class="p-8">
           <PageHeader :title="config.name" @title-click="toSend" />
           <RetrieveForm
+            v-model="code"
             :input-status="inputStatus"
             :error="!!error"
             @submit="handleSubmit"
-            @update:code="code = $event"
             ref="retrieveFormRef"
           />
         </div>
