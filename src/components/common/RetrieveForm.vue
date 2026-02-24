@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, watch } from 'vue'
+import { ref, inject, computed } from 'vue'
 import { ArrowRightIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
@@ -73,24 +73,24 @@ interface InputStatus {
 interface Props {
   inputStatus: InputStatus
   error?: boolean
+  modelValue: string
 }
 
 interface Emits {
   submit: []
-  'update:code': [value: string]
+  'update:modelValue': [value: string]
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const isDarkMode = inject('isDarkMode')
-const code = ref('')
+const code = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
+})
 const isInputFocused = ref(false)
 const codeInput = ref<HTMLInputElement>()
-
-watch(code, (newValue) => {
-  emit('update:code', newValue)
-})
 
 defineExpose({
   focus: () => codeInput.value?.focus()
