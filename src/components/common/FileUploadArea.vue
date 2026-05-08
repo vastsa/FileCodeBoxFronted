@@ -18,6 +18,7 @@
       @change="handleFileUpload"
       :accept="acceptedTypes"
       :disabled="isUploading"
+      multiple
     />
     <div class="absolute inset-0 w-full h-full" v-if="progress > 0">
       <BorderProgressBar :progress="progress" />
@@ -38,7 +39,14 @@
           : 'text-gray-600 group-hover:text-indigo-600'
       ]"
     >
-      <span class="block truncate">
+      <span v-if="selectedFiles && selectedFiles.length > 1" class="block">
+        <span
+          v-for="(f, i) in selectedFiles"
+          :key="i"
+          class="block truncate"
+        >{{ f.name }}</span>
+      </span>
+      <span v-else class="block truncate">
         {{ displayText }}
       </span>
     </p>
@@ -87,6 +95,7 @@ type UploadStatusType = 'idle' | 'uploading' | 'success' | 'error' | 'initializi
 
 interface Props {
   selectedFile?: File | null
+  selectedFiles?: File[]
   progress?: number
   placeholder?: string
   description?: string
@@ -109,12 +118,14 @@ interface Props {
 
 interface Emits {
   fileSelected: [file: File]
+  filesSelected: [files: File[]]
   fileDrop: [event: DragEvent]
   retry: []
 }
 
 const props = withDefaults(defineProps<Props>(), {
   selectedFile: null,
+  selectedFiles: () => [],
   progress: 0,
   placeholder: '',
   description: '',
@@ -146,6 +157,12 @@ const hasError = computed(() => props.uploadStatus === 'error')
 const isSuccess = computed(() => props.uploadStatus === 'success')
 
 const displayText = computed(() => {
+  if (props.selectedFiles && props.selectedFiles.length === 1) {
+    return props.selectedFiles[0].name
+  }
+  if (props.selectedFiles && props.selectedFiles.length > 1) {
+    return `已选择 ${props.selectedFiles.length} 个文件`
+  }
   if (props.selectedFile) {
     return props.selectedFile.name
   }
@@ -229,9 +246,13 @@ const triggerFileUpload = () => {
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    emit('fileSelected', file)
+  const files = target.files
+  if (files && files.length > 0) {
+    if (files.length === 1) {
+      emit('fileSelected', files[0])
+    } else {
+      emit('filesSelected', Array.from(files))
+    }
   }
   // 重置 input 值，允许选择同名文件
   target.value = ''
