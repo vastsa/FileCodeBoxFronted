@@ -1100,7 +1100,9 @@ const handleSubmit = async () => {
         size:
           sendType.value === 'text'
             ? `${(textContent.value.length / 1024).toFixed(2)} KB`
-            : `${(selectedFile.value!.size / (1024 * 1024)).toFixed(1)} MB`,
+            : selectedFiles.value.length > 0
+              ? `${(selectedFiles.value.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(1)} MB`
+              : `${(selectedFile.value!.size / (1024 * 1024)).toFixed(1)} MB`,
         expiration:
           expirationMethod.value === 'forever'
             ? t('send.expiration.forever')
