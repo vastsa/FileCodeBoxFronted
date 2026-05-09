@@ -69,7 +69,7 @@ const alertIcons = {
   info: Info
 }
 
-let intervalId: number
+let intervalId: ReturnType<typeof setInterval>
 
 onMounted(() => {
   intervalId = setInterval(() => {
