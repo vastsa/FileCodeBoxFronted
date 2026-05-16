@@ -23,9 +23,11 @@
             <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8">
               <FileUploadArea
                 :selected-file="selectedFile"
+                :selected-files="selectedFiles"
                 :progress="uploadProgress"
                 :description="`支持各种常见格式，最大${getStorageUnit(config.uploadSize)}`"
                 @file-selected="handleFileSelected"
+                @files-selected="handleFilesSelected"
                 @file-drop="handleFileDrop"
               />
             </div>
@@ -522,6 +524,7 @@ import {
 } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import QRCode from 'qrcode.vue'
+import JSZip from 'jszip'
 import { useFileDataStore } from '@/stores/fileData'
 import { useAlertStore } from '@/stores/alertStore'
 import api from '@/utils/api'
@@ -561,6 +564,7 @@ const fileDataStore = useFileDataStore()
 
 const sendType = ref('file')
 const selectedFile = ref<File | null>(null)
+const selectedFiles = ref<File[]>([])
 const textContent = ref('')
 
 const expirationMethod = ref(config.expireStyle?.[0] || 'day')
@@ -586,17 +590,47 @@ const fileHash = ref('')
 
 const handleFileSelected = async (file: File) => {
   selectedFile.value = file
+  selectedFiles.value = []
   if (!checkOpenUpload()) return
   if (!checkFileSize(file)) return
   fileHash.value = await calculateFileHash(file)
 }
 
+const handleFilesSelected = async (files: File[]) => {
+  if (!checkOpenUpload()) return
+  selectedFiles.value = files
+  selectedFile.value = null
+  fileHash.value = ''
+}
+
+const packFilesAsZip = async (files: File[]): Promise<File> => {
+  const zip = new JSZip()
+  for (const file of files) {
+    zip.file(file.name, file)
+  }
+  const blob = await zip.generateAsync({
+    type: 'blob',
+    compression: 'DEFLATE',
+    compressionOptions: { level: 6 }
+  })
+  const zipName = `files_${Date.now()}.zip`
+  return new File([blob], zipName, { type: 'application/zip' })
+}
+
 const handleFileDrop = async (event: DragEvent) => {
-  if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-    const file = event.dataTransfer.files[0]
+  if (!event.dataTransfer?.files || event.dataTransfer.files.length === 0) return
+  const files = Array.from(event.dataTransfer.files)
+  if (files.length === 1) {
+    const file = files[0]
     selectedFile.value = file
+    selectedFiles.value = []
     if (!checkUpload()) return
     fileHash.value = await calculateFileHash(file)
+  } else {
+    if (!checkOpenUpload()) return
+    selectedFiles.value = files
+    selectedFile.value = null
+    fileHash.value = ''
   }
 }
 
@@ -1006,7 +1040,7 @@ const handleSubmit = async () => {
   isSubmitting.value = true
 
   try {
-    if (sendType.value === 'file' && !selectedFile.value) {
+    if (sendType.value === 'file' && !selectedFile.value && selectedFiles.value.length === 0) {
       alertStore.showAlert(t('send.messages.selectFile'), 'error')
       return
     }
@@ -1029,10 +1063,18 @@ const handleSubmit = async () => {
     let response: ApiResponse
 
     if (sendType.value === 'file') {
+      // 多文件时先打包成 zip
+      let fileToUpload = selectedFile.value!
+      if (selectedFiles.value.length > 0) {
+        alertStore.showAlert('正在打包文件...', 'success')
+        fileToUpload = await packFilesAsZip(selectedFiles.value)
+        if (!checkFileSize(fileToUpload)) return
+        fileHash.value = await calculateFileHash(fileToUpload)
+      }
       if (config.enableChunk) {
-        response = await handleChunkUpload(selectedFile.value!)
+        response = await handleChunkUpload(fileToUpload)
       } else {
-        response = await handlePresignedUpload(selectedFile.value!)
+        response = await handlePresignedUpload(fileToUpload)
       }
     } else {
       // 文本上传保持不变
@@ -1058,7 +1100,9 @@ const handleSubmit = async () => {
         size:
           sendType.value === 'text'
             ? `${(textContent.value.length / 1024).toFixed(2)} KB`
-            : `${(selectedFile.value!.size / (1024 * 1024)).toFixed(1)} MB`,
+            : selectedFiles.value.length > 0
+              ? `${(selectedFiles.value.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(1)} MB`
+              : `${(selectedFile.value!.size / (1024 * 1024)).toFixed(1)} MB`,
         expiration:
           expirationMethod.value === 'forever'
             ? t('send.expiration.forever')
@@ -1071,6 +1115,7 @@ const handleSubmit = async () => {
       alertStore.showAlert(t('send.messages.sendSuccess', { code: retrieveCode }), 'success')
       // 重置表单 - 只重置文件和文本内容,保留过期信息
       selectedFile.value = null
+      selectedFiles.value = []
       textContent.value = ''
       uploadProgress.value = 0
       resetPresignUpload()
