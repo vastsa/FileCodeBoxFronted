@@ -2,6 +2,9 @@ import api, { rawApiClient } from './client'
 import { multipartUploadConfig } from './shared'
 import type {
   AdminBatchDeleteFilesResponse,
+  AdminBatchUpdateFilesRequest,
+  AdminBatchUpdateFilesResponse,
+  AdminFilePatchPayload,
   AdminFileListParams,
   AdminFilePreviewResponse,
   ApiResponse,
@@ -125,8 +128,14 @@ export class FileService {
     return api.get('/admin/file/list', { params })
   }
 
-  static async updateFile(data: FileEditForm): Promise<ApiResponse> {
+  static async updateFile(data: FileEditForm | AdminFilePatchPayload): Promise<ApiResponse> {
     return api.patch('/admin/file/update', data)
+  }
+
+  static async updateAdminFiles(
+    data: AdminBatchUpdateFilesRequest
+  ): Promise<ApiResponse<AdminBatchUpdateFilesResponse>> {
+    return api.patch('/admin/file/batch-update', data)
   }
 
   static async deleteAdminFile(id: number): Promise<ApiResponse> {

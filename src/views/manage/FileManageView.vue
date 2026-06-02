@@ -154,7 +154,7 @@
           type="checkbox"
           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
           :checked="isAllCurrentPageSelected"
-          :disabled="isBatchDeleting"
+          :disabled="isBatchActionRunning"
           :indeterminate="isCurrentPagePartiallySelected"
           @change="toggleCurrentPageSelection"
         />
@@ -172,7 +172,7 @@
           v-if="hasSelectedFiles"
           variant="outline"
           size="sm"
-          :disabled="isBatchDeleting"
+          :disabled="isBatchActionRunning"
           @click="clearSelection"
         >
           <template #icon>
@@ -181,9 +181,21 @@
           {{ t('fileManage.clearSelection') }}
         </BaseButton>
         <BaseButton
+          variant="secondary"
+          size="sm"
+          :disabled="!hasSelectedFiles || isBatchDeleting"
+          :loading="isBatchUpdating"
+          @click="openBatchEditModal"
+        >
+          <template #icon>
+            <ClockIcon class="mr-2 h-4 w-4" />
+          </template>
+          {{ t('fileManage.batchEdit') }}
+        </BaseButton>
+        <BaseButton
           variant="danger"
           size="sm"
-          :disabled="!hasSelectedFiles"
+          :disabled="!hasSelectedFiles || isBatchUpdating"
           :loading="isBatchDeleting"
           @click="deleteSelectedFiles"
         >
@@ -262,7 +274,7 @@
                 type="checkbox"
                 class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 :checked="selectedFileIds.has(file.id)"
-                :disabled="isBatchDeleting"
+                :disabled="isBatchActionRunning"
                 :aria-label="t('fileManage.selectFile', { name: file.displayName })"
                 @change="toggleFileSelection(file.id)"
               />
@@ -467,6 +479,95 @@
       </template>
     </BaseModal>
 
+    <BaseModal :show="showBatchEditModal" size="lg" @close="closeBatchEditModal()">
+      <template #header>
+        <div class="flex items-center space-x-3">
+          <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50']">
+            <ClockIcon
+              class="w-5 h-5"
+              :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+            />
+          </div>
+          <h3
+            class="text-xl font-semibold leading-6"
+            :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+          >
+            {{ t('fileManage.batchEditTitle') }}
+          </h3>
+        </div>
+      </template>
+
+      <div class="space-y-5">
+        <div
+          class="rounded-lg border px-4 py-3 text-sm"
+          :class="[
+            isDarkMode
+              ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-200'
+              : 'border-indigo-100 bg-indigo-50 text-indigo-700'
+          ]"
+        >
+          {{ t('fileManage.batchEditSelected', { count: selectedCount }) }}
+        </div>
+
+        <div class="space-y-3">
+          <p class="text-sm font-medium" :class="[primaryTextClass]">
+            {{ t('fileManage.batchEditMode') }}
+          </p>
+          <div class="grid gap-2 sm:grid-cols-3">
+            <button
+              v-for="option in batchEditModeOptions"
+              :key="option.value"
+              type="button"
+              class="flex min-h-12 items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium transition-colors"
+              :class="getBatchEditModeClass(option.value)"
+              :disabled="isBatchUpdating"
+              @click="batchEditForm.mode = option.value"
+            >
+              <component :is="option.icon" class="mr-2 h-4 w-4" />
+              <span>{{ option.label }}</span>
+            </button>
+          </div>
+        </div>
+
+        <FileEditField
+          v-if="batchEditForm.mode === 'expiresAt'"
+          v-model="batchEditForm.expired_at"
+          type="datetime-local"
+          :label="t('fileManage.batchEditExpiresAt')"
+        />
+        <FileEditField
+          v-else-if="batchEditForm.mode === 'downloadLimit'"
+          v-model="batchEditForm.expired_count"
+          type="number"
+          :label="t('fileManage.batchEditDownloadLimit')"
+          :placeholder="t('fileManage.form.downloadLimitPlaceholder')"
+        />
+        <div
+          v-else
+          class="rounded-lg border px-4 py-3 text-sm"
+          :class="[
+            isDarkMode
+              ? 'border-gray-700 bg-gray-700/50 text-gray-300'
+              : 'border-gray-200 bg-gray-50 text-gray-600'
+          ]"
+        >
+          {{ t('fileManage.batchEditForeverHint') }}
+        </div>
+      </div>
+
+      <template #footer>
+        <BaseButton variant="secondary" :disabled="isBatchUpdating" @click="closeBatchEditModal()">
+          {{ t('common.cancel') }}
+        </BaseButton>
+        <BaseButton :loading="isBatchUpdating" @click="handleBatchUpdate">
+          <template #icon>
+            <CheckIcon class="w-4 h-4 mr-2" />
+          </template>
+          {{ t('fileManage.applyBatchEdit') }}
+        </BaseButton>
+      </template>
+    </BaseModal>
+
     <BaseModal :show="showTextPreview" size="lg" @close="closeTextPreview">
       <template #header>
         <div class="flex items-center space-x-3">
@@ -538,9 +639,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type {
+  AdminBatchEditMode,
   AdminFileSortBy,
   AdminFileSortOrder,
   AdminFileStatusFilter,
@@ -593,10 +695,13 @@ const {
   hasLoadError,
   isLoading,
   isAllCurrentPageSelected,
+  isBatchActionRunning,
   isBatchDeleting,
+  isBatchUpdating,
   isCurrentPagePartiallySelected,
   isPreviewLoading,
   isSaving,
+  batchEditForm,
   downloadingFileId,
   hasSelectedFiles,
   params,
@@ -606,10 +711,12 @@ const {
   selectedFileIds,
   storageUsedText,
   summary,
+  showBatchEditModal,
   showEditModal,
   editForm,
   showTextPreview,
   previewText,
+  closeBatchEditModal,
   closeEditModal,
   closeTextPreview,
   copyText,
@@ -620,8 +727,10 @@ const {
   exportPreviewText,
   handlePageChange,
   handleSearch,
+  handleBatchUpdate,
   handleUpdate,
   loadFiles,
+  openBatchEditModal,
   openEditModal,
   openTextPreview,
   refreshFiles,
@@ -701,6 +810,26 @@ const sortOrderOptions = computed<{ value: AdminFileSortOrder; label: string }[]
   { value: 'asc', label: t('fileManage.sort.asc') }
 ])
 
+const batchEditModeOptions = computed<
+  { value: AdminBatchEditMode; label: string; icon: Component }[]
+>(() => [
+  {
+    value: 'expiresAt',
+    label: t('fileManage.batchEditExpiresAt'),
+    icon: ClockIcon
+  },
+  {
+    value: 'downloadLimit',
+    label: t('fileManage.batchEditDownloadLimit'),
+    icon: DownloadIcon
+  },
+  {
+    value: 'forever',
+    label: t('fileManage.batchEditForever'),
+    icon: CheckIcon
+  }
+])
+
 const getPillClass = (active: boolean) => {
   if (active) return 'bg-indigo-600 text-white'
   return isDarkMode.value
@@ -712,6 +841,18 @@ const getStatusFilterClass = (value: AdminFileStatusFilter) =>
   getPillClass(params.value.status === value)
 
 const getTypeFilterClass = (value: AdminFileTypeFilter) => getPillClass(params.value.type === value)
+
+const getBatchEditModeClass = (value: AdminBatchEditMode) => {
+  if (batchEditForm.value.mode === value) {
+    return isDarkMode.value
+      ? 'border-indigo-500 bg-indigo-500/20 text-indigo-200'
+      : 'border-indigo-500 bg-indigo-50 text-indigo-700'
+  }
+
+  return isDarkMode.value
+    ? 'border-gray-700 bg-gray-700/50 text-gray-300 hover:border-gray-600 hover:bg-gray-700'
+    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+}
 
 const getTypeLabel = (file: AdminFileViewItem) => {
   if (file.isChunkedFile) return t('fileManage.chunkedType')

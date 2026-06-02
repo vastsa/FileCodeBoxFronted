@@ -3,7 +3,11 @@ import { useI18n } from 'vue-i18n'
 import { FileService } from '@/services'
 import { useAlertStore } from '@/stores/alertStore'
 import type {
+  AdminBatchEditForm,
   AdminBatchDeleteFilesResponse,
+  AdminBatchUpdateFilesRequest,
+  AdminBatchUpdateFilesResponse,
+  AdminFilePatchPayload,
   AdminFileListParams,
   AdminFileStatusFilter,
   AdminFileSummary,
@@ -46,10 +50,18 @@ type ErrorWithResponse = {
   }
 }
 
-const isLegacyBatchDeleteUnavailable = (error: unknown) => {
+const isLegacyBatchActionUnavailable = (error: unknown) => {
   const status = (error as ErrorWithResponse)?.response?.status
   return status === 404 || status === 405
 }
+
+const legacyForeverExpiresAt = '2099-12-31T23:59'
+
+const emptyBatchEditForm = (): AdminBatchEditForm => ({
+  mode: 'expiresAt',
+  expired_at: '',
+  expired_count: null
+})
 
 export function useAdminFiles() {
   const { t } = useI18n()
@@ -80,6 +92,8 @@ export function useAdminFiles() {
     expired_at: '',
     expired_count: null
   })
+  const showBatchEditModal = ref(false)
+  const batchEditForm = ref<AdminBatchEditForm>(emptyBatchEditForm())
 
   const showTextPreview = ref(false)
   const previewText = ref('')
@@ -89,6 +103,8 @@ export function useAdminFiles() {
   const downloadingFileId = ref<number | null>(null)
   const selectedFileIds = ref<Set<number>>(new Set())
   const isBatchDeleting = ref(false)
+  const isBatchUpdating = ref(false)
+  const isBatchActionRunning = computed(() => isBatchDeleting.value || isBatchUpdating.value)
   const totalPages = computed(() => Math.max(Math.ceil(params.value.total / params.value.size), 1))
   const storageUsedText = computed(() => formatFileSize(summary.value.storageUsed))
   const currentPageSelectedCount = computed(
@@ -233,6 +249,72 @@ export function useAdminFiles() {
     }
   }
 
+  const resetBatchEditForm = () => {
+    batchEditForm.value = emptyBatchEditForm()
+  }
+
+  const openBatchEditModal = () => {
+    if (!hasSelectedFiles.value || isBatchActionRunning.value) return
+
+    resetBatchEditForm()
+    showBatchEditModal.value = true
+  }
+
+  const closeBatchEditModal = (force = false) => {
+    if (isBatchUpdating.value && !force) return
+
+    showBatchEditModal.value = false
+    resetBatchEditForm()
+  }
+
+  const buildBatchUpdatePayload = (ids: number[]): AdminBatchUpdateFilesRequest | null => {
+    const form = batchEditForm.value
+
+    if (form.mode === 'expiresAt') {
+      if (!form.expired_at) return null
+      return {
+        ids,
+        expired_at: form.expired_at
+      }
+    }
+
+    if (form.mode === 'downloadLimit') {
+      if (form.expired_count === null || !Number.isFinite(form.expired_count)) return null
+      return {
+        ids,
+        expired_count: form.expired_count
+      }
+    }
+
+    return {
+      ids,
+      clearExpiredAt: true,
+      clear_expired_at: true
+    }
+  }
+
+  const buildLegacyBatchPatchPayload = (
+    id: number,
+    payload: AdminBatchUpdateFilesRequest
+  ): AdminFilePatchPayload => {
+    if (payload.clearExpiredAt || payload.clear_expired_at) {
+      return {
+        id,
+        expired_at: legacyForeverExpiresAt,
+        expired_count: -1
+      }
+    }
+
+    const patchPayload: AdminFilePatchPayload = { id }
+    if (payload.expired_at !== undefined) {
+      patchPayload.expired_at = payload.expired_at
+    }
+    if (payload.expired_count !== undefined) {
+      patchPayload.expired_count = payload.expired_count
+    }
+    return patchPayload
+  }
+
   const loadFiles = async () => {
     isLoading.value = true
     try {
@@ -351,7 +433,7 @@ export function useAdminFiles() {
     try {
       return await FileService.deleteAdminFiles(ids)
     } catch (error: unknown) {
-      if (!isLegacyBatchDeleteUnavailable(error)) {
+      if (!isLegacyBatchActionUnavailable(error)) {
         throw error
       }
 
@@ -369,8 +451,36 @@ export function useAdminFiles() {
     }
   }
 
+  const updateAdminFilesWithFallback = async (
+    ids: number[],
+    payload: AdminBatchUpdateFilesRequest
+  ): Promise<ApiResponse<AdminBatchUpdateFilesResponse>> => {
+    try {
+      return await FileService.updateAdminFiles(payload)
+    } catch (error: unknown) {
+      if (!isLegacyBatchActionUnavailable(error)) {
+        throw error
+      }
+
+      await Promise.all(
+        ids.map((id) => FileService.updateFile(buildLegacyBatchPatchPayload(id, payload)))
+      )
+
+      return {
+        code: 200,
+        detail: {
+          updatedCount: ids.length,
+          updated_count: ids.length,
+          updated: ids,
+          missing: [],
+          failed: []
+        }
+      }
+    }
+  }
+
   const deleteSelectedFiles = async () => {
-    if (!hasSelectedFiles.value || isBatchDeleting.value) return
+    if (!hasSelectedFiles.value || isBatchActionRunning.value) return
 
     const ids = Array.from(selectedFileIds.value)
     if (!window.confirm(t('fileManage.batchDeleteConfirm', { count: ids.length }))) {
@@ -406,6 +516,49 @@ export function useAdminFiles() {
       alertStore.showAlert(getErrorMessage(error, t('fileManage.batchDeleteFailed')), 'error')
     } finally {
       isBatchDeleting.value = false
+    }
+  }
+
+  const handleBatchUpdate = async () => {
+    if (!hasSelectedFiles.value || isBatchActionRunning.value) return
+
+    const ids = Array.from(selectedFileIds.value)
+    const payload = buildBatchUpdatePayload(ids)
+    if (!payload) {
+      alertStore.showAlert(t('fileManage.batchUpdateNoFields'), 'warning')
+      return
+    }
+
+    if (!window.confirm(t('fileManage.batchUpdateConfirm', { count: ids.length }))) {
+      return
+    }
+
+    isBatchUpdating.value = true
+    try {
+      const response = await updateAdminFilesWithFallback(ids, payload)
+      const detail = response.detail
+      const updatedCount = detail?.updatedCount ?? detail?.updated_count ?? ids.length
+      const failedCount = detail?.failedCount ?? detail?.failed_count ?? 0
+
+      clearSelection()
+      await loadFiles()
+      closeBatchEditModal(true)
+      alertStore.showAlert(
+        t(
+          failedCount > 0
+            ? 'fileManage.batchUpdatePartialSuccess'
+            : 'fileManage.batchUpdateSuccess',
+          {
+            count: updatedCount,
+            failed: failedCount
+          }
+        ),
+        failedCount > 0 ? 'warning' : 'success'
+      )
+    } catch (error: unknown) {
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.batchUpdateFailed')), 'error')
+    } finally {
+      isBatchUpdating.value = false
     }
   }
 
@@ -491,10 +644,13 @@ export function useAdminFiles() {
     hasActiveFilters,
     isLoading,
     isAllCurrentPageSelected,
+    isBatchActionRunning,
     isBatchDeleting,
+    isBatchUpdating,
     isCurrentPagePartiallySelected,
     isPreviewLoading,
     isSaving,
+    batchEditForm,
     downloadingFileId,
     hasSelectedFiles,
     params,
@@ -504,12 +660,14 @@ export function useAdminFiles() {
     selectedFileIds,
     storageUsedText,
     summary,
+    showBatchEditModal,
     showEditModal,
     editForm,
     showTextPreview,
     previewText,
     totalPages,
     closeEditModal,
+    closeBatchEditModal,
     closeTextPreview,
     copyText,
     clearSelection,
@@ -519,8 +677,10 @@ export function useAdminFiles() {
     exportPreviewText,
     handlePageChange,
     handleSearch,
+    handleBatchUpdate,
     handleUpdate,
     loadFiles,
+    openBatchEditModal,
     openEditModal,
     openTextPreview,
     refreshFiles,

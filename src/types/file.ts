@@ -83,6 +83,15 @@ export interface FileEditForm {
   expired_count: number | null
 }
 
+export interface AdminFilePatchPayload {
+  id: number
+  code?: string
+  prefix?: string
+  suffix?: string
+  expired_at?: string | null
+  expired_count?: number | null
+}
+
 export interface FileListResponse {
   data: FileListItem[]
   total: number
@@ -128,6 +137,43 @@ export interface AdminBatchDeleteFilesResponse {
   deleted?: number[]
   missing?: number[]
   failed?: AdminBatchDeleteFileFailure[]
+}
+
+export interface AdminBatchUpdateFileFailure {
+  id: number
+  reason: string
+}
+
+export interface AdminBatchUpdateFilesRequest {
+  ids: number[]
+  expired_at?: string | null
+  expired_count?: number | null
+  clearExpiredAt?: boolean
+  clear_expired_at?: boolean
+}
+
+export interface AdminBatchUpdateFilesResponse {
+  requestedCount?: number
+  requested_count?: number
+  uniqueCount?: number
+  unique_count?: number
+  updatedCount?: number
+  updated_count?: number
+  missingCount?: number
+  missing_count?: number
+  failedCount?: number
+  failed_count?: number
+  updated?: number[]
+  missing?: number[]
+  failed?: AdminBatchUpdateFileFailure[]
+}
+
+export type AdminBatchEditMode = 'expiresAt' | 'downloadLimit' | 'forever'
+
+export interface AdminBatchEditForm {
+  mode: AdminBatchEditMode
+  expired_at: string
+  expired_count: number | null
 }
 
 export interface FileUploadResponse {
