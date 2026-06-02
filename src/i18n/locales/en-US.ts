@@ -446,7 +446,13 @@ export default {
         mb: 'MB',
         gb: 'GB'
       },
-      saveChanges: 'Save Settings'
+      saveChanges: 'Save Settings',
+      refreshConfig: 'Refresh Config',
+      refreshing: 'Refreshing',
+      saving: 'Saving',
+      unsavedChanges: 'Unsaved configuration changes',
+      allChangesSaved: 'All configuration changes are saved',
+      refreshBlocked: 'Save current changes before refreshing'
     },
     systemSettings: {
       title: 'System Settings',

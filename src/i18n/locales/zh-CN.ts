@@ -477,7 +477,13 @@ export default {
       errorLimits: '访问保护',
       errorPerMinute: '检测时间窗口（在此时间内统计错误次数）',
       errorCountLimit: '允许错误次数（超过后临时封禁）',
-      saveChanges: '保存设置'
+      saveChanges: '保存设置',
+      refreshConfig: '刷新配置',
+      refreshing: '刷新中',
+      saving: '保存中',
+      unsavedChanges: '有未保存的配置变更',
+      allChangesSaved: '所有配置已保存',
+      refreshBlocked: '请先保存当前变更再刷新'
     },
     dashboard: {
       title: '仪表盘',
