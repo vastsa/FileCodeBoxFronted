@@ -32,8 +32,10 @@ export function useSendFlow() {
   const isSubmitting = ref(false)
   const fileHash = ref('')
   const sendRecords = computed(() => fileDataStore.shareData)
-  const uploadDescription = computed(
-    () => `支持各种常见格式，最大${getStorageUnit(config.value.uploadSize)}`
+  const uploadDescription = computed(() =>
+    t('send.uploadArea.descriptionWithLimit', {
+      size: getStorageUnit(config.value.uploadSize)
+    })
   )
   const expirationOptions = computed(() =>
     config.value.expireStyle.map((value) => ({

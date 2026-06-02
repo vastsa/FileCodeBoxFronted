@@ -215,7 +215,16 @@ export default {
       clickText: 'click to select files',
       textInput: 'Enter text to send here...',
       placeholder: 'Click or drag files here to upload',
-      description: 'Supports various common formats'
+      description: 'Supports various common formats',
+      descriptionWithLimit: 'Supports common formats, up to {size}',
+      retry: 'Retry',
+      selectedFiles: '{count} files selected',
+      status: {
+        initializing: 'Preparing upload...',
+        uploading: 'Uploading files...',
+        confirming: 'Confirming upload...',
+        success: 'Upload complete!'
+      }
     },
     submit: 'Secure Send',
     submitting: 'Sending...',

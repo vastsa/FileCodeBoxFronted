@@ -119,7 +119,7 @@
           : 'bg-indigo-500 hover:bg-indigo-600 text-white'
       ]"
     >
-      {{ retryText }}
+      {{ retryLabel }}
     </button>
   </div>
 </template>
@@ -177,7 +177,7 @@ const props = withDefaults(defineProps<Props>(), {
   totalBytes: 0,
   errorMessage: '',
   allowRetry: true,
-  retryText: '重试',
+  retryText: '',
   showProgressDetails: true
 })
 
@@ -188,6 +188,7 @@ const isDarkMode = useInjectedDarkMode()
 // 使用computed属性处理多语言文本
 const placeholderText = computed(() => props.placeholder || t('send.uploadArea.placeholder'))
 const descriptionText = computed(() => props.description || t('send.uploadArea.description'))
+const retryLabel = computed(() => props.retryText || t('send.uploadArea.retry'))
 const fileInput = ref<HTMLInputElement | null>(null)
 const isDragActive = ref(false)
 
@@ -204,7 +205,7 @@ const displayText = computed(() => {
     return props.selectedFiles[0].name
   }
   if (props.selectedFiles && props.selectedFiles.length > 1) {
-    return `已选择 ${props.selectedFiles.length} 个文件`
+    return t('send.uploadArea.selectedFiles', { count: props.selectedFiles.length })
   }
   if (props.selectedFile) {
     return props.selectedFile.name
@@ -249,16 +250,16 @@ const statusDescription = computed(() => {
     return props.errorMessage
   }
   if (props.uploadStatus === 'initializing') {
-    return '正在初始化上传...'
+    return t('send.uploadArea.status.initializing')
   }
   if (props.uploadStatus === 'uploading') {
-    return '正在上传文件...'
+    return t('send.uploadArea.status.uploading')
   }
   if (props.uploadStatus === 'confirming') {
-    return '正在确认上传...'
+    return t('send.uploadArea.status.confirming')
   }
   if (isSuccess.value) {
-    return '上传成功！'
+    return t('send.uploadArea.status.success')
   }
   return descriptionText.value
 })

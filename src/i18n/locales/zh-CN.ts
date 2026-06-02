@@ -217,7 +217,16 @@ export default {
       clickText: '点击选择文件',
       textInput: '在此输入要发送的文本...',
       placeholder: '点击或拖放文件到此处上传',
-      description: '支持各种常见格式'
+      description: '支持各种常见格式',
+      descriptionWithLimit: '支持各种常见格式，最大{size}',
+      retry: '重试',
+      selectedFiles: '已选择 {count} 个文件',
+      status: {
+        initializing: '正在初始化上传...',
+        uploading: '正在上传文件...',
+        confirming: '正在确认上传...',
+        success: '上传成功！'
+      }
     },
     submit: '安全寄送',
     submitting: '发送中...',
