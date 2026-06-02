@@ -18,7 +18,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
+import { useInjectedDarkMode } from '@/composables'
 
 interface Props {
   variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'outline'
@@ -40,7 +41,7 @@ defineEmits<{
   click: [event: MouseEvent]
 }>()
 
-const isDarkMode = inject('isDarkMode')
+const isDarkMode = useInjectedDarkMode()
 
 const sizeClasses = computed(() => {
   const sizes = {
@@ -59,7 +60,7 @@ const variantClasses = computed(() => {
   }
   
   if (props.variant === 'secondary') {
-    return isDarkMode
+    return isDarkMode.value
       ? `${baseClasses} bg-gray-700 text-gray-300 hover:bg-gray-600 focus:ring-gray-500 border border-gray-600`
       : `${baseClasses} bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500 border border-gray-300`
   }
@@ -73,7 +74,7 @@ const variantClasses = computed(() => {
   }
   
   if (props.variant === 'outline') {
-    return isDarkMode
+    return isDarkMode.value
       ? `${baseClasses} border border-gray-600 text-gray-300 hover:bg-gray-700 focus:ring-gray-500`
       : `${baseClasses} border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500`
   }

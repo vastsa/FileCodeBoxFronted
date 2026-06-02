@@ -112,20 +112,12 @@ import { inject } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FileIcon, CalendarIcon, HardDriveIcon, DownloadIcon } from 'lucide-vue-next'
 import QRCode from 'qrcode.vue'
-
-interface FileRecord {
-  id: number
-  code: string
-  filename: string
-  size: string
-  downloadUrl: string | null
-  content: string | null
-  date: string
-}
+import type { ReceivedFileRecord } from '@/types'
+import { buildDownloadUrl, buildReceivedRecordQrValue } from '@/utils/share-url'
 
 interface Props {
   visible: boolean
-  record: FileRecord | null
+  record: ReceivedFileRecord | null
 }
 
 interface Emits {
@@ -137,25 +129,13 @@ defineProps<Props>()
 defineEmits<Emits>()
 const { t } = useI18n()
 const isDarkMode = inject('isDarkMode')
-const baseUrl = window.location.origin
 
-const getDownloadUrl = (record: FileRecord) => {
-  if (record.downloadUrl) {
-    if (record.downloadUrl.startsWith('http')) {
-      return record.downloadUrl
-    } else {
-      return `${baseUrl}${record.downloadUrl}`
-    }
-  }
-  return ''
+const getDownloadUrl = (record: ReceivedFileRecord) => {
+  return buildDownloadUrl(record.downloadUrl)
 }
 
-const getQRCodeValue = (record: FileRecord) => {
-  if (record.downloadUrl) {
-    return `${baseUrl}${record.downloadUrl}`
-  } else {
-    return `${baseUrl}?code=${record.code}`
-  }
+const getQRCodeValue = (record: ReceivedFileRecord) => {
+  return buildReceivedRecordQrValue(record)
 }
 </script>
 

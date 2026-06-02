@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import type { Alert, AlertType } from '@/types'
 import { TIME_CONSTANTS } from '@/constants'
 
+let progressTimer: ReturnType<typeof setInterval> | null = null
+
 export const useAlertStore = defineStore('alert', {
   state: () => ({
     alerts: [] as Alert[]
@@ -33,6 +35,25 @@ export const useAlertStore = defineStore('alert', {
           this.removeAlert(id)
         }
       }
+    },
+    startProgressTimer() {
+      if (progressTimer) {
+        return
+      }
+
+      progressTimer = setInterval(() => {
+        this.alerts.forEach((alert) => {
+          this.updateAlertProgress(alert.id)
+        })
+      }, TIME_CONSTANTS.PROGRESS_UPDATE_INTERVAL)
+    },
+    stopProgressTimer() {
+      if (!progressTimer) {
+        return
+      }
+
+      clearInterval(progressTimer)
+      progressTimer = null
     }
   }
 })

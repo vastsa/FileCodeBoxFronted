@@ -1,0 +1,16 @@
+{
+  "name": "FileCodeBox",
+  "short_name": "FileCodeBox",
+  "description": "FileCodeBox file transfer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/assets/logo_small.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

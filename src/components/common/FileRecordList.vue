@@ -68,24 +68,15 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 import { FileIcon, EyeIcon, DownloadIcon, TrashIcon } from 'lucide-vue-next'
-
-interface FileRecord {
-  id: number
-  code: string
-  filename: string
-  size: string
-  downloadUrl: string | null
-  content: string | null
-  date: string
-}
+import type { ReceivedFileRecord } from '@/types'
 
 interface Props {
-  records: FileRecord[]
+  records: ReceivedFileRecord[]
 }
 
 interface Emits {
-  'view-details': [record: FileRecord]
-  'download-record': [record: FileRecord]
+  'view-details': [record: ReceivedFileRecord]
+  'download-record': [record: ReceivedFileRecord]
   'delete-record': [id: number]
 }
 

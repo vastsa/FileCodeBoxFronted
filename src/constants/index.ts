@@ -71,6 +71,16 @@ export const ROUTES = {
   SETTINGS: '/admin/settings'
 } as const
 
+export const ROUTE_NAMES = {
+  RETRIEVE: 'Retrieve',
+  SEND: 'Send',
+  ADMIN: 'Manage',
+  LOGIN: 'Login',
+  DASHBOARD: 'Dashboard',
+  FILE_MANAGE: 'FileManage',
+  SETTINGS: 'Settings'
+} as const
+
 // 正则表达式
 export const REGEX_PATTERNS = {
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,

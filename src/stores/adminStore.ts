@@ -1,12 +1,18 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { STORAGE_KEYS } from '@/constants'
 import type { AdminUser } from '@/types'
+import {
+  clearStoredAuth,
+  readStoredAdminPassword,
+  readStoredToken,
+  writeStoredAdminPassword,
+  writeStoredToken
+} from '@/utils/auth-storage'
 
 export const useAdminStore = defineStore('admin', () => {
   // 状态
-  const adminPassword = ref(localStorage.getItem(STORAGE_KEYS.ADMIN_PASSWORD) || '')
-  const token = ref(localStorage.getItem(STORAGE_KEYS.TOKEN) || '')
+  const adminPassword = ref(readStoredAdminPassword())
+  const token = ref(readStoredToken())
   const isLoggedIn = ref(false)
   const userInfo = ref<AdminUser | null>(null)
   
@@ -14,16 +20,17 @@ export const useAdminStore = defineStore('admin', () => {
   const isAuthenticated = computed(() => {
     return isLoggedIn.value && !!token.value
   })
+  const hasToken = computed(() => !!token.value)
   
   // 方法
   const updateAdminPassword = (pwd: string) => {
     adminPassword.value = pwd
-    localStorage.setItem(STORAGE_KEYS.ADMIN_PASSWORD, pwd)
+    writeStoredAdminPassword(pwd)
   }
   
   const setToken = (newToken: string) => {
     token.value = newToken
-    localStorage.setItem(STORAGE_KEYS.TOKEN, newToken)
+    writeStoredToken(newToken)
   }
   
   const setUserInfo = (user: AdminUser) => {
@@ -42,13 +49,11 @@ export const useAdminStore = defineStore('admin', () => {
     isLoggedIn.value = false
     userInfo.value = null
     
-    // 清除本地存储
-    localStorage.removeItem(STORAGE_KEYS.ADMIN_PASSWORD)
-    localStorage.removeItem(STORAGE_KEYS.TOKEN)
+    clearStoredAuth()
   }
   
   const initAuth = () => {
-    const storedToken = localStorage.getItem(STORAGE_KEYS.TOKEN)
+    const storedToken = readStoredToken()
     if (storedToken) {
       token.value = storedToken
       isLoggedIn.value = true
@@ -64,6 +69,7 @@ export const useAdminStore = defineStore('admin', () => {
     
     // 计算属性
     isAuthenticated,
+    hasToken,
     
     // 方法
     updateAdminPassword,
@@ -74,6 +80,3 @@ export const useAdminStore = defineStore('admin', () => {
     initAuth
   }
 })
-
-// 保持向后兼容
-export const useAdminData = useAdminStore

@@ -1,6 +1,7 @@
 /**
  * 通用工具函数
  */
+import type { ApiErrorPayload } from '@/types'
 
 /**
  * 格式化时间戳为可读格式
@@ -72,36 +73,6 @@ export function formatDuration(seconds: number, t?: (key: string) => string): st
 
   const secondName = t ? t('utils.time.second') : 'second'
   return `${seconds}${secondName}`
-}
-
-/**
- * 复制文本到剪贴板
- * @param text 要复制的文本
- * @returns Promise<boolean> 是否复制成功
- */
-export async function copyToClipboard(text: string): Promise<boolean> {
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text)
-      return true
-    } else {
-      // 降级方案
-      const textArea = document.createElement('textarea')
-      textArea.value = text
-      textArea.style.position = 'fixed'
-      textArea.style.left = '-999999px'
-      textArea.style.top = '-999999px'
-      document.body.appendChild(textArea)
-      textArea.focus()
-      textArea.select()
-      const result = document.execCommand('copy')
-      textArea.remove()
-      return result
-    }
-  } catch (error) {
-    console.error('Copy failed:', error)
-    return false
-  }
 }
 
 /**
@@ -241,4 +212,25 @@ export function isMobile(): boolean {
  */
 export function formatNumber(num: number): string {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+type ErrorWithResponse = {
+  response?: {
+    data?: ApiErrorPayload
+  }
+  message?: string
+}
+
+export function getErrorMessage(error: unknown, fallback: string): string {
+  if (!error || typeof error !== 'object') {
+    return fallback
+  }
+
+  const errorWithResponse = error as ErrorWithResponse
+  return (
+    errorWithResponse.response?.data?.detail ||
+    errorWithResponse.response?.data?.message ||
+    errorWithResponse.message ||
+    fallback
+  )
 }

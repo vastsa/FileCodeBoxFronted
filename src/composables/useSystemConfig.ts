@@ -1,61 +1,54 @@
 import { ref, computed } from 'vue'
 import { ConfigService } from '@/services'
 import { useAlertStore } from '@/stores/alertStore'
-import type { SystemConfig } from '@/types'
-import { STORAGE_KEYS, DEFAULT_CONFIG } from '@/constants'
+import { useConfigStore } from '@/stores/configStore'
+import type { ConfigState } from '@/types'
+import { DEFAULT_CONFIG_STATE, readStoredConfig } from '@/utils/config-storage'
+import { getErrorMessage } from '@/utils/common'
+import {
+  buildConfigSubmitPayload,
+  bytesToFileSizeForm,
+  secondsToSaveTimeForm,
+  type FileSizeUnit,
+  type SaveTimeUnit
+} from '@/utils/config-form'
+
+type ConfigFlagKey = 'enableChunk' | 's3_proxy' | 'openUpload'
 
 export function useSystemConfig() {
   const alertStore = useAlertStore()
+  const configStore = useConfigStore()
   
   // 状态管理
-  const config = ref<SystemConfig>({ ...DEFAULT_CONFIG })
+  const config = ref<ConfigState>({ ...DEFAULT_CONFIG_STATE })
   const isLoading = ref(false)
+  const fileSize = ref(1)
+  const sizeUnit = ref<FileSizeUnit>('MB')
+  const saveTime = ref(1)
+  const saveTimeUnit = ref<SaveTimeUnit>('天')
   
   // 从本地存储获取配置
-  const getStoredConfig = (): SystemConfig | null => {
-    try {
-      const storedConfig = localStorage.getItem(STORAGE_KEYS.CONFIG)
-      if (storedConfig) {
-        return JSON.parse(storedConfig)
-      }
-    } catch (error) {
-      console.error('解析本地配置失败:', error)
-    }
-    return null
+  const getStoredConfig = (): ConfigState | null => {
+    return readStoredConfig<ConfigState>()
   }
   
   // 保存配置到本地存储
-  const saveConfigToStorage = (configData: SystemConfig) => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(configData))
-    } catch (error) {
-      console.error('保存配置到本地存储失败:', error)
-    }
+  const saveConfigToStorage = (configData: ConfigState) => {
+    configStore.updateConfig(configData)
   }
   
   // 获取系统配置
-  const fetchConfig = async (): Promise<SystemConfig | null> => {
+  const fetchConfig = async (): Promise<ConfigState | null> => {
     try {
       isLoading.value = true
       
       const response = await ConfigService.getConfig()
       
       if (response.code === 200 && response.detail) {
-        config.value = { ...DEFAULT_CONFIG, ...response.detail }
-        saveConfigToStorage(config.value)
-        
-        // 处理通知
-        if (response.detail.notify_title && response.detail.notify_content) {
-          const notifyKey = response.detail.notify_title + response.detail.notify_content
-          const lastNotify = localStorage.getItem(STORAGE_KEYS.NOTIFY)
-          
-          if (lastNotify !== notifyKey) {
-            localStorage.setItem(STORAGE_KEYS.NOTIFY, notifyKey)
-            alertStore.showAlert(
-              `${response.detail.notify_title}: ${response.detail.notify_content}`,
-              'success'
-            )
-          }
+        config.value = { ...DEFAULT_CONFIG_STATE, ...response.detail }
+        const notifyMessage = configStore.applyRemoteConfig(config.value)
+        if (notifyMessage) {
+          alertStore.showAlert(notifyMessage, 'success')
         }
         
         return config.value
@@ -70,8 +63,7 @@ export function useSystemConfig() {
         return config.value
       }
       
-      const errorMessage = error instanceof Error ? error.message : '获取配置失败'
-      alertStore.showAlert(errorMessage, 'error')
+      alertStore.showAlert(getErrorMessage(error, '获取配置失败'), 'error')
       return null
     } finally {
       isLoading.value = false
@@ -79,7 +71,7 @@ export function useSystemConfig() {
   }
   
   // 更新系统配置
-  const updateConfig = async (newConfig: Partial<SystemConfig>): Promise<boolean> => {
+  const updateConfig = async (newConfig: Partial<ConfigState>): Promise<boolean> => {
     try {
       isLoading.value = true
       
@@ -94,13 +86,42 @@ export function useSystemConfig() {
         throw new Error(response.message || '更新配置失败')
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '更新配置失败'
-      alertStore.showAlert(errorMessage, 'error')
+      alertStore.showAlert(getErrorMessage(error, '更新配置失败'), 'error')
       return false
     } finally {
       isLoading.value = false
     }
   }
+
+  const toggleConfigFlag = (key: ConfigFlagKey) => {
+    config.value[key] = config.value[key] === 1 ? 0 : 1
+  }
+
+  const syncConfigForm = (nextConfig: ConfigState) => {
+    const sizeForm = bytesToFileSizeForm(nextConfig.uploadSize)
+    fileSize.value = sizeForm.value
+    sizeUnit.value = sizeForm.unit
+
+    const saveTimeForm = secondsToSaveTimeForm(nextConfig.max_save_seconds)
+    saveTime.value = saveTimeForm.value
+    saveTimeUnit.value = saveTimeForm.unit
+  }
+
+  const refreshConfig = async () => {
+    const latestConfig = await fetchConfig()
+    if (latestConfig) {
+      syncConfigForm(latestConfig)
+    }
+  }
+
+  const submitConfig = () =>
+    updateConfig(
+      buildConfigSubmitPayload(
+        config.value,
+        { value: fileSize.value, unit: sizeUnit.value },
+        { value: saveTime.value, unit: saveTimeUnit.value }
+      )
+    )
   
   // 初始化配置
   const initConfig = async () => {
@@ -116,17 +137,21 @@ export function useSystemConfig() {
   
   // 计算属性
   const maxFileSizeMB = computed(() => {
-    return Math.round(config.value.maxFileSize / 1024 / 1024)
+    return Math.round(config.value.uploadSize / 1024 / 1024)
   })
   
   const isConfigLoaded = computed(() => {
-    return config.value.name !== DEFAULT_CONFIG.name || !isLoading.value
+    return config.value.name !== DEFAULT_CONFIG_STATE.name || !isLoading.value
   })
   
   return {
     // 状态
     config,
     isLoading,
+    fileSize,
+    sizeUnit,
+    saveTime,
+    saveTimeUnit,
     
     // 计算属性
     maxFileSizeMB,
@@ -135,6 +160,9 @@ export function useSystemConfig() {
     // 方法
     fetchConfig,
     updateConfig,
+    refreshConfig,
+    submitConfig,
+    toggleConfigFlag,
     initConfig,
     getStoredConfig,
     saveConfigToStorage

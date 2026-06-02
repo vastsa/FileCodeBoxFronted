@@ -2,11 +2,15 @@
  * 剪贴板工具函数
  */
 
-import { useAlertStore } from '@/stores/alertStore'
+import { buildRetrieveUrl, buildWgetCommand } from '@/utils/share-url'
+
+type CopyNotifyType = 'success' | 'error'
+
 interface CopyOptions {
   successMsg?: string
   errorMsg?: string
   showMsg?: boolean
+  notify?: (message: string, type: CopyNotifyType) => void
 }
 
 /**
@@ -19,13 +23,24 @@ export const copyToClipboard = async (
   text: string,
   options: CopyOptions = {}
 ): Promise<boolean> => {
-  const { successMsg = '复制成功', errorMsg = '复制失败，请手动复制', showMsg = true } = options
-  const alertStore = useAlertStore()
+  const {
+    successMsg = '复制成功',
+    errorMsg = '复制失败，请手动复制',
+    showMsg = true,
+    notify
+  } = options
+
+  const showCopyMessage = (message: string, type: CopyNotifyType) => {
+    if (showMsg) {
+      notify?.(message, type)
+    }
+  }
+
   try {
     // 优先使用 Clipboard API
     if (document.hasFocus() && navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(text)
-      if (showMsg) alertStore.showAlert(successMsg, 'success')
+      showCopyMessage(successMsg, 'success')
       return true
     }
     // 后备方案：使用传统的复制方法
@@ -38,14 +53,14 @@ export const copyToClipboard = async (
     const success = document.execCommand('copy')
     document.body.removeChild(textarea)
     if (success) {
-      if (showMsg) alertStore.showAlert(successMsg, 'success')
+      showCopyMessage(successMsg, 'success')
       return true
     } else {
       throw new Error('execCommand copy failed')
     }
   } catch (err) {
     console.error('复制失败:', err)
-    if (showMsg) alertStore.showAlert(errorMsg, 'error')
+    showCopyMessage(errorMsg, 'error')
     return false
   }
 }
@@ -55,11 +70,15 @@ export const copyToClipboard = async (
  * @param code 取件码
  * @returns Promise<boolean> 是否复制成功
  */
-export const copyRetrieveLink = async (code: string): Promise<boolean> => {
-  const link = `${window.location.origin}/#/?code=${code}`
+export const copyRetrieveLink = async (
+  code: string,
+  options: Pick<CopyOptions, 'notify' | 'showMsg'> = {}
+): Promise<boolean> => {
+  const link = buildRetrieveUrl(code)
   return copyToClipboard(link, {
     successMsg: '取件链接已复制到剪贴板',
-    errorMsg: '复制失败，请手动复制取件链接'
+    errorMsg: '复制失败，请手动复制取件链接',
+    ...options
   })
 }
 
@@ -68,50 +87,26 @@ export const copyRetrieveLink = async (code: string): Promise<boolean> => {
  * @param code 取件码
  * @returns Promise<boolean> 是否复制成功
  */
-export const copyRetrieveCode = async (code: string): Promise<boolean> => {
+export const copyRetrieveCode = async (
+  code: string,
+  options: Pick<CopyOptions, 'notify' | 'showMsg'> = {}
+): Promise<boolean> => {
   return copyToClipboard(code, {
     successMsg: '取件码已复制到剪贴板',
-    errorMsg: '复制失败，请手动复制取件码'
+    errorMsg: '复制失败，请手动复制取件码',
+    ...options
   })
 }
 
-const baseUrl = window.location.origin + '/'
-
-export const copyWgetCommand = (retrieveCode: string, fileName: string) => {
-  const command = `wget ${baseUrl}share/select?code=${retrieveCode} -O "${fileName}"`
-
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard
-      .writeText(command)
-      .then(() => {
-        console.log('命令已复制到剪贴板！')
-      })
-      .catch((err) => {
-        console.error('复制失败，使用回退方法：', err)
-        fallbackCopyTextToClipboard(command)
-      })
-  } else {
-    console.warn('Clipboard API 不可用，使用回退方法。')
-    fallbackCopyTextToClipboard(command)
-  }
-}
-function fallbackCopyTextToClipboard(command: string) {
-  const textArea = document.createElement('textarea')
-  textArea.value = command
-  textArea.style.position = 'fixed' // 避免滚动
-  document.body.appendChild(textArea)
-  textArea.focus()
-  textArea.select()
-  try {
-    const successful = document.execCommand('copy')
-    console.log('回退复制操作成功：', successful)
-    if (document.hasFocus() && navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(command)
-    } else {
-      console.error('回退复制操作失败')
-    }
-  } catch (err) {
-    console.error('回退复制操作失败：', err)
-  }
-  document.body.removeChild(textArea)
+export const copyWgetCommand = (
+  retrieveCode: string,
+  fileName: string,
+  options: Pick<CopyOptions, 'notify' | 'showMsg'> = {}
+) => {
+  const command = buildWgetCommand(retrieveCode, fileName)
+  void copyToClipboard(command, {
+    successMsg: '命令已复制到剪贴板',
+    errorMsg: '复制失败，请手动复制命令',
+    ...options
+  })
 }

@@ -84,10 +84,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { UploadCloudIcon, CheckCircleIcon, XCircleIcon, LoaderIcon } from 'lucide-vue-next'
 import BorderProgressBar from './BorderProgressBar.vue'
 import { useI18n } from 'vue-i18n'
+import { useInjectedDarkMode } from '@/composables'
 
 const { t } = useI18n()
 
@@ -141,7 +142,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-const isDarkMode = inject('isDarkMode')
+const isDarkMode = useInjectedDarkMode()
 
 // 使用computed属性处理多语言文本
 const placeholderText = computed(() => props.placeholder || t('send.uploadArea.placeholder'))
@@ -178,25 +179,25 @@ const statusIcon = computed(() => {
 
 const statusIconClass = computed(() => {
   if (isUploading.value) {
-    return isDarkMode ? 'text-indigo-400 animate-spin' : 'text-indigo-600 animate-spin'
+    return isDarkMode.value ? 'text-indigo-400 animate-spin' : 'text-indigo-600 animate-spin'
   }
   if (isSuccess.value) {
-    return isDarkMode ? 'text-green-400' : 'text-green-600'
+    return isDarkMode.value ? 'text-green-400' : 'text-green-600'
   }
   if (hasError.value) {
-    return isDarkMode ? 'text-red-400' : 'text-red-600'
+    return isDarkMode.value ? 'text-red-400' : 'text-red-600'
   }
-  return isDarkMode
+  return isDarkMode.value
     ? 'text-gray-400 group-hover:text-indigo-400'
     : 'text-gray-600 group-hover:text-indigo-600'
 })
 
 const statusClass = computed(() => {
   if (hasError.value) {
-    return isDarkMode ? 'border-red-500/50' : 'border-red-300'
+    return isDarkMode.value ? 'border-red-500/50' : 'border-red-300'
   }
   if (isSuccess.value) {
-    return isDarkMode ? 'border-green-500/50' : 'border-green-300'
+    return isDarkMode.value ? 'border-green-500/50' : 'border-green-300'
   }
   return ''
 })
@@ -222,12 +223,12 @@ const statusDescription = computed(() => {
 
 const statusDescriptionClass = computed(() => {
   if (hasError.value) {
-    return isDarkMode ? 'text-red-400' : 'text-red-500'
+    return isDarkMode.value ? 'text-red-400' : 'text-red-500'
   }
   if (isSuccess.value) {
-    return isDarkMode ? 'text-green-400' : 'text-green-500'
+    return isDarkMode.value ? 'text-green-400' : 'text-green-500'
   }
-  return isDarkMode ? 'text-gray-500' : 'text-gray-400'
+  return isDarkMode.value ? 'text-gray-500' : 'text-gray-400'
 })
 
 const formatBytes = (bytes: number): string => {

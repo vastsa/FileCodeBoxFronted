@@ -21,8 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { inject, computed } from 'vue'
+import { computed } from 'vue'
 import type { Component } from 'vue'
+import { useInjectedDarkMode } from '@/composables'
 
 interface Props {
   title: string
@@ -36,33 +37,33 @@ const props = withDefaults(defineProps<Props>(), {
   descriptionType: 'neutral'
 })
 
-const isDarkMode = inject('isDarkMode')
+const isDarkMode = useInjectedDarkMode()
 
 const iconBgClass = computed(() => {
   const colorMap = {
-    indigo: isDarkMode ? 'bg-indigo-900' : 'bg-indigo-100',
-    purple: isDarkMode ? 'bg-purple-900' : 'bg-purple-100',
-    green: isDarkMode ? 'bg-green-900' : 'bg-green-100',
-    blue: isDarkMode ? 'bg-blue-900' : 'bg-blue-100'
+    indigo: isDarkMode.value ? 'bg-indigo-900' : 'bg-indigo-100',
+    purple: isDarkMode.value ? 'bg-purple-900' : 'bg-purple-100',
+    green: isDarkMode.value ? 'bg-green-900' : 'bg-green-100',
+    blue: isDarkMode.value ? 'bg-blue-900' : 'bg-blue-100'
   }
   return colorMap[props.iconColor]
 })
 
 const iconClass = computed(() => {
   const colorMap = {
-    indigo: isDarkMode ? 'text-indigo-400' : 'text-indigo-600',
-    purple: isDarkMode ? 'text-purple-400' : 'text-purple-600',
-    green: isDarkMode ? 'text-green-400' : 'text-green-600',
-    blue: isDarkMode ? 'text-blue-400' : 'text-blue-600'
+    indigo: isDarkMode.value ? 'text-indigo-400' : 'text-indigo-600',
+    purple: isDarkMode.value ? 'text-purple-400' : 'text-purple-600',
+    green: isDarkMode.value ? 'text-green-400' : 'text-green-600',
+    blue: isDarkMode.value ? 'text-blue-400' : 'text-blue-600'
   }
   return colorMap[props.iconColor]
 })
 
 const descriptionClass = computed(() => {
   const typeMap = {
-    success: isDarkMode ? 'text-green-400' : 'text-green-600',
-    error: isDarkMode ? 'text-red-400' : 'text-red-600',
-    neutral: isDarkMode ? 'text-gray-400' : 'text-gray-600'
+    success: isDarkMode.value ? 'text-green-400' : 'text-green-600',
+    error: isDarkMode.value ? 'text-red-400' : 'text-red-600',
+    neutral: isDarkMode.value ? 'text-gray-400' : 'text-gray-600'
   }
   return typeMap[props.descriptionType]
 })

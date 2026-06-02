@@ -39,8 +39,19 @@
           登录
         </h2>
       </div>
-      <form class="mt-8 space-y-6" @submit.prevent="handleSubmit">
+      <form class="mt-8 space-y-6" @submit.prevent="submitLogin">
         <input type="hidden" name="remember" value="true" />
+        <label for="username" class="sr-only">用户名</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          autocomplete="username"
+          value="admin"
+          readonly
+          tabindex="-1"
+          class="sr-only"
+        />
         <div class="rounded-md shadow-sm -space-y-px">
           <div>
             <label for="password" class="sr-only">密码</label>
@@ -83,57 +94,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from 'vue'
+import { inject } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { BoxIcon } from 'lucide-vue-next'
-import { useAlertStore } from '@/stores/alertStore'
-import { useAdminData } from '@/stores/adminStore'
-import { useRouter } from 'vue-router'
-import { AuthService } from '@/services'
-const alertStore = useAlertStore()
-const password = ref('')
-const isLoading = ref(false)
+import { useAdminLogin } from '@/composables'
+import { ROUTES } from '@/constants'
+
 const isDarkMode = inject('isDarkMode')
-const adminStore = useAdminData()
-const validateForm = () => {
-  let isValid = true
-  if (!password.value) {
-    alertStore.showAlert('无效的密码', 'error')
-    isValid = false
-  } else if (password.value.length < 6) {
-    alertStore.showAlert('密码长度至少为6位', 'error')
-    isValid = false
+const router = useRouter()
+const route = useRoute()
+const { password, isLoading, handleSubmit } = useAdminLogin()
+
+const getRedirectPath = () => {
+  const redirect = route.query.redirect
+  if (typeof redirect === 'string' && redirect.startsWith('/')) {
+    return redirect
   }
-  return isValid
+  return ROUTES.ADMIN
 }
 
-const router = useRouter()
-
-const handleSubmit = async () => {
-  if (!validateForm()) return
-  
-  isLoading.value = true
-  try {
-    const response = await AuthService.login(password.value)
-    if (response.detail?.token) {
-      adminStore.setToken(response.detail.token)
-      router.push('/admin')
-    } else {
-      alertStore.showAlert('登录失败：未获取到有效令牌', 'error')
-    }
-  } catch (error: unknown) {
-    interface ErrorWithResponse {
-      response?: {
-        data?: {
-          detail?: string
-        }
-      }
-    }
-    const errorMessage = error && typeof error === 'object' && 'response' in error 
-      ? (error as ErrorWithResponse).response?.data?.detail || '登录失败'
-      : '登录失败'
-    alertStore.showAlert(errorMessage, 'error')
-  } finally {
-    isLoading.value = false
+const submitLogin = async () => {
+  const success = await handleSubmit()
+  if (success) {
+    await router.push(getRedirectPath())
   }
 }
 </script>

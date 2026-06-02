@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
-import { STORAGE_KEYS, THEME_MODES } from '@/constants'
+import { THEME_MODES } from '@/constants'
 import type { ThemeMode } from '@/types'
+import { readStoredThemeMode, writeStoredThemeMode } from '@/utils/preference-storage'
 
 export function useTheme() {
   // 状态管理
@@ -14,7 +15,7 @@ export function useTheme() {
   
   // 从本地存储获取用户之前的选择
   const getUserPreference = (): ThemeMode | null => {
-    const storedPreference = localStorage.getItem(STORAGE_KEYS.COLOR_MODE)
+    const storedPreference = readStoredThemeMode()
     if (storedPreference && Object.values(THEME_MODES).includes(storedPreference as ThemeMode)) {
       return storedPreference as ThemeMode
     }
@@ -24,7 +25,7 @@ export function useTheme() {
   // 设置颜色模式
   const setThemeMode = (mode: ThemeMode) => {
     themeMode.value = mode
-    localStorage.setItem(STORAGE_KEYS.COLOR_MODE, mode)
+    writeStoredThemeMode(mode)
     
     // 根据模式设置实际的暗色模式状态
     if (mode === THEME_MODES.SYSTEM) {

@@ -1,0 +1,55 @@
+export interface SystemConfig {
+  name: string
+  description?: string
+  maxFileSize: number
+  allowedFileTypes: string[]
+  expireDays: number
+  notify_title?: string
+  notify_content?: string
+}
+
+export interface ThemeChoice {
+  key: string
+  name: string
+  author: string
+  version: string
+}
+
+export interface ConfigState {
+  name: string
+  description: string
+  file_storage: string
+  themesChoices: ThemeChoice[]
+  expireStyle: string[]
+  admin_token: string
+  robotsText: string
+  keywords: string
+  notify_title: string
+  notify_content: string
+  openUpload: number
+  uploadSize: number
+  storage_path: string
+  uploadMinute: number
+  max_save_seconds: number
+  opacity: number
+  enableChunk: number
+  s3_access_key_id: string
+  background: string
+  showAdminAddr: number
+  page_explain: string
+  s3_secret_access_key: string
+  aws_session_token: string
+  s3_signature_version: string
+  s3_region_name: string
+  s3_bucket_name: string
+  s3_endpoint_url: string
+  s3_hostname: string
+  uploadCount: number
+  errorMinute: number
+  errorCount: number
+  s3_proxy: number
+  themesSelect: string
+  webdav_url: string
+  webdav_username: string
+  webdav_password: string
+}

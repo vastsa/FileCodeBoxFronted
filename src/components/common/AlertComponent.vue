@@ -53,7 +53,7 @@ const { t } = useI18n()
 
 const alertStore = useAlertStore()
 const { alerts } = storeToRefs(alertStore)
-const { removeAlert, updateAlertProgress } = alertStore
+const { removeAlert, startProgressTimer, stopProgressTimer } = alertStore
 
 const gradientClasses = {
   success: 'from-green-500 to-green-600',
@@ -69,18 +69,12 @@ const alertIcons = {
   info: Info
 }
 
-let intervalId: ReturnType<typeof setInterval>
-
 onMounted(() => {
-  intervalId = setInterval(() => {
-    alerts.value.forEach((alert) => {
-      updateAlertProgress(alert.id)
-    })
-  }, 100)
+  startProgressTimer()
 })
 
 onUnmounted(() => {
-  clearInterval(intervalId)
+  stopProgressTimer()
 })
 </script>
 

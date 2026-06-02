@@ -44,11 +44,11 @@
       <nav class="flex-1 overflow-y-auto custom-scrollbar">
         <ul class="p-4 space-y-2">
           <li v-for="item in menuItems" :key="item.id">
-            <a
-              @click="router.push(item.redirect)"
+            <RouterLink
+              :to="item.redirect"
               class="flex items-center p-2 rounded-lg transition-colors duration-200"
               :class="[
-                router.currentRoute.value.name === item.id
+                route.name === item.id
                   ? isDarkMode
                     ? 'bg-indigo-900 text-indigo-400'
                     : 'bg-indigo-100 text-indigo-600'
@@ -59,7 +59,7 @@
             >
               <component :is="item.icon" class="w-5 h-5 mr-3" />
               {{ item.name }}
-            </a>
+            </RouterLink>
           </li>
         </ul>
       </nav>
@@ -117,8 +117,9 @@ import {
   LayoutDashboardIcon,
   LogOutIcon
 } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { ROUTE_NAMES, ROUTES } from '@/constants'
 import { useAdminStore } from '@/stores/adminStore'
 
 interface MenuItem {
@@ -129,23 +130,29 @@ interface MenuItem {
 }
 
 const router = useRouter()
+const route = useRoute()
 const { t } = useI18n()
 const isDarkMode = inject('isDarkMode')
 const adminStore = useAdminStore()
 const menuItems: MenuItem[] = [
   {
-    id: 'Dashboard',
+    id: ROUTE_NAMES.DASHBOARD,
     name: t('admin.dashboard.title'),
     icon: LayoutDashboardIcon,
-    redirect: '/admin/dashboard'
+    redirect: ROUTES.DASHBOARD
   },
   {
-    id: 'FileManage',
+    id: ROUTE_NAMES.FILE_MANAGE,
     name: t('admin.fileManage.title'),
     icon: FolderIcon,
-    redirect: '/admin/files'
+    redirect: ROUTES.FILE_MANAGE
   },
-  { id: 'Settings', name: t('admin.settings.title'), icon: CogIcon, redirect: '/admin/settings' }
+  {
+    id: ROUTE_NAMES.SETTINGS,
+    name: t('admin.settings.title'),
+    icon: CogIcon,
+    redirect: ROUTES.SETTINGS
+  }
 ]
 
 const isSidebarOpen = ref(true)
@@ -171,33 +178,10 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-// 分页参数
-const params = ref({
-  page: 1,
-  size: 10,
-  total: 0
-})
-
-// 加载文件列表
-const loadFiles = async () => {
-  try {
-    params.value.total = 85
-    // 更新文件列表数据...
-  } catch (error) {
-    console.error('加载文件列表失败:', error)
-    // 处理错误...
-  }
-}
-
-// 初始加载
-onMounted(() => {
-  loadFiles()
-})
-
 // 登出处理
 const handleLogout = () => {
   adminStore.logout()
-  router.push('/login')
+  router.push(ROUTES.LOGIN)
 }
 </script>
 

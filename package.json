@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "run-s check:architecture type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
+    "check:architecture": "node scripts/check-architecture.mjs",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@eslint/config-array": "^0.21.0",
+    "@eslint/js": "^9.39.2",
     "@eslint/object-schema": "^2.1.6",
     "@rushstack/eslint-patch": "^1.12.0",
     "@tsconfig/node20": "^20.1.6",

@@ -1,10 +1,11 @@
 import { createI18n } from 'vue-i18n'
 import zhCN from './locales/zh-CN'
 import enUS from './locales/en-US'
+import { readStoredLocale, writeStoredLocale } from '@/utils/preference-storage'
 
 // 获取浏览器语言设置
 const getDefaultLocale = (): string => {
-  const savedLocale = localStorage.getItem('locale')
+  const savedLocale = readStoredLocale()
   if (savedLocale) {
     return savedLocale
   }
@@ -34,7 +35,7 @@ export default i18n
 // 导出切换语言的函数
 export const setLocale = (locale: string) => {
   i18n.global.locale.value = locale as 'zh-CN' | 'en-US'
-  localStorage.setItem('locale', locale)
+  writeStoredLocale(locale)
   document.documentElement.lang = locale
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div ref="switcherRef" class="relative">
     <button
       @click="toggleDropdown"
       :class="[
@@ -69,6 +69,7 @@ import { availableLocales, setLocale } from '@/i18n/index'
 const { locale } = useI18n()
 const isDarkMode = inject('isDarkMode')
 const isDropdownOpen = ref(false)
+const switcherRef = ref<HTMLElement | null>(null)
 
 const currentLocale = computed(() => locale.value)
 const currentLanguage = computed(() => {
@@ -86,8 +87,8 @@ const switchLanguage = (langCode: string) => {
 
 // 点击外部关闭下拉菜单
 const handleClickOutside = (event: Event) => {
-  const target = event.target as HTMLElement
-  if (!target.closest('.relative')) {
+  const target = event.target as Node | null
+  if (target && !switcherRef.value?.contains(target)) {
     isDropdownOpen.value = false
   }
 }

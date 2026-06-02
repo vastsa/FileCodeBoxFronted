@@ -1,7 +1,5 @@
 import { ref, computed, readonly } from 'vue'
 import { PresignUploadService } from '@/services'
-import { useAlertStore } from '@/stores/alertStore'
-import { FILE_SIZE_LIMITS, STORAGE_KEYS } from '@/constants'
 import type {
   PresignUploadStatus,
   PresignUploadMode,
@@ -10,29 +8,9 @@ import type {
   PresignStatusResponse,
   UploadProgress,
   ExpireStyle,
-  ConfigState
+  AlertType
 } from '@/types'
-import axios from 'axios'
-
-/**
- * 获取最大文件大小限制（字节）
- * 优先从后端配置获取，否则使用默认值
- */
-function getMaxFileSize(): number {
-  try {
-    const configStr = localStorage.getItem(STORAGE_KEYS.CONFIG)
-    if (configStr) {
-      const config = JSON.parse(configStr) as Partial<ConfigState>
-      if (config.uploadSize && config.uploadSize > 0) {
-        // uploadSize 单位是字节
-        return config.uploadSize
-      }
-    }
-  } catch {
-    // 解析失败时使用默认值
-  }
-  return FILE_SIZE_LIMITS.MAX_FILE_SIZE
-}
+import { getErrorMessage } from '@/utils/common'
 
 // 预签名上传状态常量
 export const PRESIGN_UPLOAD_STATUS = {
@@ -48,13 +26,24 @@ export const PRESIGN_UPLOAD_STATUS = {
 const DEFAULT_EXPIRE_VALUE = 1
 const DEFAULT_EXPIRE_STYLE: ExpireStyle = 'day'
 
+type ErrorWithResponse = {
+  response?: {
+    status?: number
+  }
+}
+
+type PresignedUploadNotifier = (message: string, type: AlertType) => void
+
+type UsePresignedUploadOptions = {
+  getMaxFileSize?: () => number
+  notify?: PresignedUploadNotifier
+}
+
 /**
  * 预签名上传 Composable
  * 支持 S3 直传模式和服务器代理模式
  */
-export function usePresignedUpload() {
-  const alertStore = useAlertStore()
-
+export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
   // 状态管理
   const presignStatus = ref<PresignUploadStatus>(PRESIGN_UPLOAD_STATUS.IDLE)
   const uploadSession = ref<PresignInitResponse | null>(null)
@@ -74,15 +63,23 @@ export function usePresignedUpload() {
   const isError = computed(() => presignStatus.value === PRESIGN_UPLOAD_STATUS.ERROR)
   const currentMode = computed<PresignUploadMode | null>(() => uploadSession.value?.mode ?? null)
 
+  const notify: PresignedUploadNotifier = (message, type) => {
+    options.notify?.(message, type)
+  }
+
   /**
    * 文件大小验证
    */
   const validateFileSize = (file: File): boolean => {
-    const maxFileSize = getMaxFileSize()
+    const maxFileSize = options.getMaxFileSize?.()
+    if (!maxFileSize) {
+      return true
+    }
+
     if (file.size > maxFileSize) {
       const maxSizeMB = Math.round(maxFileSize / 1024 / 1024)
       errorMessage.value = `文件大小不能超过 ${maxSizeMB}MB`
-      alertStore.showAlert(errorMessage.value, 'error')
+      notify(errorMessage.value, 'error')
       return false
     }
     return true
@@ -113,34 +110,16 @@ export function usePresignedUpload() {
    */
   const handleUploadError = (error: unknown): void => {
     presignStatus.value = PRESIGN_UPLOAD_STATUS.ERROR
+    const status = (error as ErrorWithResponse)?.response?.status
+    const fallback =
+      status === 404
+        ? '上传会话不存在或已过期'
+        : status === 500
+          ? '服务器错误，请稍后重试'
+          : '上传失败，请重试'
 
-    if (axios.isAxiosError(error)) {
-      const status = error.response?.status
-      const detail = error.response?.data?.detail
-
-      switch (status) {
-        case 400:
-          errorMessage.value = detail || '请求参数错误'
-          break
-        case 403:
-          errorMessage.value = detail || '操作被禁止'
-          break
-        case 404:
-          errorMessage.value = '上传会话不存在或已过期'
-          break
-        case 500:
-          errorMessage.value = '服务器错误，请稍后重试'
-          break
-        default:
-          errorMessage.value = detail || '上传失败，请重试'
-      }
-    } else if (error instanceof Error) {
-      errorMessage.value = error.message
-    } else {
-      errorMessage.value = '未知错误'
-    }
-
-    alertStore.showAlert(errorMessage.value, 'error')
+    errorMessage.value = getErrorMessage(error, fallback)
+    notify(errorMessage.value, 'error')
   }
 
   /**
@@ -211,7 +190,7 @@ export function usePresignedUpload() {
           total: file.size,
           percentage: 100
         }
-        alertStore.showAlert('文件上传成功！', 'success')
+        notify('文件上传成功！', 'success')
         return uploadedCode.value
       } else {
         throw new Error(confirmResponse.message || '确认上传失败')
@@ -249,7 +228,7 @@ export function usePresignedUpload() {
           total: file.size,
           percentage: 100
         }
-        alertStore.showAlert('文件上传成功！', 'success')
+        notify('文件上传成功！', 'success')
         return uploadedCode.value
       } else {
         throw new Error(response.message || '代理上传失败')
@@ -290,7 +269,7 @@ export function usePresignedUpload() {
 
     try {
       await PresignUploadService.cancelUpload(uploadSession.value.upload_id)
-      alertStore.showAlert('上传已取消', 'info')
+      notify('上传已取消', 'info')
     } catch (error) {
       // 取消失败时静默处理，因为会话可能已过期
       console.warn('取消上传失败:', error)
@@ -313,7 +292,7 @@ export function usePresignedUpload() {
         // 检查会话是否过期
         if (response.detail.is_expired) {
           errorMessage.value = '上传会话已过期'
-          alertStore.showAlert(errorMessage.value, 'warning')
+          notify(errorMessage.value, 'warning')
         }
         return response.detail
       }

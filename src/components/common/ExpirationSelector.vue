@@ -77,23 +77,40 @@
           :value="expirationMethod"
           @change="updateMethod"
           :class="[
-            'absolute right-0 top-0 h-full px-4 rounded-r-2xl border-l transition-all duration-300',
+            'absolute right-0 top-0 h-full appearance-none cursor-pointer transition-all duration-300',
             'focus:outline-none focus:ring-2 focus:ring-offset-0',
-            'bg-transparent appearance-none cursor-pointer',
+            expirationMethod === 'forever'
+              ? 'w-full px-5 rounded-2xl'
+              : 'w-28 pl-4 pr-9 border-l rounded-r-2xl',
             isDarkMode
-              ? 'border-gray-700/60 text-gray-300 focus:ring-indigo-500/80'
-              : 'border-gray-200 text-gray-700 focus:ring-indigo-500/60'
+              ? 'text-gray-100 border-gray-700/60 focus:ring-indigo-500/80 bg-gray-800/60'
+              : 'text-gray-900 border-gray-200 focus:ring-indigo-500/60 bg-white'
           ]"
+          :style="{
+            color: isDarkMode ? '#f3f4f6' : '#111827',
+            backgroundColor: isDarkMode ? 'rgba(31, 41, 55, 0.5)' : '#ffffff'
+          }"
         >
-          <option value="count">{{ t('send.expiration.units.times') }}</option>
-          <option value="minute">{{ t('send.expiration.units.minutes') }}</option>
-          <option value="hour">{{ t('send.expiration.units.hours') }}</option>
-          <option value="day">{{ t('send.expiration.units.days') }}</option>
-          <option value="forever">{{ t('send.expiration.units.forever') }}</option>
+          <option
+            v-for="option in options"
+            :key="option.value"
+            :value="option.value"
+            :class="[isDarkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900']"
+            :style="{
+              color: isDarkMode ? '#f3f4f6' : '#111827',
+              backgroundColor: isDarkMode ? '#1f2937' : '#ffffff'
+            }"
+          >
+            {{ option.label }}
+          </option>
         </select>
         <div
-          class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none"
-          :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+          class="absolute pointer-events-none"
+          :class="[
+            expirationMethod === 'forever' ? 'right-3' : 'right-2',
+            'top-1/2 -translate-y-1/2',
+            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+          ]"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -117,12 +134,16 @@ const { t } = useI18n()
 
 interface Props {
   expirationMethod: string
-  expirationValue: number
+  expirationValue: string
+  options: Array<{
+    label: string
+    value: string
+  }>
 }
 
 interface Emits {
   'update:expirationMethod': [value: string]
-  'update:expirationValue': [value: number]
+  'update:expirationValue': [value: string]
 }
 
 const props = defineProps<Props>()
@@ -136,13 +157,13 @@ const updateMethod = (event: Event) => {
 
 const updateValue = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('update:expirationValue', parseInt(target.value) || 1)
+  emit('update:expirationValue', target.value)
 }
 
 const incrementValue = (delta: number) => {
-  const currentValue = props.expirationValue || 1
+  const currentValue = parseInt(props.expirationValue) || 0
   const newValue = Math.max(1, currentValue + delta)
-  emit('update:expirationValue', newValue)
+  emit('update:expirationValue', newValue.toString())
 }
 
 const getPlaceholder = () => {

@@ -61,7 +61,7 @@
           <td class="px-6 py-4 whitespace-nowrap">
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
               :class="[isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800']">
-              {{ Math.round((file.size / 1024 / 1024) * 100) / 100 }}MB
+              {{ file.displaySize }}
             </span>
           </td>
           <td class="px-6 py-4">
@@ -71,8 +71,8 @@
               </span>
               <!-- 查看全文按钮 - 仅当文本超过一定长度时显示 -->
               <button
-                v-if="file.text && file.text.length > 30"
-                @click="openTextPreview(file.text)"
+                v-if="file.canPreviewText"
+                @click="openTextPreview(file.text || '')"
                 class="flex-shrink-0 inline-flex items-center px-2 py-1 rounded text-xs transition-colors duration-200"
                 :class="[
                   isDarkMode
@@ -91,7 +91,7 @@
                 ? (isDarkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-100 text-yellow-800')
                 : (isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-800')
             ]">
-              {{ file.expired_at ? formatTimestamp(file.expired_at) : t('send.expiration.units.forever') }}
+              {{ file.displayExpiredAt }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -167,125 +167,32 @@
             <!-- 表单内容 -->
             <div class="px-6 py-5">
               <div class="grid gap-6">
-                <!-- 取件码 -->
-                <div class="space-y-2 group">
-                  <label class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
-                    :class="[isDarkMode ? 'text-gray-300 group-focus-within:text-indigo-400' : 'text-gray-700 group-focus-within:text-indigo-600']">
-                    <span>{{ t('fileManage.form.code') }}</span>
-                    <div class="h-px flex-1 transition-colors duration-200"
-                      :class="[isDarkMode ? 'bg-gray-700 group-focus-within:bg-indigo-500/50' : 'bg-gray-200 group-focus-within:bg-indigo-500/30']">
-                    </div>
-                  </label>
-                  <div class="relative rounded-lg shadow-sm">
-                    <input type="text" v-model="editForm.code"
-                      class="block w-full rounded-lg border-0 py-2.5 pl-4 pr-10 transition-all duration-200 focus:ring-2 focus:ring-inset sm:text-sm"
-                      :class="[
-                        isDarkMode
-                          ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-indigo-500/50'
-                          : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-indigo-500'
-                      ]" :placeholder="t('fileManage.form.codePlaceholder')">
-                    <div
-                      class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200 opacity-0 group-focus-within:opacity-100">
-                      <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 文件名称 -->
-                <div class="space-y-2 group">
-                  <label class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
-                    :class="[isDarkMode ? 'text-gray-300 group-focus-within:text-indigo-400' : 'text-gray-700 group-focus-within:text-indigo-600']">
-                    <span>{{ t('fileManage.form.filename') }}</span>
-                    <div class="h-px flex-1 transition-colors duration-200"
-                      :class="[isDarkMode ? 'bg-gray-700 group-focus-within:bg-indigo-500/50' : 'bg-gray-200 group-focus-within:bg-indigo-500/30']">
-                    </div>
-                  </label>
-                  <div class="relative rounded-lg shadow-sm">
-                    <input type="text" v-model="editForm.prefix"
-                      class="block w-full rounded-lg border-0 py-2.5 pl-4 pr-10 transition-all duration-200 focus:ring-2 focus:ring-inset sm:text-sm"
-                      :class="[
-                        isDarkMode
-                          ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-indigo-500/50'
-                          : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-indigo-500'
-                      ]" :placeholder="t('fileManage.form.filenamePlaceholder')">
-                    <div
-                      class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200 opacity-0 group-focus-within:opacity-100">
-                      <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 文件后缀 -->
-                <div class="space-y-2 group">
-                  <label class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
-                    :class="[isDarkMode ? 'text-gray-300 group-focus-within:text-indigo-400' : 'text-gray-700 group-focus-within:text-indigo-600']">
-                    <span>{{ t('fileManage.form.suffix') }}</span>
-                    <div class="h-px flex-1 transition-colors duration-200"
-                      :class="[isDarkMode ? 'bg-gray-700 group-focus-within:bg-indigo-500/50' : 'bg-gray-200 group-focus-within:bg-indigo-500/30']">
-                    </div>
-                  </label>
-                  <div class="relative rounded-lg shadow-sm">
-                    <input type="text" v-model="editForm.suffix"
-                      class="block w-full rounded-lg border-0 py-2.5 pl-4 pr-10 transition-all duration-200 focus:ring-2 focus:ring-inset sm:text-sm"
-                      :class="[
-                        isDarkMode
-                          ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-indigo-500/50'
-                          : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-indigo-500'
-                      ]" :placeholder="t('fileManage.form.suffixPlaceholder')">
-                    <div
-                      class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200 opacity-0 group-focus-within:opacity-100">
-                      <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 过期时间 -->
-                <div class="space-y-2 group">
-                  <label class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
-                    :class="[isDarkMode ? 'text-gray-300 group-focus-within:text-indigo-400' : 'text-gray-700 group-focus-within:text-indigo-600']">
-                    <span>{{ t('send.expiration.label') }}</span>
-                    <div class="h-px flex-1 transition-colors duration-200"
-                      :class="[isDarkMode ? 'bg-gray-700 group-focus-within:bg-indigo-500/50' : 'bg-gray-200 group-focus-within:bg-indigo-500/30']">
-                    </div>
-                  </label>
-                  <div class="relative rounded-lg shadow-sm">
-                    <input type="datetime-local" v-model="editForm.expired_at"
-                      class="block w-full rounded-lg border-0 py-2.5 pl-4 pr-10 transition-all duration-200 focus:ring-2 focus:ring-inset sm:text-sm"
-                      :class="[
-                        isDarkMode
-                          ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-indigo-500/50'
-                          : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-indigo-500'
-                      ]">
-                    <div
-                      class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200 opacity-0 group-focus-within:opacity-100">
-                      <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- 下载次数限制 -->
-                <div class="space-y-2 group">
-                  <label class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
-                    :class="[isDarkMode ? 'text-gray-300 group-focus-within:text-indigo-400' : 'text-gray-700 group-focus-within:text-indigo-600']">
-                    <span>{{ t('fileManage.form.downloadLimit') }}</span>
-                    <div class="h-px flex-1 transition-colors duration-200"
-                      :class="[isDarkMode ? 'bg-gray-700 group-focus-within:bg-indigo-500/50' : 'bg-gray-200 group-focus-within:bg-indigo-500/30']">
-                    </div>
-                  </label>
-                  <div class="relative rounded-lg shadow-sm">
-                    <input type="number" v-model="editForm.expired_count"
-                      class="block w-full rounded-lg border-0 py-2.5 pl-4 pr-10 transition-all duration-200 focus:ring-2 focus:ring-inset sm:text-sm"
-                      :class="[
-                        isDarkMode
-                          ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-indigo-500/50'
-                          : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-indigo-500'
-                      ]" :placeholder="t('fileManage.form.downloadLimitPlaceholder')">
-                    <div
-                      class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200 opacity-0 group-focus-within:opacity-100">
-                      <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-                    </div>
-                  </div>
-                </div>
+                <FileEditField
+                  v-model="editForm.code"
+                  :label="t('fileManage.form.code')"
+                  :placeholder="t('fileManage.form.codePlaceholder')"
+                />
+                <FileEditField
+                  v-model="editForm.prefix"
+                  :label="t('fileManage.form.filename')"
+                  :placeholder="t('fileManage.form.filenamePlaceholder')"
+                />
+                <FileEditField
+                  v-model="editForm.suffix"
+                  :label="t('fileManage.form.suffix')"
+                  :placeholder="t('fileManage.form.suffixPlaceholder')"
+                />
+                <FileEditField
+                  v-model="editForm.expired_at"
+                  type="datetime-local"
+                  :label="t('send.expiration.label')"
+                />
+                <FileEditField
+                  v-model="editForm.expired_count"
+                  type="number"
+                  :label="t('fileManage.form.downloadLimit')"
+                  :placeholder="t('fileManage.form.downloadLimitPlaceholder')"
+                />
               </div>
             </div>
 
@@ -390,10 +297,8 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, computed } from 'vue'
+import { inject, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { FileService } from '@/services'
-import type { FileListItem, FileEditForm } from '@/types'
 import {
   FileIcon,
   SearchIcon,
@@ -406,23 +311,11 @@ import {
 } from 'lucide-vue-next'
 import DataTable from '@/components/common/DataTable.vue'
 import DataPagination from '@/components/common/DataPagination.vue'
-import { useAlertStore } from '@/stores/alertStore'
-
-function formatTimestamp(timestamp: string): string {
-  const date = new Date(timestamp)
-  const year = date.getFullYear()
-  const month = (date.getMonth() + 1).toString().padStart(2, '0')
-  const day = date.getDate().toString().padStart(2, '0')
-  const hours = date.getHours().toString().padStart(2, '0')
-  const minutes = date.getMinutes().toString().padStart(2, '0')
-  const seconds = date.getSeconds().toString().padStart(2, '0')
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-}
+import FileEditField from '@/components/common/FileEditField.vue'
+import { useAdminFiles } from '@/composables'
 
 const { t } = useI18n()
 const isDarkMode = inject('isDarkMode')
-const tableData = ref<FileListItem[]>([])
-const alertStore = useAlertStore()
 // 修改文件表头
 const fileTableHeaders = computed(() => [
   t('fileManage.headers.code'),
@@ -433,133 +326,28 @@ const fileTableHeaders = computed(() => [
   t('fileManage.headers.actions')
 ])
 
-// 分页参数
-const params = ref({
-  page: 1,
-  size: 10,
-  total: 0,
-  keyword: ''
+const {
+  tableData,
+  params,
+  showEditModal,
+  editForm,
+  showTextPreview,
+  previewText,
+  closeEditModal,
+  closeTextPreview,
+  copyText,
+  deleteFile,
+  handlePageChange,
+  handleSearch,
+  handleUpdate,
+  loadFiles,
+  openEditModal,
+  openTextPreview
+} = useAdminFiles()
+
+onMounted(() => {
+  void loadFiles()
 })
-
-// 添加编辑相关的状态
-const showEditModal = ref(false)
-const editForm = ref<FileEditForm>({
-  id: null,
-  code: '',
-  prefix: '',
-  suffix: '',
-  expired_at: '',
-  expired_count: null
-})
-
-// 文本预览相关状态
-const showTextPreview = ref(false)
-const previewText = ref('')
-
-// 打开文本预览
-const openTextPreview = (text: string) => {
-  previewText.value = text
-  showTextPreview.value = true
-}
-
-// 关闭文本预览
-const closeTextPreview = () => {
-  showTextPreview.value = false
-  previewText.value = ''
-}
-
-// 复制文本到剪贴板
-const copyText = async () => {
-  try {
-    await navigator.clipboard.writeText(previewText.value)
-    alertStore.showAlert(t('fileManage.copySuccess'), 'success')
-  } catch {
-    alertStore.showAlert(t('fileManage.copyFailed'), 'error')
-  }
-}
-
-// 打开编辑模态框
-const openEditModal = (file: FileListItem) => {
-  editForm.value = {
-    id: file.id,
-    code: file.code,
-    prefix: file.prefix,
-    suffix: file.suffix,
-    expired_at: file.expired_at ? file.expired_at.slice(0, 16) : '', // 格式化日期时间
-    expired_count: file.expired_count
-  }
-  showEditModal.value = true
-}
-
-// 关闭编辑模态框
-const closeEditModal = () => {
-  showEditModal.value = false
-  editForm.value = {
-    id: null,
-    code: '',
-    prefix: '',
-    suffix: '',
-    expired_at: '',
-    expired_count: null
-  }
-}
-
-// 处理更新
-const handleUpdate = async () => {
-  try {
-    await FileService.updateFile(editForm.value)
-    await loadFiles()
-    closeEditModal()
-  } catch (error: unknown) {
-    const err = error as { response?: { data?: { detail?: string } } }
-    alertStore.showAlert(err.response?.data?.detail || t('manage.fileManage.updateFailed'), 'error')
-  }
-}
-
-// 删除文件处理
-const deleteFile = async (id: number) => {
-  try {
-    await FileService.deleteAdminFile(id)
-    await loadFiles()
-  } catch (error) {
-    console.error(t('manage.fileManage.deleteFailed'), error)
-  }
-}
-
-// 加载文件列表
-const loadFiles = async () => {
-  try {
-    const res = await FileService.getAdminFileList(params.value)
-    if (res.detail) {
-      tableData.value = res.detail.data
-      params.value.total = res.detail.total
-    }
-  } catch (error) {
-    console.error(t('manage.fileManage.loadFileListFailed'), error)
-  }
-}
-
-// 页码改变处理函数
-const handlePageChange = async (page: number | string) => {
-  if (typeof page === 'string') return // 忽略省略号
-  if (page < 1 || page > totalPages.value) return
-  params.value.page = page
-  await loadFiles()
-}
-
-// 初始加载
-loadFiles()
-
-// 计算总页数
-const totalPages = computed(() => Math.ceil(params.value.total / params.value.size))
-
-
-
-// 添加搜索处理函数
-const handleSearch = async () => {
-  params.value.page = 1 // 重置页码到第一页
-  await loadFiles()
-}
 </script>
 
 <style>

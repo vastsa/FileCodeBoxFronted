@@ -3,3 +3,14 @@ declare module '*.vue' {
   const componentOptions: ComponentOptions
   export default componentOptions
 }
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    requiresAuth?: boolean
+    showGlobalControls?: boolean
+    showRouteLoading?: boolean
+    title?: string
+  }
+}
+
+export {}

@@ -1,152 +1,26 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue'
-import { ConfigService } from '@/services'
-import type { ConfigState } from '@/types'
-import { useAlertStore } from '@/stores/alertStore'
+import { inject, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import SettingNumberInput from '@/components/common/SettingNumberInput.vue'
+import SettingSwitch from '@/components/common/SettingSwitch.vue'
+import { useSystemConfig } from '@/composables'
 
 const isDarkMode = inject('isDarkMode')
 const { t } = useI18n()
+const {
+  config,
+  fileSize,
+  sizeUnit,
+  saveTime,
+  saveTimeUnit,
+  refreshConfig,
+  submitConfig,
+  toggleConfigFlag
+} = useSystemConfig()
 
-const config = ref<ConfigState>({
-  name: '',
-  description: '',
-  file_storage: '',
-  webdav_url: '',
-  webdav_username: '',
-  webdav_password: '',
-  themesChoices: [],
-  expireStyle: [],
-  admin_token: '',
-  robotsText: '',
-  keywords: '',
-  notify_title: '',
-  storage_path: '',
-  notify_content: '',
-  openUpload: 1,
-  uploadSize: 1,
-  enableChunk: 0,
-  uploadMinute: 1,
-  max_save_seconds: 0,
-  opacity: 0.9,
-  s3_access_key_id: '',
-  background: '',
-  showAdminAddr: 0,
-  page_explain: '',
-  s3_secret_access_key: '',
-  aws_session_token: '',
-  s3_signature_version: '',
-  s3_region_name: '',
-  s3_bucket_name: '',
-  s3_endpoint_url: '',
-  s3_hostname: '',
-  uploadCount: 1,
-  errorMinute: 1,
-  errorCount: 1,
-  s3_proxy: 0,
-  themesSelect: ''
+onMounted(() => {
+  void refreshConfig()
 })
-
-const fileSize = ref(1)
-const sizeUnit = ref('MB')
-
-// 添加保存时间相关的响应式变量
-const saveTime = ref(1)
-const saveTimeUnit = ref('天')
-
-// 转换时间为秒
-const convertToSeconds = (time: number, unit: string): number => {
-  const units = {
-    秒: 1,
-    分: 60,
-    时: 3600,
-    天: 86400
-  }
-  return time * units[unit as keyof typeof units]
-}
-
-const alertStore = useAlertStore()
-
-const refreshData = async () => {
-  try {
-    const res = await ConfigService.getConfig()
-    if (res.code === 200 && res.detail) {
-      // 直接使用ConfigState类型的响应数据
-      config.value = res.detail
-      
-      // 将字节转换为合适的单位
-      const size = config.value.uploadSize
-      if (size >= 1024 * 1024 * 1024) {
-        fileSize.value = Math.round(size / (1024 * 1024 * 1024))
-        sizeUnit.value = 'GB'
-      } else if (size >= 1024 * 1024) {
-        fileSize.value = Math.round(size / (1024 * 1024))
-        sizeUnit.value = 'MB'
-      } else {
-        fileSize.value = Math.round(size / 1024)
-        sizeUnit.value = 'KB'
-      }
-
-      // 时间单位转换逻辑
-      const seconds = config.value.max_save_seconds
-      if (seconds === 0) {
-        // 如果是0，显示为7天
-        saveTime.value = 7
-        saveTimeUnit.value = '天'
-      } else if (seconds % 86400 === 0 && seconds >= 86400) {
-        saveTime.value = seconds / 86400
-        saveTimeUnit.value = '天'
-      } else if (seconds % 3600 === 0 && seconds >= 3600) {
-        saveTime.value = seconds / 3600
-        saveTimeUnit.value = '时'
-      } else if (seconds % 60 === 0 && seconds >= 60) {
-        saveTime.value = seconds / 60
-        saveTimeUnit.value = '分'
-      } else {
-        saveTime.value = seconds
-        saveTimeUnit.value = '秒'
-      }
-    }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : t('manage.systemSettings.getConfigFailed')
-    alertStore.showAlert(errorMessage, 'error')
-    console.error('Failed to get system config:', error)
-  }
-}
-// 转换文件大小为字节
-const convertToBytes = (size: number, unit: string): number => {
-  const units = {
-    KB: 1024,
-    MB: 1024 * 1024,
-    GB: 1024 * 1024 * 1024
-  }
-  return size * units[unit as keyof typeof units]
-}
-
-const submitSave = () => {
-  const formData = { ...config.value }
-  formData.uploadSize = convertToBytes(fileSize.value, sizeUnit.value)
-
-  // 如果保存时间为0，则默认设置为7天
-  if (saveTime.value === 0) {
-    formData.max_save_seconds = 7 * 86400 // 7天转换为秒
-  } else {
-    formData.max_save_seconds = convertToSeconds(saveTime.value, saveTimeUnit.value)
-  }
-
-  ConfigService.updateConfig(formData).then((res) => {
-    if (res.code == 200) {
-      alertStore.showAlert(t('manage.systemSettings.saveSuccess'), 'success')
-    } else {
-      alertStore.showAlert(res.message || t('manage.systemSettings.saveFailed'), 'error')
-    }
-  }).catch((error) => {
-    const errorMessage = error instanceof Error ? error.message : t('manage.systemSettings.saveFailed')
-    alertStore.showAlert(errorMessage, 'error')
-  })
-}
-
-refreshData()
 </script>
 
 <template>
@@ -322,27 +196,14 @@ refreshData()
                 <option value="webdav">{{ t('manage.settings.webdavStorage') }}</option>
               </select>
             </div>
-            <div class="space-y-2" v-if="config.file_storage === 'local'">
-              <label class="block text-sm font-medium mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                {{ t('manage.settings.chunkUploadNote') }}
-              </label>
-              <div class="flex items-center">
-                <button type="button" @click="config.enableChunk = config.enableChunk === 1 ? 0 : 1"
-                  class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  :class="[config.enableChunk === 1 ? 'bg-indigo-600' : 'bg-gray-200']" role="switch"
-                  :aria-checked="config.enableChunk === 1">
-                  <span
-                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                    :class="[
-                      config.enableChunk === 1 ? 'translate-x-5' : 'translate-x-0',
-                      isDarkMode && config.enableChunk !== 1 ? 'bg-gray-100' : 'bg-white'
-                    ]" />
-                </button>
-                <span class="ml-3 text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                  {{ config.enableChunk === 1 ? t('common.enabled') : t('common.disabled') }}
-                </span>
-              </div>
-            </div>
+            <SettingSwitch
+              v-if="config.file_storage === 'local'"
+              :label="t('manage.settings.chunkUploadNote')"
+              :model-value="config.enableChunk"
+              :enabled-text="t('common.enabled')"
+              :disabled-text="t('common.disabled')"
+              @toggle="toggleConfigFlag('enableChunk')"
+            />
             <div v-if="config.file_storage === 'webdav'" class="space-y-4">
               <!-- 通知设置 -->
               <div class="space-y-2">
@@ -482,51 +343,21 @@ refreshData()
                     ]" />
                 </div>
 
-                <div class="space-y-2">
-                  <label class="block text-sm font-medium mb-2"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                    {{ t('manage.settings.enableProxy') }}
-                  </label>
-                  <div class="flex items-center">
-                    <button type="button" @click="config.s3_proxy = config.s3_proxy === 1 ? 0 : 1"
-                      class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                      :class="[config.s3_proxy === 1 ? 'bg-indigo-600' : 'bg-gray-200']" role="switch"
-                      :aria-checked="config.s3_proxy === 1">
-                      <span
-                        class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                        :class="[
-                          config.s3_proxy === 1 ? 'translate-x-5' : 'translate-x-0',
-                          isDarkMode && config.s3_proxy !== 1 ? 'bg-gray-100' : 'bg-white'
-                        ]" />
-                    </button>
-                    <span class="ml-3 text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                      {{ config.s3_proxy === 1 ? t('common.enabled') : t('common.disabled') }}
-                    </span>
-                  </div>
-                </div>
+                <SettingSwitch
+                  :label="t('manage.settings.enableProxy')"
+                  :model-value="config.s3_proxy"
+                  :enabled-text="t('common.enabled')"
+                  :disabled-text="t('common.disabled')"
+                  @toggle="toggleConfigFlag('s3_proxy')"
+                />
 
-                <div class="space-y-2">
-                  <label class="block text-sm font-medium mb-2"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                    {{ t('manage.settings.chunkUploadNote') }}
-                  </label>
-                  <div class="flex items-center">
-                    <button type="button" @click="config.enableChunk = config.enableChunk === 1 ? 0 : 1"
-                      class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                      :class="[config.enableChunk === 1 ? 'bg-indigo-600' : 'bg-gray-200']" role="switch"
-                      :aria-checked="config.enableChunk === 1">
-                      <span
-                        class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                        :class="[
-                          config.enableChunk === 1 ? 'translate-x-5' : 'translate-x-0',
-                          isDarkMode && config.enableChunk !== 1 ? 'bg-gray-100' : 'bg-white'
-                        ]" />
-                    </button>
-                    <span class="ml-3 text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                      {{ config.enableChunk === 1 ? t('common.enabled') : t('common.disabled') }}
-                    </span>
-                  </div>
-                </div>
+                <SettingSwitch
+                  :label="t('manage.settings.chunkUploadNote')"
+                  :model-value="config.enableChunk"
+                  :enabled-text="t('common.enabled')"
+                  :disabled-text="t('common.disabled')"
+                  @toggle="toggleConfigFlag('enableChunk')"
+                />
               </div>
             </div>
           </div>
@@ -539,37 +370,17 @@ refreshData()
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-2">
-              <label class="block text-sm font-medium" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                {{ t('manage.settings.uploadPerMinute') }}
-              </label>
-              <div class="flex items-center space-x-2">
-                <input type="number" v-model="config.uploadMinute"
-                  class="w-24 rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                  :class="[
-                    isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
-                  ]" />
-                <span :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">{{ t('common.minute') }}</span>
-              </div>
-            </div>
+            <SettingNumberInput
+              v-model="config.uploadMinute"
+              :label="t('manage.settings.uploadPerMinute')"
+              :suffix="t('common.minute')"
+            />
 
-            <div class="space-y-2">
-              <label class="block text-sm font-medium" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                {{ t('manage.settings.uploadCountLimit') }}
-              </label>
-              <div class="flex items-center space-x-2">
-                <input type="number" v-model="config.uploadCount"
-                  class="w-24 rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                  :class="[
-                    isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
-                  ]" />
-                <span :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">{{ t('common.files') }}</span>
-              </div>
-            </div>
+            <SettingNumberInput
+              v-model="config.uploadCount"
+              :label="t('manage.settings.uploadCountLimit')"
+              :suffix="t('common.files')"
+            />
 
             <div class="space-y-2">
               <label class="block text-sm font-medium" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
@@ -647,27 +458,13 @@ refreshData()
               </div>
             </div>
 
-            <div class="space-y-2">
-              <label class="block text-sm font-medium mb-2" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                {{ t('manage.settings.guestUpload') }}
-              </label>
-              <div class="flex items-center">
-                <button type="button" @click="config.openUpload = config.openUpload === 1 ? 0 : 1"
-                  class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  :class="[config.openUpload === 1 ? 'bg-indigo-600' : 'bg-gray-200']" role="switch"
-                  :aria-checked="config.openUpload === 1">
-                  <span
-                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                    :class="[
-                      config.openUpload === 1 ? 'translate-x-5' : 'translate-x-0',
-                      isDarkMode && config.openUpload !== 1 ? 'bg-gray-100' : 'bg-white'
-                    ]" />
-                </button>
-                <span class="ml-3 text-sm" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                  {{ config.openUpload === 1 ? t('common.enabled') : t('common.disabled') }}
-                </span>
-              </div>
-            </div>
+            <SettingSwitch
+              :label="t('manage.settings.guestUpload')"
+              :model-value="config.openUpload"
+              :enabled-text="t('common.enabled')"
+              :disabled-text="t('common.disabled')"
+              @toggle="toggleConfigFlag('openUpload')"
+            />
           </div>
         </div>
 
@@ -678,43 +475,23 @@ refreshData()
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-2">
-              <label class="block text-sm font-medium" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                {{ t('manage.settings.errorPerMinute') }}
-              </label>
-              <div class="flex items-center space-x-2">
-                <input type="number" v-model="config.errorMinute"
-                  class="w-24 rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                  :class="[
-                    isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
-                  ]" />
-                <span :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">{{ t('common.minute') }}</span>
-              </div>
-            </div>
+            <SettingNumberInput
+              v-model="config.errorMinute"
+              :label="t('manage.settings.errorPerMinute')"
+              :suffix="t('common.minute')"
+            />
 
-            <div class="space-y-2">
-              <label class="block text-sm font-medium" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
-                {{ t('manage.settings.errorCountLimit') }}
-              </label>
-              <div class="flex items-center space-x-2">
-                <input type="number" v-model="config.errorCount"
-                  class="w-24 rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                  :class="[
-                    isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
-                  ]" />
-                <span :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">{{ t('common.times') }}</span>
-              </div>
-            </div>
+            <SettingNumberInput
+              v-model="config.errorCount"
+              :label="t('manage.settings.errorCountLimit')"
+              :suffix="t('common.times')"
+            />
           </div>
         </div>
 
         <!-- 保存按钮 -->
         <div class="flex justify-end mt-8">
-          <button @click="submitSave"
+          <button @click="submitConfig"
             class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
             {{ t('manage.settings.saveChanges') }}
           </button>
