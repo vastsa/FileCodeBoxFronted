@@ -12,6 +12,7 @@ import type {
   AdminFileDetailViewItem,
   AdminFileInsightSeverity,
   AdminFilePatchPayload,
+  AdminFileHealthFilter,
   AdminFileListParams,
   AdminFilePolicyAction,
   AdminFilePolicyActionRequest,
@@ -39,6 +40,12 @@ const emptySummary = (): AdminFileSummary => ({
   textCount: 0,
   fileCount: 0,
   chunkedCount: 0,
+  healthAttentionCount: 0,
+  healthDangerCount: 0,
+  healthWarningCount: 0,
+  expiringSoonCount: 0,
+  storageIssueCount: 0,
+  neverRetrievedCount: 0,
   storageUsed: 0,
   usedCount: 0
 })
@@ -70,6 +77,12 @@ type DetailPolicyActionOption = {
   action: AdminFilePolicyAction
   label: string
   description: string
+}
+
+type HealthFilterOption = {
+  value: AdminFileHealthFilter
+  label: string
+  count?: number
 }
 
 const emptyBatchEditForm = (): AdminBatchEditForm => ({
@@ -106,6 +119,7 @@ export function useAdminFiles() {
     keyword: '',
     status: 'all',
     type: 'all',
+    health: 'all',
     sortBy: 'created_at',
     sortOrder: 'desc'
   })
@@ -157,6 +171,7 @@ export function useAdminFiles() {
     keyword: params.value.keyword,
     status: params.value.status === 'all' ? undefined : params.value.status,
     type: params.value.type === 'all' ? undefined : params.value.type,
+    health: params.value.health === 'all' ? undefined : params.value.health,
     sortBy: params.value.sortBy,
     sortOrder: params.value.sortOrder
   }))
@@ -165,8 +180,48 @@ export function useAdminFiles() {
     () =>
       Boolean(params.value.keyword?.trim()) ||
       params.value.status !== 'all' ||
-      params.value.type !== 'all'
+      params.value.type !== 'all' ||
+      params.value.health !== 'all'
   )
+
+  const healthFilterOptions = computed<HealthFilterOption[]>(() => [
+    { value: 'all', label: t('fileManage.healthFilters.all'), count: summary.value.totalFiles },
+    {
+      value: 'attention',
+      label: t('fileManage.healthFilters.attention'),
+      count: summary.value.healthAttentionCount
+    },
+    {
+      value: 'danger',
+      label: t('fileManage.healthFilters.danger'),
+      count: summary.value.healthDangerCount
+    },
+    {
+      value: 'warning',
+      label: t('fileManage.healthFilters.warning'),
+      count: summary.value.healthWarningCount
+    },
+    {
+      value: 'expiring_soon',
+      label: t('fileManage.healthFilters.expiringSoon'),
+      count: summary.value.expiringSoonCount
+    },
+    {
+      value: 'storage_issue',
+      label: t('fileManage.healthFilters.storageIssue'),
+      count: summary.value.storageIssueCount
+    },
+    {
+      value: 'never_retrieved',
+      label: t('fileManage.healthFilters.neverRetrieved'),
+      count: summary.value.neverRetrievedCount
+    },
+    {
+      value: 'healthy',
+      label: t('fileManage.healthFilters.healthy'),
+      count: Math.max(summary.value.totalFiles - summary.value.healthAttentionCount, 0)
+    }
+  ])
 
   const detailPolicyActionOptions = computed<DetailPolicyActionOption[]>(() => [
     {
@@ -237,35 +292,25 @@ export function useAdminFiles() {
     textCount: files.filter((file) => file.isTextFile).length,
     fileCount: files.filter((file) => !file.isTextFile).length,
     chunkedCount: files.filter((file) => file.isChunkedFile).length,
+    healthAttentionCount: files.filter((file) =>
+      ['danger', 'warning'].includes(file.statusInsightSeverity)
+    ).length,
+    healthDangerCount: files.filter((file) => file.statusInsightSeverity === 'danger').length,
+    healthWarningCount: files.filter((file) => file.statusInsightSeverity === 'warning').length,
+    expiringSoonCount: files.filter((file) => file.statusInsightReasons.includes('expires_soon'))
+      .length,
+    storageIssueCount: files.filter((file) =>
+      file.statusInsightReasons.includes('storage_metadata_incomplete')
+    ).length,
+    neverRetrievedCount: files.filter((file) =>
+      file.statusInsightReasons.includes('never_retrieved')
+    ).length,
     storageUsed: files.reduce((totalSize, file) => totalSize + normalizeCount(file.size), 0),
     usedCount: files.reduce(
       (totalUsed, file) => totalUsed + normalizeCount(file.usedCount ?? file.used_count),
       0
     )
   })
-
-  const createFileViewItem = (file: FileListItem): AdminFileViewItem => {
-    const isTextFile = inferIsText(file)
-    const isExpiredFile = inferIsExpired(file)
-    const isChunkedFile = inferIsChunked(file)
-    const remainingDownloadsValue = getRemainingDownloads(file)
-    const usedCount = normalizeCount(file.usedCount ?? file.used_count)
-
-    return {
-      ...file,
-      displayName: file.name || `${file.prefix}${file.suffix}` || file.code,
-      displaySize: formatFileSize(file.size),
-      displayExpiredAt: file.expired_at
-        ? formatTimestamp(file.expired_at)
-        : t('send.expiration.units.forever'),
-      displayUsage: `${usedCount} ${t('common.times')}`,
-      isTextFile,
-      isExpiredFile,
-      isChunkedFile,
-      remainingDownloadsValue,
-      canPreviewText: isTextFile
-    }
-  }
 
   const normalizeInsightSeverity = (
     severity: AdminFileInsightSeverity | undefined
@@ -277,6 +322,45 @@ export function useAdminFiles() {
       return severity
     }
     return 'neutral'
+  }
+
+  const createFileViewItem = (file: FileListItem): AdminFileViewItem => {
+    const isTextFile = inferIsText(file)
+    const isExpiredFile = inferIsExpired(file)
+    const isChunkedFile = inferIsChunked(file)
+    const remainingDownloadsValue = getRemainingDownloads(file)
+    const usedCount = normalizeCount(file.usedCount ?? file.used_count)
+    const statusInsights = file.statusInsights ?? file.status_insights
+    const isPermanentFile =
+      !file.expired_at &&
+      (file.expired_count === null || file.expired_count === undefined || file.expired_count < 0)
+    const statusInsightState =
+      statusInsights?.state ??
+      (isExpiredFile ? 'expired' : isPermanentFile ? 'permanent' : 'available')
+    const statusInsightNextAction =
+      statusInsights?.nextAction ?? statusInsights?.next_action ?? 'monitor'
+    const statusInsightSeverity = normalizeInsightSeverity(statusInsights?.severity)
+
+    return {
+      ...file,
+      displayName: file.name || `${file.prefix}${file.suffix}` || file.code,
+      displaySize: formatFileSize(file.size),
+      displayExpiredAt: file.expired_at
+        ? formatTimestamp(file.expired_at)
+        : t('send.expiration.units.forever'),
+      displayUsage: `${usedCount} ${t('common.times')}`,
+      displayHealthState: t(`fileManage.insightStates.${statusInsightState}`),
+      displayHealthAction: t(`fileManage.insightActions.${statusInsightNextAction}`),
+      isTextFile,
+      isExpiredFile,
+      isChunkedFile,
+      remainingDownloadsValue,
+      canPreviewText: isTextFile,
+      statusInsightSeverity,
+      statusInsightState,
+      statusInsightNextAction,
+      statusInsightReasons: statusInsights?.reasons || []
+    }
   }
 
   const formatTimelineValue = (item: AdminFileDetailTimelineItem) => {
@@ -627,6 +711,7 @@ export function useAdminFiles() {
     params.value.keyword = ''
     params.value.status = 'all'
     params.value.type = 'all'
+    params.value.health = 'all'
     params.value.sortBy = 'created_at'
     params.value.sortOrder = 'desc'
     clearSelection()
@@ -641,6 +726,12 @@ export function useAdminFiles() {
 
   const setTypeFilter = async (type: AdminFileTypeFilter) => {
     params.value.type = type
+    params.value.page = 1
+    await loadFiles()
+  }
+
+  const setHealthFilter = async (health: AdminFileHealthFilter) => {
+    params.value.health = health
     params.value.page = 1
     await loadFiles()
   }
@@ -1010,6 +1101,7 @@ export function useAdminFiles() {
     batchEditForm,
     detailPolicyActionOptions,
     downloadingFileId,
+    healthFilterOptions,
     hasSelectedFiles,
     params,
     previewFile,
@@ -1050,6 +1142,7 @@ export function useAdminFiles() {
     openTextPreview,
     refreshFiles,
     resetFilters,
+    setHealthFilter,
     setStatusFilter,
     setTypeFilter,
     toggleCurrentPageSelection,

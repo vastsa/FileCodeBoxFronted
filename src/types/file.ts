@@ -28,6 +28,8 @@ export interface FileListItem {
   is_expired?: boolean
   isChunked?: boolean
   is_chunked?: boolean
+  statusInsights?: AdminFileDetailStatusInsights
+  status_insights?: AdminFileDetailStatusInsights
   remainingDownloads?: number | null
   remaining_downloads?: number | null
   usedCount?: number
@@ -41,11 +43,17 @@ export interface AdminFileViewItem extends FileListItem {
   displaySize: string
   displayExpiredAt: string
   displayUsage: string
+  displayHealthState: string
+  displayHealthAction: string
   isTextFile: boolean
   isExpiredFile: boolean
   isChunkedFile: boolean
   remainingDownloadsValue: number | null
   canPreviewText: boolean
+  statusInsightSeverity: AdminFileInsightSeverity
+  statusInsightState: string
+  statusInsightNextAction: string
+  statusInsightReasons: string[]
 }
 
 export interface AdminFileSummary {
@@ -55,12 +63,29 @@ export interface AdminFileSummary {
   textCount: number
   fileCount: number
   chunkedCount: number
+  healthAttentionCount: number
+  healthDangerCount: number
+  healthWarningCount: number
+  expiringSoonCount: number
+  storageIssueCount: number
+  neverRetrievedCount: number
   storageUsed: number
   usedCount: number
 }
 
 export type AdminFileStatusFilter = 'all' | 'active' | 'expired'
 export type AdminFileTypeFilter = 'all' | 'file' | 'text' | 'chunked'
+export type AdminFileHealthFilter =
+  | 'all'
+  | 'attention'
+  | 'danger'
+  | 'warning'
+  | 'healthy'
+  | 'expired'
+  | 'expiring_soon'
+  | 'storage_issue'
+  | 'never_retrieved'
+  | 'permanent'
 export type AdminFileSortBy = 'created_at' | 'expired_at' | 'name' | 'size' | 'used_count' | 'code'
 export type AdminFileSortOrder = 'asc' | 'desc'
 
@@ -70,6 +95,7 @@ export interface AdminFileListParams {
   keyword?: string
   status?: AdminFileStatusFilter
   type?: AdminFileTypeFilter
+  health?: AdminFileHealthFilter
   sortBy?: AdminFileSortBy
   sortOrder?: AdminFileSortOrder
 }
@@ -241,10 +267,6 @@ export interface AdminFileDetailViewItem extends AdminFileViewItem {
   filePathValue?: string | null
   uuidFileNameValue?: string | null
   uploadIdValue?: string | null
-  statusInsightSeverity: AdminFileInsightSeverity
-  statusInsightState: string
-  statusInsightNextAction: string
-  statusInsightReasons: string[]
   statusInsightMetrics?: AdminFileDetailInsightMetrics
   detailTimeline: AdminFileDetailTimelineViewItem[]
 }

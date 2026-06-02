@@ -100,6 +100,24 @@
 
           <div class="flex flex-wrap items-center gap-2">
             <span class="inline-flex items-center text-xs font-medium" :class="[mutedTextClass]">
+              <ActivityIcon class="mr-1 h-3.5 w-3.5" />
+              {{ t('fileManage.healthLabel') }}
+            </span>
+            <button
+              v-for="option in healthFilterOptions"
+              :key="option.value"
+              type="button"
+              class="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+              :class="getHealthFilterClass(option.value)"
+              @click="setHealthFilter(option.value)"
+            >
+              <span>{{ option.label }}</span>
+              <span v-if="typeof option.count === 'number'">({{ option.count }})</span>
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center text-xs font-medium" :class="[mutedTextClass]">
               <ArchiveIcon class="mr-1 h-3.5 w-3.5" />
               {{ t('fileManage.typeLabel') }}
             </span>
@@ -297,6 +315,22 @@
                   <p class="mt-0.5 truncate text-xs" :class="[mutedTextClass]">
                     {{ file.suffix || t('fileManage.textType') }}
                   </p>
+                  <div class="mt-2 flex max-w-sm flex-wrap items-center gap-1.5">
+                    <span
+                      class="inline-flex max-w-full items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                      :class="getInsightBadgeClass(file.statusInsightSeverity)"
+                      :title="file.displayHealthAction"
+                    >
+                      {{ file.displayHealthState }}
+                    </span>
+                    <span
+                      class="max-w-[16rem] truncate text-xs"
+                      :class="[mutedTextClass]"
+                      :title="file.displayHealthAction"
+                    >
+                      {{ file.displayHealthAction }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </td>
@@ -997,6 +1031,7 @@ import { computed, onMounted, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type {
   AdminBatchEditMode,
+  AdminFileHealthFilter,
   AdminFileInsightSeverity,
   AdminFilePolicyAction,
   AdminFileSortBy,
@@ -1064,6 +1099,7 @@ const {
   batchEditForm,
   detailPolicyActionOptions,
   downloadingFileId,
+  healthFilterOptions,
   hasSelectedFiles,
   params,
   previewFile,
@@ -1103,6 +1139,7 @@ const {
   openTextPreview,
   refreshFiles,
   resetFilters,
+  setHealthFilter,
   setStatusFilter,
   setTypeFilter,
   toggleCurrentPageSelection,
@@ -1352,6 +1389,9 @@ const getStatusFilterClass = (value: AdminFileStatusFilter) =>
   getPillClass(params.value.status === value)
 
 const getTypeFilterClass = (value: AdminFileTypeFilter) => getPillClass(params.value.type === value)
+
+const getHealthFilterClass = (value: AdminFileHealthFilter) =>
+  getPillClass(params.value.health === value)
 
 const getBatchEditModeClass = (value: AdminBatchEditMode) => {
   if (batchEditForm.value.mode === value) {
