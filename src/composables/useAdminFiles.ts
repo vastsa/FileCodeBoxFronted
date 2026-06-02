@@ -13,6 +13,8 @@ import type {
   AdminFileInsightSeverity,
   AdminFilePatchPayload,
   AdminFileListParams,
+  AdminFilePolicyAction,
+  AdminFilePolicyActionRequest,
   AdminFileStatusFilter,
   AdminFileSummary,
   AdminFileTypeFilter,
@@ -61,12 +63,32 @@ const isLegacyEndpointUnavailable = (error: unknown) => {
 }
 
 const legacyForeverExpiresAt = '2099-12-31T23:59'
+const detailPolicyDownloadLimit = 5
+const dayInMilliseconds = 24 * 60 * 60 * 1000
+
+type DetailPolicyActionOption = {
+  action: AdminFilePolicyAction
+  label: string
+  description: string
+}
 
 const emptyBatchEditForm = (): AdminBatchEditForm => ({
   mode: 'expiresAt',
   expired_at: '',
   expired_count: null
 })
+
+const padDatePart = (value: number) => String(value).padStart(2, '0')
+
+const formatLocalDateTime = (date: Date) => {
+  const year = date.getFullYear()
+  const month = padDatePart(date.getMonth() + 1)
+  const day = padDatePart(date.getDate())
+  const hours = padDatePart(date.getHours())
+  const minutes = padDatePart(date.getMinutes())
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
 
 export function useAdminFiles() {
   const { t } = useI18n()
@@ -108,6 +130,7 @@ export function useAdminFiles() {
   const showFileDetailModal = ref(false)
   const selectedFileDetail = ref<AdminFileDetailViewItem | null>(null)
   const isDetailLoading = ref(false)
+  const isDetailPolicyActionRunning = ref(false)
   const downloadingFileId = ref<number | null>(null)
   const selectedFileIds = ref<Set<number>>(new Set())
   const isBatchDeleting = ref(false)
@@ -145,6 +168,33 @@ export function useAdminFiles() {
       params.value.type !== 'all'
   )
 
+  const detailPolicyActionOptions = computed<DetailPolicyActionOption[]>(() => [
+    {
+      action: 'extend_24h',
+      label: t('fileManage.policyActions.extend24h'),
+      description: t('fileManage.policyActionDescriptions.extend24h')
+    },
+    {
+      action: 'extend_7d',
+      label: t('fileManage.policyActions.extend7d'),
+      description: t('fileManage.policyActionDescriptions.extend7d')
+    },
+    {
+      action: 'make_permanent',
+      label: t('fileManage.policyActions.makePermanent'),
+      description: t('fileManage.policyActionDescriptions.makePermanent')
+    },
+    {
+      action: 'reset_download_limit',
+      label: t('fileManage.policyActions.resetDownloadLimit', {
+        count: detailPolicyDownloadLimit
+      }),
+      description: t('fileManage.policyActionDescriptions.resetDownloadLimit', {
+        count: detailPolicyDownloadLimit
+      })
+    }
+  ])
+
   const inferIsText = (file: FileListItem) => {
     if (typeof file.isText === 'boolean') return file.isText
     if (typeof file.is_text === 'boolean') return file.is_text
@@ -158,7 +208,7 @@ export function useAdminFiles() {
     if (
       file.expired_count !== null &&
       file.expired_count !== undefined &&
-      file.expired_count <= 0
+      file.expired_count === 0
     ) {
       return true
     }
@@ -461,6 +511,84 @@ export function useAdminFiles() {
       patchPayload.expired_count = payload.expired_count
     }
     return patchPayload
+  }
+
+  const buildPolicyActionRequest = (
+    file: AdminFileDetailViewItem,
+    action: AdminFilePolicyAction
+  ): AdminFilePolicyActionRequest => {
+    const request: AdminFilePolicyActionRequest = {
+      id: file.id,
+      action
+    }
+
+    if (action === 'reset_download_limit') {
+      request.downloadLimit = detailPolicyDownloadLimit
+      request.download_limit = detailPolicyDownloadLimit
+    }
+
+    return request
+  }
+
+  const getPolicyActionBaseDate = (file: AdminFileDetailViewItem) => {
+    const now = new Date()
+    const expiredAt = file.expired_at ? new Date(file.expired_at) : null
+    if (!expiredAt || Number.isNaN(expiredAt.getTime()) || expiredAt.getTime() < now.getTime()) {
+      return now
+    }
+    return expiredAt
+  }
+
+  const buildLegacyPolicyActionPayload = (
+    file: AdminFileDetailViewItem,
+    action: AdminFilePolicyAction
+  ): AdminFilePatchPayload => {
+    if (action === 'make_permanent') {
+      return {
+        id: file.id,
+        expired_at: legacyForeverExpiresAt,
+        expired_count: -1
+      }
+    }
+
+    if (action === 'reset_download_limit') {
+      return {
+        id: file.id,
+        expired_count: detailPolicyDownloadLimit
+      }
+    }
+
+    const offsetDays = action === 'extend_7d' ? 7 : 1
+    const nextExpiredAt = new Date(
+      getPolicyActionBaseDate(file).getTime() + offsetDays * dayInMilliseconds
+    )
+    return {
+      id: file.id,
+      expired_at: formatLocalDateTime(nextExpiredAt)
+    }
+  }
+
+  const refreshSelectedFileDetail = async (fileId: number, detail?: AdminFileDetailResponse) => {
+    if (detail) {
+      selectedFileDetail.value = createFileDetailViewItem(detail)
+      return
+    }
+
+    const fallbackFile = tableData.value.find((file) => file.id === fileId)
+    if (fallbackFile) {
+      selectedFileDetail.value = createFileDetailViewItem(fallbackFile)
+    }
+
+    try {
+      const response = await FileService.getAdminFileDetail(fileId)
+      if (response.detail) {
+        selectedFileDetail.value = createFileDetailViewItem(response.detail)
+      }
+    } catch (error: unknown) {
+      if (!isLegacyEndpointUnavailable(error)) {
+        throw error
+      }
+    }
   }
 
   const loadFiles = async () => {
@@ -775,6 +903,36 @@ export function useAdminFiles() {
     }
   }
 
+  const applyDetailPolicyAction = async (action: AdminFilePolicyAction) => {
+    const file = selectedFileDetail.value
+    if (!file || isDetailPolicyActionRunning.value) return
+
+    isDetailPolicyActionRunning.value = true
+    try {
+      let nextDetail: AdminFileDetailResponse | undefined
+
+      try {
+        const response = await FileService.applyAdminFilePolicyAction(
+          buildPolicyActionRequest(file, action)
+        )
+        nextDetail = response.detail
+      } catch (error: unknown) {
+        if (!isLegacyEndpointUnavailable(error)) {
+          throw error
+        }
+        await FileService.updateFile(buildLegacyPolicyActionPayload(file, action))
+      }
+
+      await loadFiles()
+      await refreshSelectedFileDetail(file.id, nextDetail)
+      alertStore.showAlert(t('fileManage.policyActionSuccess'), 'success')
+    } catch (error: unknown) {
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.policyActionFailed')), 'error')
+    } finally {
+      isDetailPolicyActionRunning.value = false
+    }
+  }
+
   const closeFileDetail = () => {
     detailRequestSerial += 1
     showFileDetailModal.value = false
@@ -846,9 +1004,11 @@ export function useAdminFiles() {
     isBatchUpdating,
     isCurrentPagePartiallySelected,
     isDetailLoading,
+    isDetailPolicyActionRunning,
     isPreviewLoading,
     isSaving,
     batchEditForm,
+    detailPolicyActionOptions,
     downloadingFileId,
     hasSelectedFiles,
     params,
@@ -880,6 +1040,7 @@ export function useAdminFiles() {
     exportPreviewText,
     handlePageChange,
     handleSearch,
+    applyDetailPolicyAction,
     handleBatchUpdate,
     handleUpdate,
     loadFiles,

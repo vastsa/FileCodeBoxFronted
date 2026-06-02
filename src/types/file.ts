@@ -92,6 +92,19 @@ export interface AdminFilePatchPayload {
   expired_count?: number | null
 }
 
+export type AdminFilePolicyAction =
+  | 'extend_24h'
+  | 'extend_7d'
+  | 'make_permanent'
+  | 'reset_download_limit'
+
+export interface AdminFilePolicyActionRequest {
+  id: number
+  action: AdminFilePolicyAction
+  downloadLimit?: number
+  download_limit?: number
+}
+
 export interface FileListResponse {
   data: FileListItem[]
   total: number

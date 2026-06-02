@@ -7,6 +7,7 @@ import type {
   AdminFilePatchPayload,
   AdminFileDetailResponse,
   AdminFileListParams,
+  AdminFilePolicyActionRequest,
   AdminFilePreviewResponse,
   ApiResponse,
   ChunkUploadCompleteRequest,
@@ -35,6 +36,11 @@ const toUrlEncodedForm = (data: Record<string, string | number>) => {
     form.append(key, String(value))
   })
   return form
+}
+
+const isMethodFallbackError = (error: unknown) => {
+  const status = (error as { response?: { status?: number } })?.response?.status
+  return status === 404 || status === 405
 }
 
 export class FileService {
@@ -137,6 +143,20 @@ export class FileService {
 
   static async updateFile(data: FileEditForm | AdminFilePatchPayload): Promise<ApiResponse> {
     return api.patch('/admin/file/update', data)
+  }
+
+  static async applyAdminFilePolicyAction(
+    data: AdminFilePolicyActionRequest
+  ): Promise<ApiResponse<AdminFileDetailResponse>> {
+    try {
+      return await api.patch('/admin/file/policy-action', data)
+    } catch (error: unknown) {
+      if (!isMethodFallbackError(error)) {
+        throw error
+      }
+
+      return api.post('/admin/file/policy-action', data)
+    }
   }
 
   static async updateAdminFiles(

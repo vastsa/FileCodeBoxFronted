@@ -446,6 +446,20 @@ export default {
     batchUpdatePartialSuccess: '已更新 {count} 个文件，{failed} 个失败',
     batchUpdateFailed: '批量更新失败',
     batchUpdateNoFields: '请选择要更新的策略',
+    policyActionSuccess: '文件策略已更新',
+    policyActionFailed: '策略动作执行失败',
+    policyActions: {
+      extend24h: '延长 24 小时',
+      extend7d: '延长 7 天',
+      makePermanent: '设为永久',
+      resetDownloadLimit: '重置为 {count} 次'
+    },
+    policyActionDescriptions: {
+      extend24h: '从当前有效期继续追加一天',
+      extend7d: '适合临时续期一周',
+      makePermanent: '清空过期时间和次数限制',
+      resetDownloadLimit: '恢复可取件次数到 {count} 次'
+    },
     applyBatchEdit: '应用更改',
     overview: '概览',
     policyInfo: '策略信息',

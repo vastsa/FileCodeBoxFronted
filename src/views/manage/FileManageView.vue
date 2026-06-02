@@ -620,6 +620,35 @@
               {{ reason }}
             </span>
           </div>
+
+          <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+            <button
+              v-for="action in detailPolicyActionOptions"
+              :key="action.action"
+              type="button"
+              class="flex min-h-16 items-start gap-2 rounded-lg border px-3 py-2 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              :class="detailPolicyActionClass"
+              :disabled="isDetailPolicyActionRunning || isDetailLoading"
+              :title="action.description"
+              @click="applyDetailPolicyAction(action.action)"
+            >
+              <RefreshCwIcon
+                v-if="isDetailPolicyActionRunning"
+                class="mt-0.5 h-4 w-4 shrink-0 animate-spin"
+              />
+              <component
+                :is="getDetailPolicyActionIcon(action.action)"
+                v-else
+                class="mt-0.5 h-4 w-4 shrink-0"
+              />
+              <span class="min-w-0">
+                <span class="block text-sm font-medium">{{ action.label }}</span>
+                <span class="mt-0.5 block text-xs leading-4" :class="[mutedTextClass]">
+                  {{ action.description }}
+                </span>
+              </span>
+            </button>
+          </div>
         </section>
 
         <section class="space-y-3">
@@ -969,6 +998,7 @@ import { useI18n } from 'vue-i18n'
 import type {
   AdminBatchEditMode,
   AdminFileInsightSeverity,
+  AdminFilePolicyAction,
   AdminFileSortBy,
   AdminFileSortOrder,
   AdminFileStatusFilter,
@@ -987,8 +1017,10 @@ import {
   FileTextIcon,
   FilterIcon,
   HardDriveIcon,
+  InfinityIcon,
   PencilIcon,
   RefreshCwIcon,
+  RotateCcwIcon,
   SearchIcon,
   TrashIcon,
   XIcon
@@ -1026,9 +1058,11 @@ const {
   isBatchUpdating,
   isCurrentPagePartiallySelected,
   isDetailLoading,
+  isDetailPolicyActionRunning,
   isPreviewLoading,
   isSaving,
   batchEditForm,
+  detailPolicyActionOptions,
   downloadingFileId,
   hasSelectedFiles,
   params,
@@ -1059,6 +1093,7 @@ const {
   exportPreviewText,
   handlePageChange,
   handleSearch,
+  applyDetailPolicyAction,
   handleBatchUpdate,
   handleUpdate,
   loadFiles,
@@ -1088,6 +1123,11 @@ const detailActionClass = computed(() =>
   isDarkMode.value
     ? 'border-gray-700 bg-gray-700/50 text-gray-300 hover:border-gray-600 hover:bg-gray-700'
     : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+)
+const detailPolicyActionClass = computed(() =>
+  isDarkMode.value
+    ? 'border-gray-700 bg-gray-800/70 text-gray-200 hover:border-blue-500/40 hover:bg-blue-500/10'
+    : 'border-gray-200 bg-white text-gray-700 hover:border-blue-200 hover:bg-blue-50'
 )
 
 type DetailInfoItem = {
@@ -1290,6 +1330,16 @@ const batchEditModeOptions = computed<
     icon: CheckIcon
   }
 ])
+
+const detailPolicyActionIconMap: Record<AdminFilePolicyAction, Component> = {
+  extend_24h: ClockIcon,
+  extend_7d: ClockIcon,
+  make_permanent: InfinityIcon,
+  reset_download_limit: RotateCcwIcon
+}
+
+const getDetailPolicyActionIcon = (action: AdminFilePolicyAction) =>
+  detailPolicyActionIconMap[action]
 
 const getPillClass = (active: boolean) => {
   if (active) return 'bg-indigo-600 text-white'

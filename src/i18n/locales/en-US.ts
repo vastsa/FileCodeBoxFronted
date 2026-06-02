@@ -448,6 +448,20 @@ export default {
     batchUpdatePartialSuccess: 'Updated {count} files, {failed} failed',
     batchUpdateFailed: 'Batch update failed',
     batchUpdateNoFields: 'Choose a policy to update',
+    policyActionSuccess: 'File policy updated',
+    policyActionFailed: 'Failed to apply policy action',
+    policyActions: {
+      extend24h: 'Extend 24h',
+      extend7d: 'Extend 7d',
+      makePermanent: 'Make Permanent',
+      resetDownloadLimit: 'Reset to {count}'
+    },
+    policyActionDescriptions: {
+      extend24h: 'Add one day from the active expiration',
+      extend7d: 'Good for a one-week temporary extension',
+      makePermanent: 'Clear expiration time and retrieval limits',
+      resetDownloadLimit: 'Restore retrievals to {count}'
+    },
     applyBatchEdit: 'Apply Changes',
     overview: 'Overview',
     policyInfo: 'Policy',
