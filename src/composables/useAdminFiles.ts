@@ -8,7 +8,9 @@ import type {
   AdminBatchUpdateFilesRequest,
   AdminBatchUpdateFilesResponse,
   AdminFileDetailResponse,
+  AdminFileDetailTimelineItem,
   AdminFileDetailViewItem,
+  AdminFileInsightSeverity,
   AdminFilePatchPayload,
   AdminFileListParams,
   AdminFileStatusFilter,
@@ -20,7 +22,7 @@ import type {
   FileListItem
 } from '@/types'
 import { copyToClipboard } from '@/utils/clipboard'
-import { formatFileSize, formatTimestamp, getErrorMessage } from '@/utils/common'
+import { formatDuration, formatFileSize, formatTimestamp, getErrorMessage } from '@/utils/common'
 import {
   downloadAdminManagedFile,
   exportAdminTextFile,
@@ -215,6 +217,61 @@ export function useAdminFiles() {
     }
   }
 
+  const normalizeInsightSeverity = (
+    severity: AdminFileInsightSeverity | undefined
+  ): AdminFileInsightSeverity => {
+    if (severity === 'success' || severity === 'warning' || severity === 'danger') {
+      return severity
+    }
+    if (severity === 'info' || severity === 'neutral') {
+      return severity
+    }
+    return 'neutral'
+  }
+
+  const formatTimelineValue = (item: AdminFileDetailTimelineItem) => {
+    if (item.key === 'download_limit') {
+      if (item.status === 'unlimited') return t('fileManage.unlimited')
+      if (typeof item.value === 'number') return t('fileManage.remaining', { count: item.value })
+    }
+
+    if (item.key === 'retrieved' && typeof item.value === 'number') {
+      return `${item.value} ${t('common.times')}`
+    }
+
+    if (item.key === 'expiration_policy') {
+      if (item.status === 'unlimited') return t('send.expiration.units.forever')
+      if (typeof item.value === 'number') {
+        const duration = formatDuration(Math.abs(item.value), (key) => t(key))
+        return item.value <= 0
+          ? t('fileManage.timeline.expiration_policy.overdue', { time: duration })
+          : t('fileManage.timeline.expiration_policy.remaining', { time: duration })
+      }
+    }
+
+    if (item.detail) return item.detail
+    if (item.value !== null && item.value !== undefined) return String(item.value)
+    return ''
+  }
+
+  const createTimelineViewItems = (items: AdminFileDetailTimelineItem[] = []) =>
+    items.map((item) => {
+      const timestampText = item.timestamp ? formatTimestamp(item.timestamp) : ''
+      const valueText = formatTimelineValue(item)
+      const metaParts = [timestampText, valueText].filter(Boolean)
+      return {
+        ...item,
+        severity: normalizeInsightSeverity(item.severity),
+        displayTitle: t(`fileManage.timeline.${item.key}.title`),
+        displayDescription: t(`fileManage.timeline.${item.key}.description`, {
+          status: t(`fileManage.timeline.status.${item.status || 'pending'}`),
+          detail: item.detail || '',
+          value: valueText || ''
+        }),
+        displayMeta: metaParts.length > 0 ? metaParts.join(' · ') : '-'
+      }
+    })
+
   const createFileDetailViewItem = (
     file: FileListItem | AdminFileDetailResponse
   ): AdminFileDetailViewItem => {
@@ -260,6 +317,12 @@ export function useAdminFiles() {
     const storageBackendValue =
       storage?.backend ?? detail.storageBackend ?? detail.storage_backend ?? '-'
     const isChunkedStorage = storage?.isChunked ?? storage?.is_chunked ?? viewItem.isChunkedFile
+    const statusInsights = detail.statusInsights ?? detail.status_insights
+    const statusInsightState =
+      statusInsights?.state ??
+      (viewItem.isExpiredFile ? 'expired' : isPermanentFile ? 'permanent' : 'available')
+    const statusInsightNextAction =
+      statusInsights?.nextAction ?? statusInsights?.next_action ?? 'monitor'
 
     return {
       ...viewItem,
@@ -283,7 +346,13 @@ export function useAdminFiles() {
         storage?.uuid_file_name ??
         detail.uuidFileName ??
         detail.uuid_file_name,
-      uploadIdValue: storage?.uploadId ?? storage?.upload_id ?? detail.uploadId ?? detail.upload_id
+      uploadIdValue: storage?.uploadId ?? storage?.upload_id ?? detail.uploadId ?? detail.upload_id,
+      statusInsightSeverity: normalizeInsightSeverity(statusInsights?.severity),
+      statusInsightState,
+      statusInsightNextAction,
+      statusInsightReasons: statusInsights?.reasons || [],
+      statusInsightMetrics: statusInsights?.metrics,
+      detailTimeline: createTimelineViewItems(detail.timeline || [])
     }
   }
 

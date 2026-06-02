@@ -585,6 +585,43 @@
           </button>
         </div>
 
+        <section
+          class="rounded-lg border px-4 py-4"
+          :class="getInsightPanelClass(selectedFileDetail.statusInsightSeverity)"
+        >
+          <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div class="min-w-0">
+              <p class="text-xs font-medium uppercase" :class="[mutedTextClass]">
+                {{ t('fileManage.statusInsight') }}
+              </p>
+              <h4 class="mt-1 text-base font-semibold" :class="[primaryTextClass]">
+                {{ getInsightStateLabel(selectedFileDetail.statusInsightState) }}
+              </h4>
+              <p class="mt-1 text-sm" :class="[mutedTextClass]">
+                {{ t('fileManage.nextAction') }}:
+                {{ getInsightActionLabel(selectedFileDetail.statusInsightNextAction) }}
+              </p>
+            </div>
+            <span
+              class="inline-flex w-fit items-center rounded-full px-2.5 py-1 text-xs font-medium"
+              :class="getInsightBadgeClass(selectedFileDetail.statusInsightSeverity)"
+            >
+              {{ getInsightSeverityLabel(selectedFileDetail.statusInsightSeverity) }}
+            </span>
+          </div>
+
+          <div v-if="detailInsightReasonLabels.length > 0" class="mt-3 flex flex-wrap gap-2">
+            <span
+              v-for="reason in detailInsightReasonLabels"
+              :key="reason"
+              class="rounded-full px-2.5 py-1 text-xs font-medium"
+              :class="isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-white text-gray-600 shadow-sm'"
+            >
+              {{ reason }}
+            </span>
+          </div>
+        </section>
+
         <section class="space-y-3">
           <h4 class="text-sm font-semibold" :class="[primaryTextClass]">
             {{ t('fileManage.overview') }}
@@ -619,6 +656,52 @@
               <p class="mt-1 break-words text-sm font-medium" :class="[primaryTextClass]">
                 {{ item.value }}
               </p>
+            </div>
+          </div>
+        </section>
+
+        <section v-if="selectedFileDetail.detailTimeline.length > 0" class="space-y-3">
+          <h4 class="text-sm font-semibold" :class="[primaryTextClass]">
+            {{ t('fileManage.lifecycle') }}
+          </h4>
+          <div
+            class="rounded-lg border px-4 py-4"
+            :class="[isDarkMode ? 'border-gray-700 bg-gray-700/30' : 'border-gray-200 bg-white']"
+          >
+            <div
+              v-for="(item, index) in selectedFileDetail.detailTimeline"
+              :key="`${item.key}-${index}`"
+              class="grid grid-cols-[auto_minmax(0,1fr)] gap-3"
+            >
+              <div class="flex flex-col items-center">
+                <span
+                  class="mt-1 h-3 w-3 rounded-full"
+                  :class="getTimelineDotClass(item.severity)"
+                />
+                <span
+                  v-if="index < selectedFileDetail.detailTimeline.length - 1"
+                  class="my-1 w-px flex-1"
+                  :class="[isDarkMode ? 'bg-gray-600' : 'bg-gray-200']"
+                />
+              </div>
+              <div
+                class="mb-3 rounded-lg border px-3 py-2 last:mb-0"
+                :class="[
+                  isDarkMode ? 'border-gray-700 bg-gray-800/60' : 'border-gray-100 bg-gray-50'
+                ]"
+              >
+                <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                  <p class="text-sm font-medium" :class="[primaryTextClass]">
+                    {{ item.displayTitle }}
+                  </p>
+                  <p class="text-xs" :class="[mutedTextClass]">
+                    {{ item.displayMeta }}
+                  </p>
+                </div>
+                <p class="mt-1 text-sm" :class="[mutedTextClass]">
+                  {{ item.displayDescription }}
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -885,6 +968,7 @@ import { computed, onMounted, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type {
   AdminBatchEditMode,
+  AdminFileInsightSeverity,
   AdminFileSortBy,
   AdminFileSortOrder,
   AdminFileStatusFilter,
@@ -1106,6 +1190,13 @@ const detailStorageItems = computed<DetailInfoItem[]>(() => {
   ]
 })
 
+const detailInsightReasonLabels = computed(() => {
+  const file = selectedFileDetail.value
+  if (!file) return []
+
+  return file.statusInsightReasons.map((reason) => t(`fileManage.insightReasons.${reason}`))
+})
+
 const openDetailEditModal = () => {
   if (!selectedFileDetail.value) return
 
@@ -1244,6 +1335,63 @@ const getStatusBadgeClass = (file: AdminFileViewItem) => {
     return isDarkMode.value ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-700'
   }
   return isDarkMode.value ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-700'
+}
+
+const getInsightSeverityLabel = (severity: AdminFileInsightSeverity) =>
+  t(`fileManage.insightSeverity.${severity}`)
+
+const getInsightStateLabel = (state: string) => t(`fileManage.insightStates.${state}`)
+
+const getInsightActionLabel = (action: string) => t(`fileManage.insightActions.${action}`)
+
+const getInsightPanelClass = (severity: AdminFileInsightSeverity) => {
+  const darkClasses: Record<AdminFileInsightSeverity, string> = {
+    success: 'border-emerald-500/20 bg-emerald-500/10',
+    warning: 'border-amber-500/20 bg-amber-500/10',
+    danger: 'border-red-500/20 bg-red-500/10',
+    info: 'border-blue-500/20 bg-blue-500/10',
+    neutral: 'border-gray-700 bg-gray-700/30'
+  }
+  const lightClasses: Record<AdminFileInsightSeverity, string> = {
+    success: 'border-emerald-100 bg-emerald-50',
+    warning: 'border-amber-100 bg-amber-50',
+    danger: 'border-red-100 bg-red-50',
+    info: 'border-blue-100 bg-blue-50',
+    neutral: 'border-gray-200 bg-gray-50'
+  }
+
+  return isDarkMode.value ? darkClasses[severity] : lightClasses[severity]
+}
+
+const getInsightBadgeClass = (severity: AdminFileInsightSeverity) => {
+  const darkClasses: Record<AdminFileInsightSeverity, string> = {
+    success: 'bg-emerald-900/40 text-emerald-200',
+    warning: 'bg-amber-900/40 text-amber-200',
+    danger: 'bg-red-900/40 text-red-200',
+    info: 'bg-blue-900/40 text-blue-200',
+    neutral: 'bg-gray-700 text-gray-300'
+  }
+  const lightClasses: Record<AdminFileInsightSeverity, string> = {
+    success: 'bg-emerald-100 text-emerald-700',
+    warning: 'bg-amber-100 text-amber-700',
+    danger: 'bg-red-100 text-red-700',
+    info: 'bg-blue-100 text-blue-700',
+    neutral: 'bg-gray-100 text-gray-700'
+  }
+
+  return isDarkMode.value ? darkClasses[severity] : lightClasses[severity]
+}
+
+const getTimelineDotClass = (severity: AdminFileInsightSeverity) => {
+  const classes: Record<AdminFileInsightSeverity, string> = {
+    success: 'bg-emerald-500',
+    warning: 'bg-amber-500',
+    danger: 'bg-red-500',
+    info: 'bg-blue-500',
+    neutral: isDarkMode.value ? 'bg-gray-500' : 'bg-gray-300'
+  }
+
+  return classes[severity]
 }
 
 onMounted(() => {

@@ -145,6 +145,44 @@ export interface AdminFileDetailStorage {
   upload_id?: string | null
 }
 
+export type AdminFileInsightSeverity = 'success' | 'warning' | 'danger' | 'info' | 'neutral'
+
+export interface AdminFileDetailInsightMetrics {
+  ageSeconds?: number
+  age_seconds?: number
+  secondsUntilExpiration?: number | null
+  seconds_until_expiration?: number | null
+  remainingDownloads?: number | null
+  remaining_downloads?: number | null
+  usedCount?: number
+  used_count?: number
+}
+
+export interface AdminFileDetailStatusInsights {
+  severity?: AdminFileInsightSeverity
+  state?: string
+  nextAction?: string
+  next_action?: string
+  reasons?: string[]
+  metrics?: AdminFileDetailInsightMetrics
+}
+
+export interface AdminFileDetailTimelineItem {
+  key: string
+  status?: string
+  severity?: AdminFileInsightSeverity
+  timestamp?: string | null
+  value?: number | string | null
+  detail?: string | null
+}
+
+export interface AdminFileDetailTimelineViewItem extends AdminFileDetailTimelineItem {
+  severity: AdminFileInsightSeverity
+  displayTitle: string
+  displayDescription: string
+  displayMeta: string
+}
+
 export interface AdminFileDetailResponse extends FileListItem {
   filename?: string
   displayName?: string
@@ -171,6 +209,9 @@ export interface AdminFileDetailResponse extends FileListItem {
   upload_id?: string | null
   policy?: AdminFileDetailPolicy
   storage?: AdminFileDetailStorage
+  statusInsights?: AdminFileDetailStatusInsights
+  status_insights?: AdminFileDetailStatusInsights
+  timeline?: AdminFileDetailTimelineItem[]
 }
 
 export interface AdminFileDetailViewItem extends AdminFileViewItem {
@@ -187,6 +228,12 @@ export interface AdminFileDetailViewItem extends AdminFileViewItem {
   filePathValue?: string | null
   uuidFileNameValue?: string | null
   uploadIdValue?: string | null
+  statusInsightSeverity: AdminFileInsightSeverity
+  statusInsightState: string
+  statusInsightNextAction: string
+  statusInsightReasons: string[]
+  statusInsightMetrics?: AdminFileDetailInsightMetrics
+  detailTimeline: AdminFileDetailTimelineViewItem[]
 }
 
 export interface AdminBatchDeleteFileFailure {

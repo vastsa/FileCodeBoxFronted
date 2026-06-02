@@ -452,6 +452,9 @@ export default {
     overview: 'Overview',
     policyInfo: 'Policy',
     storageInfo: 'Storage',
+    statusInsight: 'Status Insight',
+    nextAction: 'Next Action',
+    lifecycle: 'Lifecycle',
     permanent: 'Permanent',
     createdAt: 'Created Time',
     remainingDownloads: 'Remaining Downloads',
@@ -468,6 +471,70 @@ export default {
     uploadId: 'Upload Session',
     yes: 'Yes',
     no: 'No',
+    insightSeverity: {
+      success: 'Healthy',
+      warning: 'Needs Attention',
+      danger: 'Issue',
+      info: 'Info',
+      neutral: 'Watch'
+    },
+    insightStates: {
+      available: 'Available for retrieval',
+      expired: 'Unavailable for retrieval',
+      storage_incomplete: 'Storage metadata incomplete',
+      expiring_soon: 'Expiring soon',
+      permanent: 'Permanent'
+    },
+    insightActions: {
+      monitor: 'Keep monitoring',
+      extend_or_delete: 'Extend retention or clean up',
+      inspect_storage: 'Inspect storage path and file name',
+      extend_expiration: 'Extend expiration if needed'
+    },
+    insightReasons: {
+      expired: 'Past expiration time',
+      download_limit_exhausted: 'Retrieval limit exhausted',
+      expires_soon: 'Expires within 24 hours',
+      never_retrieved: 'Never retrieved',
+      storage_metadata_incomplete: 'Missing downloadable storage metadata',
+      chunked_upload: 'Created by chunked upload'
+    },
+    timeline: {
+      status: {
+        done: 'Done',
+        pending: 'Pending',
+        active: 'Active',
+        expired: 'Expired',
+        exhausted: 'Exhausted',
+        unlimited: 'Unlimited'
+      },
+      created: {
+        title: 'Record Created',
+        description: 'The share record has been created and is currently {status}.'
+      },
+      content_ready: {
+        title: 'Content Ready',
+        description: 'Content type is {detail}; current status is {status}.'
+      },
+      upload_session: {
+        title: 'Upload Session',
+        description: 'Upload session recorded: {detail}.'
+      },
+      expiration_policy: {
+        title: 'Expiration Policy',
+        description: 'Expiration policy is currently {status}.',
+        remaining: '{time} left',
+        overdue: '{time} overdue'
+      },
+      download_limit: {
+        title: 'Retrieval Limit',
+        description: 'Retrieval limit is currently {status}; {value}.'
+      },
+      retrieved: {
+        title: 'Retrieval History',
+        description: 'Retrieved {value}; current status is {status}.'
+      }
+    },
     headers: {
       select: 'Select',
       code: 'Retrieve Code',

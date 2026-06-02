@@ -450,6 +450,9 @@ export default {
     overview: '概览',
     policyInfo: '策略信息',
     storageInfo: '存储信息',
+    statusInsight: '状态洞察',
+    nextAction: '建议动作',
+    lifecycle: '生命周期',
     permanent: '永久有效',
     createdAt: '创建时间',
     remainingDownloads: '剩余次数',
@@ -466,6 +469,70 @@ export default {
     uploadId: '上传会话',
     yes: '是',
     no: '否',
+    insightSeverity: {
+      success: '正常',
+      warning: '需关注',
+      danger: '异常',
+      info: '提示',
+      neutral: '待观察'
+    },
+    insightStates: {
+      available: '当前可正常取件',
+      expired: '当前已不可取件',
+      storage_incomplete: '存储信息不完整',
+      expiring_soon: '即将过期',
+      permanent: '永久有效'
+    },
+    insightActions: {
+      monitor: '保持观察',
+      extend_or_delete: '延长有效期或清理记录',
+      inspect_storage: '检查存储路径与文件名',
+      extend_expiration: '按需延长过期时间'
+    },
+    insightReasons: {
+      expired: '已超过过期时间',
+      download_limit_exhausted: '取件次数已用尽',
+      expires_soon: '24 小时内过期',
+      never_retrieved: '尚未被取件',
+      storage_metadata_incomplete: '缺少可下载存储信息',
+      chunked_upload: '由分片上传生成'
+    },
+    timeline: {
+      status: {
+        done: '已完成',
+        pending: '等待中',
+        active: '生效中',
+        expired: '已过期',
+        exhausted: '已用尽',
+        unlimited: '不限'
+      },
+      created: {
+        title: '记录创建',
+        description: '分享记录已创建，当前状态为 {status}。'
+      },
+      content_ready: {
+        title: '内容就绪',
+        description: '内容类型为 {detail}，当前状态为 {status}。'
+      },
+      upload_session: {
+        title: '上传会话',
+        description: '上传会话已记录：{detail}。'
+      },
+      expiration_policy: {
+        title: '过期策略',
+        description: '过期策略当前为 {status}。',
+        remaining: '还剩 {time}',
+        overdue: '已超时 {time}'
+      },
+      download_limit: {
+        title: '取件次数',
+        description: '取件次数策略当前为 {status}，{value}。'
+      },
+      retrieved: {
+        title: '取件记录',
+        description: '累计取件 {value}，当前状态为 {status}。'
+      }
+    },
     headers: {
       select: '选择',
       code: '取件码',
