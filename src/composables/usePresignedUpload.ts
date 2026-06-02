@@ -213,10 +213,13 @@ export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
       presignStatus.value = PRESIGN_UPLOAD_STATUS.UPLOADING
 
       const progressHandler = createProgressHandler(options?.onProgress)
+      const uploadUrl =
+        session.proxy_upload_url || session.upload_url || session.legacy_proxy_upload_url
       const response = await PresignUploadService.proxyUpload(
         session.upload_id,
         file,
-        progressHandler
+        progressHandler,
+        uploadUrl
       )
 
       if (response.code === 200 && response.detail?.code) {
