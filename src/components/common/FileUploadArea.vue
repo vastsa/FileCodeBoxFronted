@@ -1,14 +1,26 @@
 <template>
   <div
-    class="rounded-xl p-8 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative"
+    class="rounded-2xl p-8 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative min-h-72 overflow-hidden"
     :class="[
       isDarkMode
-        ? 'bg-gray-800 bg-opacity-50 border-gray-600 hover:border-indigo-500'
-        : 'bg-gray-100 border-gray-300 hover:border-indigo-500',
+        ? 'bg-gray-800/60 border-gray-600 hover:border-indigo-400'
+        : 'bg-white/80 border-gray-300 hover:border-indigo-500',
+      isDragActive
+        ? isDarkMode
+          ? 'border-indigo-400 bg-indigo-500/10 shadow-lg shadow-indigo-900/30'
+          : 'border-indigo-500 bg-indigo-50 shadow-lg shadow-indigo-100'
+        : '',
       statusClass
     ]"
+    role="button"
+    tabindex="0"
+    :aria-busy="isUploading"
     @click="triggerFileUpload"
-    @dragover.prevent
+    @keydown.enter.prevent="triggerFileUpload"
+    @keydown.space.prevent="triggerFileUpload"
+    @dragenter.prevent="handleDragEnter"
+    @dragover.prevent="handleDragOver"
+    @dragleave.prevent="handleDragLeave"
     @drop.prevent="handleFileDrop"
   >
     <input
@@ -20,6 +32,18 @@
       :disabled="isUploading"
       multiple
     />
+    <div
+      class="absolute inset-0 opacity-0 transition-opacity duration-300"
+      :class="[isDragActive ? 'opacity-100' : '']"
+    >
+      <div
+        class="absolute inset-3 rounded-2xl border"
+        :class="[
+          isDarkMode ? 'border-indigo-300/30 bg-indigo-400/5' : 'border-indigo-300 bg-indigo-50/80'
+        ]"
+      ></div>
+    </div>
+
     <div class="absolute inset-0 w-full h-full" v-if="progress > 0">
       <BorderProgressBar :progress="progress" />
     </div>
@@ -27,24 +51,20 @@
     <!-- 上传状态图标 -->
     <component
       :is="statusIcon"
-      :class="['w-16 h-16 transition-colors duration-300', statusIconClass]"
+      :class="['relative z-10 w-16 h-16 transition-colors duration-300', statusIconClass]"
     />
 
     <!-- 文件名或占位文本 -->
     <p
       :class="[
-        'mt-4 text-sm transition-colors duration-300 w-full text-center',
+        'relative z-10 mt-4 text-sm transition-colors duration-300 w-full text-center',
         isDarkMode
           ? 'text-gray-400 group-hover:text-indigo-400'
           : 'text-gray-600 group-hover:text-indigo-600'
       ]"
     >
       <span v-if="selectedFiles && selectedFiles.length > 1" class="block">
-        <span
-          v-for="(f, i) in selectedFiles"
-          :key="i"
-          class="block truncate"
-        >{{ f.name }}</span>
+        <span v-for="(f, i) in selectedFiles" :key="i" class="block truncate">{{ f.name }}</span>
       </span>
       <span v-else class="block truncate">
         {{ displayText }}
@@ -52,12 +72,33 @@
     </p>
 
     <!-- 状态描述或默认描述 -->
-    <p :class="['mt-2 text-xs', statusDescriptionClass]">
+    <p :class="['relative z-10 mt-2 text-xs text-center leading-5', statusDescriptionClass]">
       {{ statusDescription }}
     </p>
 
+    <div
+      v-if="selectedFiles.length > 1"
+      class="relative z-10 mt-4 flex flex-wrap items-center justify-center gap-2"
+    >
+      <span
+        v-for="file in selectedFiles.slice(0, 3)"
+        :key="`${file.name}-${file.size}`"
+        class="max-w-40 truncate rounded-full px-3 py-1 text-xs"
+        :class="[isDarkMode ? 'bg-gray-700/80 text-gray-200' : 'bg-gray-100 text-gray-700']"
+      >
+        {{ file.name }}
+      </span>
+      <span
+        v-if="selectedFiles.length > 3"
+        class="rounded-full px-3 py-1 text-xs"
+        :class="[isDarkMode ? 'bg-indigo-500/20 text-indigo-200' : 'bg-indigo-100 text-indigo-700']"
+      >
+        +{{ selectedFiles.length - 3 }}
+      </span>
+    </div>
+
     <!-- 进度详情（上传中显示） -->
-    <div v-if="isUploading && showProgressDetails" class="mt-3 w-full">
+    <div v-if="isUploading && showProgressDetails" class="relative z-10 mt-3 w-full">
       <div
         class="flex justify-between text-xs mb-1"
         :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
@@ -148,6 +189,7 @@ const isDarkMode = useInjectedDarkMode()
 const placeholderText = computed(() => props.placeholder || t('send.uploadArea.placeholder'))
 const descriptionText = computed(() => props.description || t('send.uploadArea.description'))
 const fileInput = ref<HTMLInputElement | null>(null)
+const isDragActive = ref(false)
 
 const isUploading = computed(() => {
   return ['uploading', 'initializing', 'confirming'].includes(props.uploadStatus)
@@ -245,6 +287,24 @@ const triggerFileUpload = () => {
   fileInput.value?.click()
 }
 
+const handleDragEnter = () => {
+  if (isUploading.value) return
+  isDragActive.value = true
+}
+
+const handleDragOver = () => {
+  if (isUploading.value) return
+  isDragActive.value = true
+}
+
+const handleDragLeave = (event: DragEvent) => {
+  const target = event.currentTarget as HTMLElement
+  const relatedTarget = event.relatedTarget as Node | null
+  if (!relatedTarget || !target.contains(relatedTarget)) {
+    isDragActive.value = false
+  }
+}
+
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement
   const files = target.files
@@ -261,6 +321,7 @@ const handleFileUpload = (event: Event) => {
 
 const handleFileDrop = (event: DragEvent) => {
   // 上传中不允许拖放
+  isDragActive.value = false
   if (isUploading.value) return
   emit('fileDrop', event)
 }
