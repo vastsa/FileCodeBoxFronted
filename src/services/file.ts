@@ -10,6 +10,7 @@ import type {
   FileInfo,
   FileListResponse,
   FileUploadResponse,
+  ShareMetadataResponse,
   ShareSelectResponse,
   TextSendResponse,
   UploadProgress
@@ -98,6 +99,10 @@ export class FileService {
 
   static async selectFile(code: string): Promise<ApiResponse<ShareSelectResponse>> {
     return api.post('/share/select/', { code })
+  }
+
+  static async inspectFile(code: string): Promise<ApiResponse<ShareMetadataResponse>> {
+    return api.post('/share/metadata/', { code })
   }
 
   static async getFile(code: string): Promise<ApiResponse<FileInfo>> {

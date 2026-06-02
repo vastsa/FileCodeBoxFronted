@@ -202,7 +202,37 @@ export default {
       invalidCodeError: '无效的取件码',
       retrieveFailure: '获取文件失败：',
       networkError: '取件失败，请稍后重试：',
-      unknownError: '未知错误'
+      unknownError: '未知错误',
+      previewUnavailable: '暂时无法预览文件信息，可直接取件'
+    },
+    workspace: {
+      sendFile: '发送文件',
+      inspect: '预览',
+      inspecting: '预览中',
+      retrieving: '取件中',
+      ready: '可取件',
+      noPreview: '等待取件码',
+      noPreviewDesc: '输入 5 位取件码后会先读取文件信息，确认后再消耗取件次数。',
+      latestRecord: '最近取件',
+      noRecord: '暂无取件记录',
+      currentCode: '取件码',
+      fileSize: '文件大小',
+      viewDetail: '查看详情',
+      historyCount: '{count} 条记录',
+      openRecords: '打开取件记录',
+      security: '安全取件',
+      securityState: '预览不会消耗取件次数，确认取件后才会记录访问。',
+      noExpiry: '不限制',
+      unlimited: '不限次数',
+      remainingCount: '剩余 {count} 次',
+      textType: '文本内容',
+      fileType: '文件下载',
+      expiresAt: '过期时间',
+      remainingDownloads: '剩余次数',
+      usedCount: '已取件',
+      emptyCode: '未输入',
+      previewState: '预览状态',
+      waiting: '等待输入'
     }
   },
 

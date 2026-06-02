@@ -57,6 +57,30 @@ export interface ShareSelectResponse {
   name: string
   text: string
   size: number
+  type?: 'file' | 'text'
+  is_text?: boolean
+  content?: string | null
+  download_url?: string | null
+  created_at?: string | null
+  expired_at?: string | null
+  expires_at?: string | null
+  expired_count?: number | null
+  used_count?: number
+  remaining_downloads?: number | null
+}
+
+export interface ShareMetadataResponse {
+  code: string
+  name: string
+  size: number
+  type: 'file' | 'text'
+  is_text: boolean
+  created_at?: string | null
+  expired_at?: string | null
+  expires_at?: string | null
+  expired_count?: number | null
+  used_count?: number
+  remaining_downloads?: number | null
 }
 
 export interface ReceivedFileRecord {
@@ -67,6 +91,8 @@ export interface ReceivedFileRecord {
   downloadUrl: string | null
   content: string | null
   date: string
+  type?: 'file' | 'text'
+  remainingDownloads?: number | null
 }
 
 export interface SentFileRecord {

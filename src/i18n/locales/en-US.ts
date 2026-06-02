@@ -202,7 +202,39 @@ export default {
       invalidCodeError: 'Invalid retrieval code',
       retrieveFailure: 'Failed to retrieve file: ',
       networkError: 'Retrieval failed, please try again later: ',
-      unknownError: 'Unknown error'
+      unknownError: 'Unknown error',
+      previewUnavailable: 'Preview is unavailable, you can still retrieve directly'
+    },
+    workspace: {
+      sendFile: 'Send File',
+      inspect: 'Preview',
+      inspecting: 'Previewing',
+      retrieving: 'Retrieving',
+      ready: 'Ready',
+      noPreview: 'Waiting for a code',
+      noPreviewDesc:
+        'Enter a 5-character retrieval code to preview file details before consuming a retrieval.',
+      latestRecord: 'Latest Retrieval',
+      noRecord: 'No retrieval records yet',
+      currentCode: 'Code',
+      fileSize: 'File Size',
+      viewDetail: 'View Detail',
+      historyCount: '{count} records',
+      openRecords: 'Open retrieval records',
+      security: 'Safe Retrieval',
+      securityState:
+        'Previewing does not consume retrieval count. Access is recorded only after confirmation.',
+      noExpiry: 'No limit',
+      unlimited: 'Unlimited',
+      remainingCount: '{count} left',
+      textType: 'Text Content',
+      fileType: 'File Download',
+      expiresAt: 'Expires At',
+      remainingDownloads: 'Remaining',
+      usedCount: 'Retrieved',
+      emptyCode: 'Empty',
+      previewState: 'Preview State',
+      waiting: 'Waiting'
     }
   },
 
