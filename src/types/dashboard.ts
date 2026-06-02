@@ -85,6 +85,41 @@ export interface DashboardActivityViewItem extends DashboardActivity {
   createdAtValue: string | null
 }
 
+export interface DashboardActivityOption {
+  value: string
+  label?: string
+  count: number
+}
+
+export interface DashboardActivityFilters {
+  action?: string
+  targetType?: string
+  target_type?: string
+  keyword?: string
+}
+
+export interface DashboardActivitiesParams {
+  limit?: number
+  action?: string
+  targetType?: string
+  target_type?: string
+  keyword?: string
+}
+
+export interface DashboardActivitiesResponse {
+  activities?: DashboardActivity[]
+  items?: DashboardActivity[]
+  total?: number
+  storedTotal?: number
+  stored_total?: number
+  limit?: number
+  filters?: DashboardActivityFilters
+  actionOptions?: DashboardActivityOption[]
+  action_options?: DashboardActivityOption[]
+  targetTypeOptions?: DashboardActivityOption[]
+  target_type_options?: DashboardActivityOption[]
+}
+
 export type DashboardViewData = Omit<
   DashboardData,
   | keyof DashboardHealthSummary

@@ -265,10 +265,19 @@
               {{ t('admin.dashboard.recentActivitiesDesc') }}
             </p>
           </div>
-          <HistoryIcon
-            class="h-5 w-5 shrink-0"
-            :class="[isDarkMode ? 'text-indigo-300' : 'text-indigo-500']"
-          />
+          <button
+            type="button"
+            class="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors"
+            :class="[
+              isDarkMode
+                ? 'bg-gray-900 text-indigo-200 hover:bg-gray-700'
+                : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+            ]"
+            @click="handleOpenActivityTimeline"
+          >
+            <HistoryIcon class="h-4 w-4" />
+            {{ t('admin.dashboard.viewAllActivities') }}
+          </button>
         </div>
 
         <div
@@ -411,6 +420,237 @@
       </section>
     </div>
   </div>
+
+  <SideDrawer
+    :visible="isActivityTimelineOpen"
+    :title="t('admin.dashboard.activityTimelineTitle')"
+    @close="closeActivityTimeline"
+  >
+    <div class="flex min-h-0 flex-1 flex-col">
+      <div class="border-b p-5" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="rounded-lg border p-3" :class="[subtlePanelClass]">
+            <p class="text-xs" :class="[mutedTextClass]">
+              {{ t('admin.dashboard.activityTimelineFiltered') }}
+            </p>
+            <strong class="mt-1 block text-2xl" :class="[primaryTextClass]">
+              {{ activityTimelineTotal }}
+            </strong>
+          </div>
+          <div class="rounded-lg border p-3" :class="[subtlePanelClass]">
+            <p class="text-xs" :class="[mutedTextClass]">
+              {{ t('admin.dashboard.activityTimelineStoredTotal') }}
+            </p>
+            <strong class="mt-1 block text-2xl" :class="[primaryTextClass]">
+              {{ activityTimelineStoredTotal }}
+            </strong>
+          </div>
+        </div>
+
+        <form class="mt-4 space-y-3" @submit.prevent="handleApplyActivityFilters">
+          <label class="block">
+            <span class="mb-1 block text-xs font-medium" :class="[mutedTextClass]">
+              {{ t('admin.dashboard.activityKeyword') }}
+            </span>
+            <span class="relative block">
+              <SearchIcon
+                class="pointer-events-none absolute left-3 top-2.5 h-4 w-4"
+                :class="[mutedTextClass]"
+              />
+              <input
+                v-model="activityFilters.keyword"
+                type="search"
+                class="w-full rounded-lg border py-2 pl-9 pr-3 text-sm outline-none transition-colors"
+                :class="[
+                  isDarkMode
+                    ? 'border-gray-700 bg-gray-900 text-gray-100 placeholder:text-gray-500 focus:border-indigo-400'
+                    : 'border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:border-indigo-400'
+                ]"
+                :placeholder="t('admin.dashboard.activityKeywordPlaceholder')"
+              />
+            </span>
+          </label>
+
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label class="block">
+              <span class="mb-1 block text-xs font-medium" :class="[mutedTextClass]">
+                {{ t('admin.dashboard.activityActionFilter') }}
+              </span>
+              <select
+                v-model="activityFilters.action"
+                class="w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors"
+                :class="[
+                  isDarkMode
+                    ? 'border-gray-700 bg-gray-900 text-gray-100 focus:border-indigo-400'
+                    : 'border-gray-200 bg-white text-gray-900 focus:border-indigo-400'
+                ]"
+              >
+                <option value="">{{ t('admin.dashboard.activityAllActions') }}</option>
+                <option
+                  v-for="option in activityActionOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ getActivityTitle(option.value) }} ({{ option.count }})
+                </option>
+              </select>
+            </label>
+
+            <label class="block">
+              <span class="mb-1 block text-xs font-medium" :class="[mutedTextClass]">
+                {{ t('admin.dashboard.activityTargetTypeFilter') }}
+              </span>
+              <select
+                v-model="activityFilters.targetType"
+                class="w-full rounded-lg border px-3 py-2 text-sm outline-none transition-colors"
+                :class="[
+                  isDarkMode
+                    ? 'border-gray-700 bg-gray-900 text-gray-100 focus:border-indigo-400'
+                    : 'border-gray-200 bg-white text-gray-900 focus:border-indigo-400'
+                ]"
+              >
+                <option value="">{{ t('admin.dashboard.activityAllTargets') }}</option>
+                <option
+                  v-for="option in activityTargetTypeOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ getActivityTargetTypeTitle(option.value) }} ({{ option.count }})
+                </option>
+              </select>
+            </label>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              :class="[
+                isDarkMode
+                  ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ]"
+              :disabled="!hasActivityFilters || isActivityTimelineLoading"
+              @click="handleResetActivityFilters"
+            >
+              {{ t('admin.dashboard.activityResetFilters') }}
+            </button>
+
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                class="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                :class="[
+                  isDarkMode
+                    ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ]"
+                :disabled="isActivityTimelineLoading"
+                @click="handleRefreshActivityTimeline"
+              >
+                <RefreshCwIcon
+                  class="h-4 w-4"
+                  :class="{ 'animate-spin': isActivityTimelineLoading }"
+                />
+                {{ t('admin.dashboard.activityRefresh') }}
+              </button>
+              <button
+                type="submit"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+                :disabled="isActivityTimelineLoading"
+              >
+                <ListFilterIcon class="h-4 w-4" />
+                {{ t('admin.dashboard.activityApplyFilters') }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="min-h-0 flex-1 overflow-y-auto p-5 custom-scrollbar">
+        <div
+          v-if="activityTimelineError"
+          class="mb-4 rounded-lg border px-4 py-3 text-sm"
+          :class="[
+            isDarkMode
+              ? 'border-red-900/50 bg-red-950/30 text-red-200'
+              : 'border-red-200 bg-red-50 text-red-700'
+          ]"
+        >
+          {{ activityTimelineError }}
+        </div>
+
+        <div
+          v-if="isActivityTimelineLoading"
+          class="flex items-center justify-center gap-2 rounded-lg border px-4 py-8 text-sm"
+          :class="[subtlePanelClass, mutedTextClass]"
+        >
+          <RefreshCwIcon class="h-4 w-4 animate-spin" />
+          {{ t('admin.dashboard.activityLoading') }}
+        </div>
+
+        <div
+          v-else-if="activityTimeline.length === 0"
+          class="rounded-lg border px-4 py-8 text-center text-sm"
+          :class="[subtlePanelClass, mutedTextClass]"
+        >
+          {{
+            hasActivityFilters
+              ? t('admin.dashboard.activityNoFiltered')
+              : t('admin.dashboard.noActivities')
+          }}
+        </div>
+
+        <div v-else class="space-y-4">
+          <div
+            v-for="activity in activityTimeline"
+            :key="activity.id"
+            class="rounded-lg border p-4"
+            :class="[subtlePanelClass]"
+          >
+            <div class="flex items-start gap-3">
+              <span
+                class="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                :class="getActivityIconClass(activity.action)"
+              >
+                <component :is="getActivityIcon(activity.action)" class="h-4 w-4" />
+              </span>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <p class="text-sm font-semibold" :class="[primaryTextClass]">
+                      {{ getActivityTitle(activity.action) }}
+                    </p>
+                    <p class="mt-1 text-sm" :class="[mutedTextClass]">
+                      {{ getActivityDescription(activity) }}
+                    </p>
+                  </div>
+                  <span
+                    class="inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-medium"
+                    :class="[isDarkMode ? 'bg-gray-800 text-gray-300' : 'bg-white text-gray-600']"
+                  >
+                    {{ getActivityTargetTypeTitle(activity.targetTypeValue) }}
+                  </span>
+                </div>
+                <div
+                  class="mt-3 flex flex-wrap items-center gap-2 text-xs"
+                  :class="[mutedTextClass]"
+                >
+                  <span>{{ formatCreatedAt(activity.createdAtValue) }}</span>
+                  <span v-if="activity.count > 1"
+                    >· {{ activity.count }} {{ t('common.files') }}</span
+                  >
+                  <span v-if="activity.targetId ?? activity.target_id">
+                    · ID {{ activity.targetId ?? activity.target_id }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </SideDrawer>
 </template>
 
 <script setup lang="ts">
@@ -429,14 +669,17 @@ import {
   FileTextIcon,
   HardDriveIcon,
   HistoryIcon,
+  ListFilterIcon,
   PencilIcon,
   RefreshCwIcon,
+  SearchIcon,
   ShieldCheckIcon,
   SlidersHorizontalIcon,
   TrashIcon,
   UploadCloudIcon
 } from 'lucide-vue-next'
 import StatCard from '@/components/common/StatCard.vue'
+import SideDrawer from '@/components/common/SideDrawer.vue'
 import { useDashboardStats, useInjectedDarkMode } from '@/composables'
 import { useI18n } from 'vue-i18n'
 import { formatFileSize, formatTimestamp } from '@/utils/common'
@@ -446,10 +689,47 @@ import type { DashboardActivityViewItem, DashboardHealthAction } from '@/types'
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()
 const router = useRouter()
-const { dashboardData, errorMessage, fetchDashboardData, isLoading, lastUpdatedText } =
-  useDashboardStats({
-    loadFailedMessage: t('admin.dashboard.loadFailed')
-  })
+const {
+  activityActionOptions,
+  activityFilters,
+  activityTargetTypeOptions,
+  activityTimeline,
+  activityTimelineError,
+  activityTimelineStoredTotal,
+  activityTimelineTotal,
+  applyActivityFilters,
+  closeActivityTimeline,
+  dashboardData,
+  errorMessage,
+  fetchActivityTimeline,
+  fetchDashboardData,
+  hasActivityFilters,
+  isActivityTimelineLoading,
+  isActivityTimelineOpen,
+  isLoading,
+  lastUpdatedText,
+  openActivityTimeline,
+  resetActivityFilters
+} = useDashboardStats({
+  activityLoadFailedMessage: t('admin.dashboard.activityLoadFailed'),
+  loadFailedMessage: t('admin.dashboard.loadFailed')
+})
+
+const handleOpenActivityTimeline = () => {
+  void openActivityTimeline()
+}
+
+const handleApplyActivityFilters = () => {
+  void applyActivityFilters()
+}
+
+const handleResetActivityFilters = () => {
+  void resetActivityFilters()
+}
+
+const handleRefreshActivityTimeline = () => {
+  void fetchActivityTimeline()
+}
 
 const primaryTextClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-gray-900'))
 const mutedTextClass = computed(() => (isDarkMode.value ? 'text-gray-400' : 'text-gray-500'))
@@ -570,6 +850,12 @@ const getActivityTitle = (action: string) => {
   const key = `admin.dashboard.activityActions.${action}`
   const title = t(key)
   return title === key ? action : title
+}
+
+const getActivityTargetTypeTitle = (targetType: string) => {
+  const key = `admin.dashboard.activityTargetTypes.${targetType}`
+  const title = t(key)
+  return title === key ? targetType : title
 }
 
 const getActivityDescription = (activity: DashboardActivityViewItem) => {
