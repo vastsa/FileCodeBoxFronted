@@ -16,15 +16,62 @@ export interface FileListItem {
   size: number
   text?: string
   description?: string
-  expired_at: string
+  expired_at: string | null
   expired_count: number | null
   created_at: string
+  name?: string
+  type?: 'text' | 'file'
+  status?: 'active' | 'expired'
+  isText?: boolean
+  is_text?: boolean
+  isExpired?: boolean
+  is_expired?: boolean
+  isChunked?: boolean
+  is_chunked?: boolean
+  remainingDownloads?: number | null
+  remaining_downloads?: number | null
+  usedCount?: number
+  used_count?: number
+  fileHash?: string | null
+  file_hash?: string | null
 }
 
 export interface AdminFileViewItem extends FileListItem {
+  displayName: string
   displaySize: string
   displayExpiredAt: string
+  displayUsage: string
+  isTextFile: boolean
+  isExpiredFile: boolean
+  isChunkedFile: boolean
+  remainingDownloadsValue: number | null
   canPreviewText: boolean
+}
+
+export interface AdminFileSummary {
+  totalFiles: number
+  activeCount: number
+  expiredCount: number
+  textCount: number
+  fileCount: number
+  chunkedCount: number
+  storageUsed: number
+  usedCount: number
+}
+
+export type AdminFileStatusFilter = 'all' | 'active' | 'expired'
+export type AdminFileTypeFilter = 'all' | 'file' | 'text' | 'chunked'
+export type AdminFileSortBy = 'created_at' | 'expired_at' | 'name' | 'size' | 'used_count' | 'code'
+export type AdminFileSortOrder = 'asc' | 'desc'
+
+export interface AdminFileListParams {
+  page: number
+  size: number
+  keyword?: string
+  status?: AdminFileStatusFilter
+  type?: AdminFileTypeFilter
+  sortBy?: AdminFileSortBy
+  sortOrder?: AdminFileSortOrder
 }
 
 export interface FileEditForm {
@@ -41,6 +88,7 @@ export interface FileListResponse {
   total: number
   page: number
   size: number
+  summary?: AdminFileSummary
 }
 
 export interface FileUploadResponse {

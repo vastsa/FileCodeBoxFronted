@@ -7,6 +7,7 @@ import type {
   ChunkUploadInitResponse,
   ChunkUploadResponse,
   FileEditForm,
+  AdminFileListParams,
   FileInfo,
   FileListResponse,
   FileUploadResponse,
@@ -116,11 +117,9 @@ export class FileService {
     return response.data
   }
 
-  static async getAdminFileList(params: {
-    page: number
-    size: number
-    keyword?: string
-  }): Promise<ApiResponse<FileListResponse>> {
+  static async getAdminFileList(
+    params: AdminFileListParams
+  ): Promise<ApiResponse<FileListResponse>> {
     return api.get('/admin/file/list', { params })
   }
 
