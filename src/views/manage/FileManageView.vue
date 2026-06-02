@@ -634,6 +634,67 @@
           </button>
         </div>
 
+        <section class="space-y-3 rounded-lg border px-4 py-4" :class="[subtleSectionClass]">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h4 class="text-sm font-semibold" :class="[primaryTextClass]">
+                {{ t('fileManage.metadataInfo') }}
+              </h4>
+              <p class="mt-1 text-xs" :class="[mutedTextClass]">
+                {{ t('fileManage.metadataHint') }}
+              </p>
+            </div>
+            <BaseButton
+              size="sm"
+              :loading="isDetailMetadataSaving"
+              :disabled="isDetailLoading"
+              @click="updateDetailMetadata"
+            >
+              <template #icon>
+                <CheckIcon class="mr-2 h-4 w-4" />
+              </template>
+              {{ t('fileManage.saveMetadata') }}
+            </BaseButton>
+          </div>
+
+          <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(220px,0.55fr)]">
+            <label class="space-y-1">
+              <span class="text-xs font-medium" :class="[mutedTextClass]">
+                {{ t('fileManage.metadataNote') }}
+              </span>
+              <textarea
+                v-model="detailMetadataForm.note"
+                rows="4"
+                maxlength="2000"
+                class="w-full resize-y rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+                :class="[fieldClass]"
+                :placeholder="t('fileManage.metadataNotePlaceholder')"
+              ></textarea>
+            </label>
+            <label class="space-y-1">
+              <span class="text-xs font-medium" :class="[mutedTextClass]">
+                {{ t('fileManage.metadataTags') }}
+              </span>
+              <input
+                v-model="detailMetadataForm.tagsText"
+                type="text"
+                class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+                :class="[fieldClass]"
+                :placeholder="t('fileManage.metadataTagsPlaceholder')"
+              />
+              <span class="block text-xs" :class="[mutedTextClass]">
+                {{
+                  selectedFileDetail.metadataUpdatedAt
+                    ? t('fileManage.metadataUpdatedAt', {
+                        time: formatMetadataUpdatedAt(selectedFileDetail.metadataUpdatedAt)
+                      })
+                    : t('fileManage.metadataNeverUpdated')
+                }}
+              </span>
+            </label>
+          </div>
+        </section>
+
         <section
           class="rounded-lg border px-4 py-4"
           :class="getInsightPanelClass(selectedFileDetail.statusInsightSeverity)"
@@ -1082,6 +1143,7 @@ import FileEditField from '@/components/common/FileEditField.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { useAdminFiles, useInjectedDarkMode } from '@/composables'
+import { formatTimestamp } from '@/utils/common'
 
 const { t } = useI18n()
 const isDarkMode = useInjectedDarkMode()
@@ -1112,12 +1174,14 @@ const {
   isBatchUpdating,
   isCurrentPagePartiallySelected,
   isDetailLoading,
+  isDetailMetadataSaving,
   isDetailPolicyActionRunning,
   isPreviewLoading,
   isSaving,
   batchEditForm,
   batchPolicyActionOptions,
   detailPolicyActionOptions,
+  detailMetadataForm,
   downloadingFileId,
   healthFilterOptions,
   hasSelectedFiles,
@@ -1163,6 +1227,7 @@ const {
   setHealthFilter,
   setStatusFilter,
   setTypeFilter,
+  updateDetailMetadata,
   toggleCurrentPageSelection,
   toggleFileSelection
 } = useAdminFiles()
@@ -1187,6 +1252,9 @@ const detailPolicyActionClass = computed(() =>
     ? 'border-gray-700 bg-gray-800/70 text-gray-200 hover:border-blue-500/40 hover:bg-blue-500/10'
     : 'border-gray-200 bg-white text-gray-700 hover:border-blue-200 hover:bg-blue-50'
 )
+const subtleSectionClass = computed(() =>
+  isDarkMode.value ? 'border-gray-700 bg-gray-900/30' : 'border-gray-200 bg-gray-50'
+)
 
 type DetailInfoItem = {
   label: string
@@ -1200,6 +1268,7 @@ const formatDetailValue = (value: string | number | null | undefined) => {
   if (value === null || value === undefined || value === '') return emptyDetailValue
   return String(value)
 }
+const formatMetadataUpdatedAt = (value: string) => formatTimestamp(value)
 
 const detailOverviewItems = computed<DetailInfoItem[]>(() => {
   const file = selectedFileDetail.value

@@ -133,6 +133,19 @@ export interface AdminFilePolicyActionRequest {
   download_limit?: number
 }
 
+export interface AdminFileMetadata {
+  note: string
+  tags: string[]
+  updatedAt?: string | null
+  updated_at?: string | null
+}
+
+export interface AdminFileMetadataRequest {
+  id: number
+  note?: string
+  tags?: string[]
+}
+
 export interface FileListResponse {
   data: FileListItem[]
   total: number
@@ -250,6 +263,12 @@ export interface AdminFileDetailResponse extends FileListItem {
   upload_id?: string | null
   policy?: AdminFileDetailPolicy
   storage?: AdminFileDetailStorage
+  metadata?: AdminFileMetadata
+  meta?: AdminFileMetadata
+  note?: string
+  tags?: string[]
+  metadataUpdatedAt?: string | null
+  metadata_updated_at?: string | null
   statusInsights?: AdminFileDetailStatusInsights
   status_insights?: AdminFileDetailStatusInsights
   timeline?: AdminFileDetailTimelineItem[]
@@ -269,6 +288,9 @@ export interface AdminFileDetailViewItem extends AdminFileViewItem {
   filePathValue?: string | null
   uuidFileNameValue?: string | null
   uploadIdValue?: string | null
+  metadataNote: string
+  metadataTags: string[]
+  metadataUpdatedAt: string | null
   statusInsightMetrics?: AdminFileDetailInsightMetrics
   detailTimeline: AdminFileDetailTimelineViewItem[]
 }

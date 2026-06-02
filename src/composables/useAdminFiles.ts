@@ -12,6 +12,7 @@ import type {
   AdminFileDetailResponse,
   AdminFileDetailTimelineItem,
   AdminFileDetailViewItem,
+  AdminFileMetadataRequest,
   AdminFileInsightSeverity,
   AdminFilePatchPayload,
   AdminFileHealthFilter,
@@ -97,6 +98,13 @@ const emptyBatchEditForm = (): AdminBatchEditForm => ({
   expired_count: null
 })
 
+const metadataTagSeparatorPattern = /[,，\n]+/
+
+const emptyDetailMetadataForm = () => ({
+  note: '',
+  tagsText: ''
+})
+
 const padDatePart = (value: number) => String(value).padStart(2, '0')
 
 const formatLocalDateTime = (date: Date) => {
@@ -151,6 +159,8 @@ export function useAdminFiles() {
   const selectedFileDetail = ref<AdminFileDetailViewItem | null>(null)
   const isDetailLoading = ref(false)
   const isDetailPolicyActionRunning = ref(false)
+  const isDetailMetadataSaving = ref(false)
+  const detailMetadataForm = ref(emptyDetailMetadataForm())
   const downloadingFileId = ref<number | null>(null)
   const selectedFileIds = ref<Set<number>>(new Set())
   const isBatchDeleting = ref(false)
@@ -460,6 +470,14 @@ export function useAdminFiles() {
       }
     })
 
+  const normalizeMetadataTags = (tags: string[] | undefined) =>
+    Array.isArray(tags) ? tags.map((tag) => String(tag).trim()).filter(Boolean) : []
+
+  const parseMetadataTags = (value: string) =>
+    normalizeMetadataTags(value.split(metadataTagSeparatorPattern))
+
+  const formatMetadataTags = (tags: string[]) => normalizeMetadataTags(tags).join(', ')
+
   const createFileDetailViewItem = (
     file: FileListItem | AdminFileDetailResponse
   ): AdminFileDetailViewItem => {
@@ -511,6 +529,15 @@ export function useAdminFiles() {
       (viewItem.isExpiredFile ? 'expired' : isPermanentFile ? 'permanent' : 'available')
     const statusInsightNextAction =
       statusInsights?.nextAction ?? statusInsights?.next_action ?? 'monitor'
+    const metadata = detail.metadata ?? detail.meta
+    const metadataNote = detail.note ?? metadata?.note ?? ''
+    const metadataTags = normalizeMetadataTags(detail.tags ?? metadata?.tags)
+    const metadataUpdatedAt =
+      detail.metadataUpdatedAt ??
+      detail.metadata_updated_at ??
+      metadata?.updatedAt ??
+      metadata?.updated_at ??
+      null
 
     return {
       ...viewItem,
@@ -535,6 +562,9 @@ export function useAdminFiles() {
         detail.uuidFileName ??
         detail.uuid_file_name,
       uploadIdValue: storage?.uploadId ?? storage?.upload_id ?? detail.uploadId ?? detail.upload_id,
+      metadataNote,
+      metadataTags,
+      metadataUpdatedAt,
       statusInsightSeverity: normalizeInsightSeverity(statusInsights?.severity),
       statusInsightState,
       statusInsightNextAction,
@@ -542,6 +572,19 @@ export function useAdminFiles() {
       statusInsightMetrics: statusInsights?.metrics,
       detailTimeline: createTimelineViewItems(detail.timeline || [])
     }
+  }
+
+  const syncDetailMetadataForm = (file: AdminFileDetailViewItem | null) => {
+    detailMetadataForm.value = {
+      note: file?.metadataNote || '',
+      tagsText: file ? formatMetadataTags(file.metadataTags) : ''
+    }
+  }
+
+  const setSelectedFileDetail = (file: FileListItem | AdminFileDetailResponse) => {
+    const nextFile = createFileDetailViewItem(file)
+    selectedFileDetail.value = nextFile
+    syncDetailMetadataForm(nextFile)
   }
 
   const syncSelectedFilesWithCurrentPage = () => {
@@ -725,19 +768,19 @@ export function useAdminFiles() {
 
   const refreshSelectedFileDetail = async (fileId: number, detail?: AdminFileDetailResponse) => {
     if (detail) {
-      selectedFileDetail.value = createFileDetailViewItem(detail)
+      setSelectedFileDetail(detail)
       return
     }
 
     const fallbackFile = tableData.value.find((file) => file.id === fileId)
     if (fallbackFile) {
-      selectedFileDetail.value = createFileDetailViewItem(fallbackFile)
+      setSelectedFileDetail(fallbackFile)
     }
 
     try {
       const response = await FileService.getAdminFileDetail(fileId)
       if (response.detail) {
-        selectedFileDetail.value = createFileDetailViewItem(response.detail)
+        setSelectedFileDetail(response.detail)
       }
     } catch (error: unknown) {
       if (!isLegacyEndpointUnavailable(error)) {
@@ -1146,14 +1189,14 @@ export function useAdminFiles() {
 
   const openFileDetail = async (file: AdminFileViewItem) => {
     const requestSerial = ++detailRequestSerial
-    selectedFileDetail.value = createFileDetailViewItem(file)
+    setSelectedFileDetail(file)
     showFileDetailModal.value = true
     isDetailLoading.value = true
 
     try {
       const response = await FileService.getAdminFileDetail(file.id)
       if (response.detail && requestSerial === detailRequestSerial) {
-        selectedFileDetail.value = createFileDetailViewItem(response.detail)
+        setSelectedFileDetail(response.detail)
       }
     } catch (error: unknown) {
       if (isLegacyEndpointUnavailable(error)) return
@@ -1196,10 +1239,37 @@ export function useAdminFiles() {
     }
   }
 
+  const updateDetailMetadata = async () => {
+    const file = selectedFileDetail.value
+    if (!file || isDetailMetadataSaving.value) return
+
+    const payload: AdminFileMetadataRequest = {
+      id: file.id,
+      note: detailMetadataForm.value.note,
+      tags: parseMetadataTags(detailMetadataForm.value.tagsText)
+    }
+
+    isDetailMetadataSaving.value = true
+    try {
+      const response = await FileService.updateAdminFileMetadata(payload)
+      if (response.detail) {
+        setSelectedFileDetail(response.detail)
+      } else {
+        await refreshSelectedFileDetail(file.id)
+      }
+      alertStore.showAlert(t('fileManage.metadataSaveSuccess'), 'success')
+    } catch (error: unknown) {
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.metadataSaveFailed')), 'error')
+    } finally {
+      isDetailMetadataSaving.value = false
+    }
+  }
+
   const closeFileDetail = () => {
     detailRequestSerial += 1
     showFileDetailModal.value = false
     selectedFileDetail.value = null
+    syncDetailMetadataForm(null)
     isDetailLoading.value = false
   }
 
@@ -1268,12 +1338,14 @@ export function useAdminFiles() {
     isBatchUpdating,
     isCurrentPagePartiallySelected,
     isDetailLoading,
+    isDetailMetadataSaving,
     isDetailPolicyActionRunning,
     isPreviewLoading,
     isSaving,
     batchEditForm,
     batchPolicyActionOptions,
     detailPolicyActionOptions,
+    detailMetadataForm,
     downloadingFileId,
     healthFilterOptions,
     hasSelectedFiles,
@@ -1320,6 +1392,7 @@ export function useAdminFiles() {
     setHealthFilter,
     setStatusFilter,
     setTypeFilter,
+    updateDetailMetadata,
     toggleCurrentPageSelection,
     toggleFileSelection
   }

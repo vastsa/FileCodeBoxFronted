@@ -488,6 +488,18 @@ export default {
     batchPolicyActionFailed: 'Batch policy action failed',
     policyActionSuccess: 'File policy updated',
     policyActionFailed: 'Failed to apply policy action',
+    metadataInfo: 'Operations Notes',
+    metadataHint:
+      'Visible to admins only. Use it for handling notes, archive tags, and follow-up actions.',
+    metadataNote: 'Note',
+    metadataNotePlaceholder: 'Record context, handling history, or ownership...',
+    metadataTags: 'Tags',
+    metadataTagsPlaceholder: 'Comma-separated, e.g. Client A, Renew, Important',
+    metadataUpdatedAt: 'Last saved: {time}',
+    metadataNeverUpdated: 'No notes saved yet',
+    saveMetadata: 'Save Notes',
+    metadataSaveSuccess: 'Notes and tags saved',
+    metadataSaveFailed: 'Failed to save notes',
     policyActions: {
       extend24h: 'Extend 24h',
       extend7d: 'Extend 7d',

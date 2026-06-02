@@ -9,6 +9,7 @@ import type {
   AdminFilePatchPayload,
   AdminFileDetailResponse,
   AdminFileListParams,
+  AdminFileMetadataRequest,
   AdminFilePolicyActionRequest,
   AdminFilePreviewResponse,
   ApiResponse,
@@ -172,6 +173,20 @@ export class FileService {
       }
 
       return api.post('/admin/file/batch-policy-action', data)
+    }
+  }
+
+  static async updateAdminFileMetadata(
+    data: AdminFileMetadataRequest
+  ): Promise<ApiResponse<AdminFileDetailResponse>> {
+    try {
+      return await api.patch('/admin/file/metadata', data)
+    } catch (error: unknown) {
+      if (!isMethodFallbackError(error)) {
+        throw error
+      }
+
+      return api.post('/admin/file/metadata', data)
     }
   }
 
