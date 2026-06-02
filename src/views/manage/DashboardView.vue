@@ -122,6 +122,31 @@
           />
         </div>
 
+        <div class="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <button
+            v-for="action in healthActions"
+            :key="action.key"
+            type="button"
+            class="group flex min-h-28 flex-col justify-between rounded-lg border p-4 text-left transition-colors"
+            :class="getHealthActionClass(action.tone)"
+            @click="openHealthQueue(action.health)"
+          >
+            <span class="flex items-start justify-between gap-3">
+              <span>
+                <span class="block text-2xl font-semibold">{{ action.count }}</span>
+                <span class="mt-1 block text-sm font-medium">{{ action.label }}</span>
+              </span>
+              <component :is="getHealthActionIcon(action.tone)" class="h-5 w-5 shrink-0" />
+            </span>
+            <span class="mt-3 flex items-center justify-between gap-2 text-xs">
+              <span class="line-clamp-2">{{ action.description }}</span>
+              <ArrowRightIcon
+                class="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+              />
+            </span>
+          </button>
+        </div>
+
         <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div class="rounded-lg border p-4" :class="[subtlePanelClass]">
             <p class="text-sm" :class="[mutedTextClass]">
@@ -337,24 +362,32 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, h, onMounted } from 'vue'
-import type { PropType } from 'vue'
+import type { Component, PropType } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   ActivityIcon,
+  AlertTriangleIcon,
+  ArrowRightIcon,
+  CheckCircleIcon,
   DownloadCloudIcon,
   FileIcon,
   FilesIcon,
   FileTextIcon,
   HardDriveIcon,
   RefreshCwIcon,
+  ShieldCheckIcon,
   UploadCloudIcon
 } from 'lucide-vue-next'
 import StatCard from '@/components/common/StatCard.vue'
 import { useDashboardStats, useInjectedDarkMode } from '@/composables'
 import { useI18n } from 'vue-i18n'
 import { formatFileSize, formatTimestamp } from '@/utils/common'
+import { ROUTES } from '@/constants'
+import type { DashboardHealthAction } from '@/types'
 
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()
+const router = useRouter()
 const { dashboardData, errorMessage, fetchDashboardData, isLoading, lastUpdatedText } =
   useDashboardStats({
     loadFailedMessage: t('admin.dashboard.loadFailed')
@@ -380,11 +413,87 @@ const maxSaveTimeText = computed(() => {
   return `${Math.floor(dashboardData.maxSaveSeconds / 60)}${t('common.minute')}`
 })
 
+const healthActions = computed<DashboardHealthAction[]>(() => [
+  {
+    key: 'attention',
+    label: t('admin.dashboard.healthActions.attention.title'),
+    description: t('admin.dashboard.healthActions.attention.description'),
+    count: dashboardData.healthAttentionCount,
+    health: 'attention',
+    tone: dashboardData.healthAttentionCount > 0 ? 'danger' : 'success'
+  },
+  {
+    key: 'storageIssue',
+    label: t('admin.dashboard.healthActions.storageIssue.title'),
+    description: t('admin.dashboard.healthActions.storageIssue.description'),
+    count: dashboardData.storageIssueCount,
+    health: 'storage_issue',
+    tone: dashboardData.storageIssueCount > 0 ? 'danger' : 'success'
+  },
+  {
+    key: 'expiringSoon',
+    label: t('admin.dashboard.healthActions.expiringSoon.title'),
+    description: t('admin.dashboard.healthActions.expiringSoon.description'),
+    count: dashboardData.expiringSoonCount,
+    health: 'expiring_soon',
+    tone: dashboardData.expiringSoonCount > 0 ? 'warning' : 'success'
+  },
+  {
+    key: 'neverRetrieved',
+    label: t('admin.dashboard.healthActions.neverRetrieved.title'),
+    description: t('admin.dashboard.healthActions.neverRetrieved.description'),
+    count: dashboardData.neverRetrievedCount,
+    health: 'never_retrieved',
+    tone: dashboardData.neverRetrievedCount > 0 ? 'neutral' : 'success'
+  },
+  {
+    key: 'permanent',
+    label: t('admin.dashboard.healthActions.permanent.title'),
+    description: t('admin.dashboard.healthActions.permanent.description'),
+    count: dashboardData.permanentCount,
+    health: 'permanent',
+    tone: 'success'
+  }
+])
+
 const getSuffixRatio = (count: number) => Math.round((count / maxSuffixCount.value) * 100)
 
 const formatCreatedAt = (value: string | null) => {
   if (!value) return '-'
   return formatTimestamp(value, 'datetime')
+}
+
+const healthActionIconMap: Record<DashboardHealthAction['tone'], Component> = {
+  danger: AlertTriangleIcon,
+  warning: AlertTriangleIcon,
+  success: CheckCircleIcon,
+  neutral: ShieldCheckIcon
+}
+
+const getHealthActionIcon = (tone: DashboardHealthAction['tone']) => healthActionIconMap[tone]
+
+const getHealthActionClass = (tone: DashboardHealthAction['tone']) => {
+  const darkClasses: Record<DashboardHealthAction['tone'], string> = {
+    danger: 'border-red-500/20 bg-red-500/10 text-red-200 hover:border-red-400/40',
+    warning: 'border-amber-500/20 bg-amber-500/10 text-amber-200 hover:border-amber-400/40',
+    success: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-200 hover:border-emerald-400/40',
+    neutral: 'border-gray-700 bg-gray-900/30 text-gray-300 hover:border-gray-600'
+  }
+  const lightClasses: Record<DashboardHealthAction['tone'], string> = {
+    danger: 'border-red-100 bg-red-50 text-red-700 hover:border-red-200',
+    warning: 'border-amber-100 bg-amber-50 text-amber-700 hover:border-amber-200',
+    success: 'border-emerald-100 bg-emerald-50 text-emerald-700 hover:border-emerald-200',
+    neutral: 'border-gray-100 bg-gray-50 text-gray-700 hover:border-gray-200'
+  }
+
+  return isDarkMode.value ? darkClasses[tone] : lightClasses[tone]
+}
+
+const openHealthQueue = (health: DashboardHealthAction['health']) => {
+  void router.push({
+    path: ROUTES.FILE_MANAGE,
+    query: { health }
+  })
 }
 
 const MetricProgress = defineComponent({

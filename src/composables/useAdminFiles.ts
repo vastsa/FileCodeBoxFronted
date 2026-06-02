@@ -46,6 +46,8 @@ const emptySummary = (): AdminFileSummary => ({
   expiringSoonCount: 0,
   storageIssueCount: 0,
   neverRetrievedCount: 0,
+  healthyCount: 0,
+  permanentCount: 0,
   storageUsed: 0,
   usedCount: 0
 })
@@ -219,7 +221,12 @@ export function useAdminFiles() {
     {
       value: 'healthy',
       label: t('fileManage.healthFilters.healthy'),
-      count: Math.max(summary.value.totalFiles - summary.value.healthAttentionCount, 0)
+      count: summary.value.healthyCount
+    },
+    {
+      value: 'permanent',
+      label: t('fileManage.healthFilters.permanent'),
+      count: summary.value.permanentCount
     }
   ])
 
@@ -305,12 +312,48 @@ export function useAdminFiles() {
     neverRetrievedCount: files.filter((file) =>
       file.statusInsightReasons.includes('never_retrieved')
     ).length,
+    healthyCount: files.filter((file) => file.statusInsightSeverity === 'success').length,
+    permanentCount: files.filter((file) => file.statusInsightState === 'permanent').length,
     storageUsed: files.reduce((totalSize, file) => totalSize + normalizeCount(file.size), 0),
     usedCount: files.reduce(
       (totalUsed, file) => totalUsed + normalizeCount(file.usedCount ?? file.used_count),
       0
     )
   })
+
+  const normalizeSummary = (
+    rawSummary: Partial<AdminFileSummary> | undefined,
+    files: AdminFileViewItem[],
+    total: number
+  ): AdminFileSummary => {
+    const fallback = buildFallbackSummary(files, total)
+    if (!rawSummary) return fallback
+
+    return {
+      totalFiles: normalizeCount(rawSummary.totalFiles ?? fallback.totalFiles),
+      activeCount: normalizeCount(rawSummary.activeCount ?? fallback.activeCount),
+      expiredCount: normalizeCount(rawSummary.expiredCount ?? fallback.expiredCount),
+      textCount: normalizeCount(rawSummary.textCount ?? fallback.textCount),
+      fileCount: normalizeCount(rawSummary.fileCount ?? fallback.fileCount),
+      chunkedCount: normalizeCount(rawSummary.chunkedCount ?? fallback.chunkedCount),
+      healthAttentionCount: normalizeCount(
+        rawSummary.healthAttentionCount ?? fallback.healthAttentionCount
+      ),
+      healthDangerCount: normalizeCount(rawSummary.healthDangerCount ?? fallback.healthDangerCount),
+      healthWarningCount: normalizeCount(
+        rawSummary.healthWarningCount ?? fallback.healthWarningCount
+      ),
+      expiringSoonCount: normalizeCount(rawSummary.expiringSoonCount ?? fallback.expiringSoonCount),
+      storageIssueCount: normalizeCount(rawSummary.storageIssueCount ?? fallback.storageIssueCount),
+      neverRetrievedCount: normalizeCount(
+        rawSummary.neverRetrievedCount ?? fallback.neverRetrievedCount
+      ),
+      healthyCount: normalizeCount(rawSummary.healthyCount ?? fallback.healthyCount),
+      permanentCount: normalizeCount(rawSummary.permanentCount ?? fallback.permanentCount),
+      storageUsed: normalizeCount(rawSummary.storageUsed ?? fallback.storageUsed),
+      usedCount: normalizeCount(rawSummary.usedCount ?? fallback.usedCount)
+    }
+  }
 
   const normalizeInsightSeverity = (
     severity: AdminFileInsightSeverity | undefined
@@ -684,7 +727,7 @@ export function useAdminFiles() {
 
       tableData.value = res.detail.data.map(createFileViewItem)
       params.value.total = res.detail.total
-      summary.value = res.detail.summary || buildFallbackSummary(tableData.value, res.detail.total)
+      summary.value = normalizeSummary(res.detail.summary, tableData.value, res.detail.total)
       syncSelectedFilesWithCurrentPage()
     } catch (error) {
       hasLoadError.value = true

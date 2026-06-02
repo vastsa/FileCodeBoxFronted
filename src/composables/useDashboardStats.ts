@@ -1,6 +1,6 @@
 import { computed, ref, reactive } from 'vue'
 import { StatsService } from '@/services'
-import type { DashboardViewData } from '@/types'
+import type { DashboardData, DashboardHealthSummary, DashboardViewData } from '@/types'
 import { formatFileSize, getErrorMessage } from '@/utils/common'
 
 type UseDashboardStatsOptions = {
@@ -27,6 +27,14 @@ const emptyDashboardData = (): DashboardViewData => ({
   openUpload: 0,
   enableChunk: 0,
   maxSaveSeconds: 0,
+  healthAttentionCount: 0,
+  healthDangerCount: 0,
+  healthWarningCount: 0,
+  expiringSoonCount: 0,
+  storageIssueCount: 0,
+  neverRetrievedCount: 0,
+  healthyCount: 0,
+  permanentCount: 0,
   topSuffixes: [],
   recentFiles: [],
   storageUsedText: '0 Bytes',
@@ -37,6 +45,8 @@ const emptyDashboardData = (): DashboardViewData => ({
   activeRatio: 0,
   textRatio: 0,
   fileRatio: 0,
+  healthyRatio: 0,
+  healthAttentionRatio: 0,
   todaySizeRatio: 0
 })
 
@@ -61,6 +71,34 @@ const normalizeRecentFiles = (recentFiles: DashboardViewData['recentFiles']) =>
     expiredCount: toNumber(file.expiredCount),
     usedCount: toNumber(file.usedCount)
   }))
+
+const healthSummaryKeys: (keyof DashboardHealthSummary)[] = [
+  'healthAttentionCount',
+  'healthDangerCount',
+  'healthWarningCount',
+  'expiringSoonCount',
+  'storageIssueCount',
+  'neverRetrievedCount',
+  'healthyCount',
+  'permanentCount'
+]
+
+const normalizeHealthSummary = (detail: DashboardData): DashboardHealthSummary => ({
+  healthAttentionCount: toNumber(
+    detail.healthSummary?.healthAttentionCount ?? detail.healthAttentionCount
+  ),
+  healthDangerCount: toNumber(detail.healthSummary?.healthDangerCount ?? detail.healthDangerCount),
+  healthWarningCount: toNumber(
+    detail.healthSummary?.healthWarningCount ?? detail.healthWarningCount
+  ),
+  expiringSoonCount: toNumber(detail.healthSummary?.expiringSoonCount ?? detail.expiringSoonCount),
+  storageIssueCount: toNumber(detail.healthSummary?.storageIssueCount ?? detail.storageIssueCount),
+  neverRetrievedCount: toNumber(
+    detail.healthSummary?.neverRetrievedCount ?? detail.neverRetrievedCount
+  ),
+  healthyCount: toNumber(detail.healthSummary?.healthyCount ?? detail.healthyCount),
+  permanentCount: toNumber(detail.healthSummary?.permanentCount ?? detail.permanentCount)
+})
 
 export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
   const dashboardData = reactive<DashboardViewData>(emptyDashboardData())
@@ -103,6 +141,10 @@ export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
       dashboardData.openUpload = toNumber(detail.openUpload)
       dashboardData.enableChunk = toNumber(detail.enableChunk)
       dashboardData.maxSaveSeconds = toNumber(detail.maxSaveSeconds)
+      const healthSummary = normalizeHealthSummary(detail)
+      healthSummaryKeys.forEach((key) => {
+        dashboardData[key] = healthSummary[key]
+      })
       dashboardData.topSuffixes = detail.topSuffixes || []
       dashboardData.recentFiles = normalizeRecentFiles(detail.recentFiles || [])
 
@@ -119,6 +161,12 @@ export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
         : 0
       dashboardData.fileRatio = dashboardData.totalFiles
         ? clampRatio((dashboardData.fileCount / dashboardData.totalFiles) * 100)
+        : 0
+      dashboardData.healthyRatio = dashboardData.totalFiles
+        ? clampRatio((dashboardData.healthyCount / dashboardData.totalFiles) * 100)
+        : 0
+      dashboardData.healthAttentionRatio = dashboardData.totalFiles
+        ? clampRatio((dashboardData.healthAttentionCount / dashboardData.totalFiles) * 100)
         : 0
       dashboardData.todaySizeRatio = dashboardData.uploadSizeLimit
         ? clampRatio((dashboardData.todaySize / dashboardData.uploadSizeLimit) * 100)

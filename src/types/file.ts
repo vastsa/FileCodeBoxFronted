@@ -69,6 +69,8 @@ export interface AdminFileSummary {
   expiringSoonCount: number
   storageIssueCount: number
   neverRetrievedCount: number
+  healthyCount: number
+  permanentCount: number
   storageUsed: number
   usedCount: number
 }

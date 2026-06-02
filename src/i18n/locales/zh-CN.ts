@@ -69,7 +69,7 @@ export default {
       lastUpdated: '最近更新：{time}',
       loadFailed: '仪表盘数据加载失败',
       fileHealth: '文件健康',
-      fileHealthDesc: '基于真实文件记录统计有效、过期和类型分布。',
+      fileHealthDesc: '基于状态洞察统计可取件、风险与待处理队列。',
       activeFileRatio: '有效占比',
       fileShareRatio: '文件占比',
       textShareRatio: '文本占比',
@@ -91,6 +91,28 @@ export default {
       recentFiles: '最近分享',
       recentFilesDesc: '最近创建的分享记录，便于快速核对状态。',
       available: '可取件',
+      healthActions: {
+        attention: {
+          title: '需关注',
+          description: '集中处理异常和预警文件'
+        },
+        storageIssue: {
+          title: '存储异常',
+          description: '检查缺少下载信息的文件'
+        },
+        expiringSoon: {
+          title: '即将过期',
+          description: '优先续期仍需保留的分享'
+        },
+        neverRetrieved: {
+          title: '未取件',
+          description: '识别创建后尚未被取件的记录'
+        },
+        permanent: {
+          title: '永久有效',
+          description: '查看长期保留的分享记录'
+        }
+      },
       table: {
         file: '文件',
         size: '大小',
@@ -408,7 +430,8 @@ export default {
       expiringSoon: '即将过期',
       storageIssue: '存储异常',
       neverRetrieved: '未取件',
-      healthy: '健康'
+      healthy: '健康',
+      permanent: '永久有效'
     },
     sortBy: '排序',
     unlimited: '不限次数',

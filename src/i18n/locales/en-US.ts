@@ -69,7 +69,7 @@ export default {
       lastUpdated: 'Last updated: {time}',
       loadFailed: 'Failed to load dashboard data',
       fileHealth: 'File Health',
-      fileHealthDesc: 'Real file records grouped by availability, expiry, and type.',
+      fileHealthDesc: 'Status insights for available, risky, and pending file queues.',
       activeFileRatio: 'Active Ratio',
       fileShareRatio: 'File Ratio',
       textShareRatio: 'Text Ratio',
@@ -91,6 +91,28 @@ export default {
       recentFiles: 'Recent Shares',
       recentFilesDesc: 'Recently created share records for quick status checks.',
       available: 'Available',
+      healthActions: {
+        attention: {
+          title: 'Needs Attention',
+          description: 'Handle issue and warning files together'
+        },
+        storageIssue: {
+          title: 'Storage Issues',
+          description: 'Review files missing download metadata'
+        },
+        expiringSoon: {
+          title: 'Expiring Soon',
+          description: 'Extend shares that should stay available'
+        },
+        neverRetrieved: {
+          title: 'Never Retrieved',
+          description: 'Find shares that have not been retrieved yet'
+        },
+        permanent: {
+          title: 'Permanent',
+          description: 'View long-retention share records'
+        }
+      },
       table: {
         file: 'File',
         size: 'Size',
@@ -410,7 +432,8 @@ export default {
       expiringSoon: 'Expiring Soon',
       storageIssue: 'Storage Issues',
       neverRetrieved: 'Never Retrieved',
-      healthy: 'Healthy'
+      healthy: 'Healthy',
+      permanent: 'Permanent'
     },
     sortBy: 'Sort',
     unlimited: 'Unlimited',

@@ -20,7 +20,7 @@
           v-if="hasActiveFilters"
           variant="outline"
           :disabled="isLoading"
-          @click="resetFilters"
+          @click="handleResetFilters"
         >
           <template #icon>
             <XIcon class="mr-2 h-4 w-4" />
@@ -109,7 +109,7 @@
               type="button"
               class="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
               :class="getHealthFilterClass(option.value)"
-              @click="setHealthFilter(option.value)"
+              @click="handleHealthFilterChange(option.value)"
             >
               <span>{{ option.label }}</span>
               <span v-if="typeof option.count === 'number'">({{ option.count }})</span>
@@ -262,7 +262,7 @@
                 v-if="hasActiveFilters"
                 class="mt-4"
                 variant="secondary"
-                @click="resetFilters"
+                @click="handleResetFilters"
               >
                 <template #icon>
                   <XIcon class="mr-2 h-4 w-4" />
@@ -1027,8 +1027,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, type Component } from 'vue'
+import { computed, onMounted, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import type {
   AdminBatchEditMode,
   AdminFileHealthFilter,
@@ -1069,6 +1070,8 @@ import { useAdminFiles, useInjectedDarkMode } from '@/composables'
 
 const { t } = useI18n()
 const isDarkMode = useInjectedDarkMode()
+const route = useRoute()
+const router = useRouter()
 
 const fileTableHeaders = computed(() => [
   t('fileManage.headers.select'),
@@ -1348,6 +1351,47 @@ const sortOrderOptions = computed<{ value: AdminFileSortOrder; label: string }[]
   { value: 'asc', label: t('fileManage.sort.asc') }
 ])
 
+const healthFilterValues: AdminFileHealthFilter[] = [
+  'all',
+  'attention',
+  'danger',
+  'warning',
+  'healthy',
+  'expired',
+  'expiring_soon',
+  'storage_issue',
+  'never_retrieved',
+  'permanent'
+]
+
+const getRouteHealthFilter = (): AdminFileHealthFilter => {
+  const health = route.query.health
+  if (typeof health === 'string' && healthFilterValues.includes(health as AdminFileHealthFilter)) {
+    return health as AdminFileHealthFilter
+  }
+  return 'all'
+}
+
+const syncHealthFilterQuery = async (health: AdminFileHealthFilter) => {
+  const query = { ...route.query }
+  if (health === 'all') {
+    delete query.health
+  } else {
+    query.health = health
+  }
+  await router.replace({ query })
+}
+
+const handleHealthFilterChange = async (health: AdminFileHealthFilter) => {
+  await setHealthFilter(health)
+  await syncHealthFilterQuery(health)
+}
+
+const handleResetFilters = async () => {
+  await resetFilters()
+  await syncHealthFilterQuery('all')
+}
+
 const batchEditModeOptions = computed<
   { value: AdminBatchEditMode; label: string; icon: Component }[]
 >(() => [
@@ -1484,7 +1528,17 @@ const getTimelineDotClass = (severity: AdminFileInsightSeverity) => {
   return classes[severity]
 }
 
+watch(
+  () => route.query.health,
+  async () => {
+    const health = getRouteHealthFilter()
+    if (params.value.health === health) return
+    await setHealthFilter(health)
+  }
+)
+
 onMounted(() => {
+  params.value.health = getRouteHealthFilter()
   void loadFiles()
 })
 </script>
