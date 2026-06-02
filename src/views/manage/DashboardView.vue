@@ -222,7 +222,7 @@
       </section>
     </div>
 
-    <div v-if="dashboardData.hasExtendedStats" class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
+    <div v-if="dashboardData.hasExtendedStats" class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-4">
       <section class="rounded-lg p-5 shadow-sm" :class="[panelClass]">
         <h3 class="text-lg font-semibold" :class="[primaryTextClass]">
           {{ t('admin.dashboard.fileTypeDistribution') }}
@@ -250,6 +250,59 @@
                 class="h-full rounded-full bg-purple-500"
                 :style="{ width: `${getSuffixRatio(item.count)}%` }"
               ></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-lg p-5 shadow-sm" :class="[panelClass]">
+        <div class="mb-4 flex items-start justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-semibold" :class="[primaryTextClass]">
+              {{ t('admin.dashboard.recentActivities') }}
+            </h3>
+            <p class="text-sm" :class="[mutedTextClass]">
+              {{ t('admin.dashboard.recentActivitiesDesc') }}
+            </p>
+          </div>
+          <HistoryIcon
+            class="h-5 w-5 shrink-0"
+            :class="[isDarkMode ? 'text-indigo-300' : 'text-indigo-500']"
+          />
+        </div>
+
+        <div
+          v-if="dashboardData.recentActivities.length === 0"
+          class="rounded-lg border px-4 py-6 text-center text-sm"
+          :class="[subtlePanelClass, mutedTextClass]"
+        >
+          {{ t('admin.dashboard.noActivities') }}
+        </div>
+        <div v-else class="space-y-3">
+          <div
+            v-for="activity in dashboardData.recentActivities"
+            :key="activity.id"
+            class="rounded-lg border px-3 py-3"
+            :class="[subtlePanelClass]"
+          >
+            <div class="flex items-start gap-3">
+              <span
+                class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                :class="getActivityIconClass(activity.action)"
+              >
+                <component :is="getActivityIcon(activity.action)" class="h-4 w-4" />
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium" :class="[primaryTextClass]">
+                  {{ getActivityTitle(activity.action) }}
+                </p>
+                <p class="mt-1 truncate text-xs" :class="[mutedTextClass]">
+                  {{ getActivityDescription(activity) }}
+                </p>
+                <p class="mt-2 text-xs" :class="[mutedTextClass]">
+                  {{ formatCreatedAt(activity.createdAtValue) }}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -369,13 +422,18 @@ import {
   AlertTriangleIcon,
   ArrowRightIcon,
   CheckCircleIcon,
+  ClockIcon,
   DownloadCloudIcon,
   FileIcon,
   FilesIcon,
   FileTextIcon,
   HardDriveIcon,
+  HistoryIcon,
+  PencilIcon,
   RefreshCwIcon,
   ShieldCheckIcon,
+  SlidersHorizontalIcon,
+  TrashIcon,
   UploadCloudIcon
 } from 'lucide-vue-next'
 import StatCard from '@/components/common/StatCard.vue'
@@ -383,7 +441,7 @@ import { useDashboardStats, useInjectedDarkMode } from '@/composables'
 import { useI18n } from 'vue-i18n'
 import { formatFileSize, formatTimestamp } from '@/utils/common'
 import { ROUTES } from '@/constants'
-import type { DashboardHealthAction } from '@/types'
+import type { DashboardActivityViewItem, DashboardHealthAction } from '@/types'
 
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()
@@ -461,6 +519,71 @@ const getSuffixRatio = (count: number) => Math.round((count / maxSuffixCount.val
 const formatCreatedAt = (value: string | null) => {
   if (!value) return '-'
   return formatTimestamp(value, 'datetime')
+}
+
+type ActivityTone = 'danger' | 'warning' | 'success' | 'neutral'
+
+const activityIconMap: Record<string, Component> = {
+  'file.delete': TrashIcon,
+  'files.batch_delete': TrashIcon,
+  'file.update': PencilIcon,
+  'files.batch_update': PencilIcon,
+  'file.policy_action': ClockIcon,
+  'files.batch_policy_action': ClockIcon,
+  'file.metadata_update': FileTextIcon,
+  'file.view_preset_create': SlidersHorizontalIcon,
+  'file.view_preset_update': SlidersHorizontalIcon,
+  'file.view_preset_delete': SlidersHorizontalIcon,
+  'config.update': SlidersHorizontalIcon,
+  'local_file.delete': TrashIcon,
+  'local_file.share': UploadCloudIcon
+}
+
+const getActivityIcon = (action: string) => activityIconMap[action] || HistoryIcon
+
+const getActivityTone = (action: string): ActivityTone => {
+  if (action.includes('delete')) return 'danger'
+  if (action.includes('policy') || action.includes('update')) return 'warning'
+  if (action.includes('share') || action.includes('create')) return 'success'
+  return 'neutral'
+}
+
+const getActivityIconClass = (action: string) => {
+  const tone = getActivityTone(action)
+  const darkClasses: Record<ActivityTone, string> = {
+    danger: 'bg-red-500/10 text-red-300',
+    warning: 'bg-amber-500/10 text-amber-300',
+    success: 'bg-emerald-500/10 text-emerald-300',
+    neutral: 'bg-gray-700 text-gray-300'
+  }
+  const lightClasses: Record<ActivityTone, string> = {
+    danger: 'bg-red-50 text-red-700',
+    warning: 'bg-amber-50 text-amber-700',
+    success: 'bg-emerald-50 text-emerald-700',
+    neutral: 'bg-gray-100 text-gray-700'
+  }
+
+  return isDarkMode.value ? darkClasses[tone] : lightClasses[tone]
+}
+
+const getActivityTitle = (action: string) => {
+  const key = `admin.dashboard.activityActions.${action}`
+  const title = t(key)
+  return title === key ? action : title
+}
+
+const getActivityDescription = (activity: DashboardActivityViewItem) => {
+  const targetName = activity.targetNameValue || t('admin.dashboard.activityUnknownTarget')
+  if (activity.count > 1) {
+    return t('admin.dashboard.activityBatchDescription', {
+      target: targetName,
+      count: activity.count
+    })
+  }
+
+  return t('admin.dashboard.activityDescription', {
+    target: targetName
+  })
 }
 
 const healthActionIconMap: Record<DashboardHealthAction['tone'], Component> = {

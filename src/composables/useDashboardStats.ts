@@ -1,6 +1,12 @@
 import { computed, ref, reactive } from 'vue'
 import { StatsService } from '@/services'
-import type { DashboardData, DashboardHealthSummary, DashboardViewData } from '@/types'
+import type {
+  DashboardActivity,
+  DashboardActivityViewItem,
+  DashboardData,
+  DashboardHealthSummary,
+  DashboardViewData
+} from '@/types'
 import { formatFileSize, getErrorMessage } from '@/utils/common'
 
 type UseDashboardStatsOptions = {
@@ -37,6 +43,7 @@ const emptyDashboardData = (): DashboardViewData => ({
   permanentCount: 0,
   topSuffixes: [],
   recentFiles: [],
+  recentActivities: [],
   storageUsedText: '0 Bytes',
   yesterdaySizeText: '0 Bytes',
   todaySizeText: '0 Bytes',
@@ -71,6 +78,20 @@ const normalizeRecentFiles = (recentFiles: DashboardViewData['recentFiles']) =>
     expiredCount: toNumber(file.expiredCount),
     usedCount: toNumber(file.usedCount)
   }))
+
+const normalizeRecentActivities = (
+  activities: DashboardActivity[] = []
+): DashboardActivityViewItem[] =>
+  activities
+    .filter((activity) => activity && activity.id && activity.action)
+    .map((activity) => ({
+      ...activity,
+      count: toNumber(activity.count) || 1,
+      targetTypeValue: activity.targetType ?? activity.target_type ?? 'system',
+      targetNameValue: activity.targetName ?? activity.target_name ?? '',
+      createdAtValue: activity.createdAt ?? activity.created_at ?? null,
+      meta: activity.meta && typeof activity.meta === 'object' ? activity.meta : {}
+    }))
 
 const healthSummaryKeys: (keyof DashboardHealthSummary)[] = [
   'healthAttentionCount',
@@ -147,6 +168,9 @@ export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
       })
       dashboardData.topSuffixes = detail.topSuffixes || []
       dashboardData.recentFiles = normalizeRecentFiles(detail.recentFiles || [])
+      dashboardData.recentActivities = normalizeRecentActivities(
+        detail.recentActivities ?? detail.recent_activities ?? []
+      )
 
       dashboardData.storageUsedText = formatFileSize(dashboardData.storageUsed)
       dashboardData.yesterdaySizeText = formatFileSize(dashboardData.yesterdaySize)

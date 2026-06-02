@@ -41,6 +41,8 @@ export interface DashboardData {
   healthSummary?: Partial<DashboardHealthSummary>
   topSuffixes?: DashboardSuffixStat[]
   recentFiles?: DashboardRecentFile[]
+  recentActivities?: DashboardActivity[]
+  recent_activities?: DashboardActivity[]
 }
 
 export interface DashboardSuffixStat {
@@ -62,6 +64,27 @@ export interface DashboardRecentFile {
   isExpired: boolean
 }
 
+export interface DashboardActivity {
+  id: string
+  action: string
+  targetType?: string
+  target_type?: string
+  targetId?: string | number | null
+  target_id?: string | number | null
+  targetName?: string
+  target_name?: string
+  count: number
+  meta?: Record<string, unknown>
+  createdAt?: string | null
+  created_at?: string | null
+}
+
+export interface DashboardActivityViewItem extends DashboardActivity {
+  targetTypeValue: string
+  targetNameValue: string
+  createdAtValue: string | null
+}
+
 export type DashboardViewData = Omit<
   DashboardData,
   | keyof DashboardHealthSummary
@@ -78,6 +101,8 @@ export type DashboardViewData = Omit<
   | 'maxSaveSeconds'
   | 'topSuffixes'
   | 'recentFiles'
+  | 'recentActivities'
+  | 'recent_activities'
   | 'storageUsed'
   | 'yesterdaySize'
   | 'todaySize'
@@ -97,6 +122,7 @@ export type DashboardViewData = Omit<
     maxSaveSeconds: number
     topSuffixes: DashboardSuffixStat[]
     recentFiles: DashboardRecentFile[]
+    recentActivities: DashboardActivityViewItem[]
     storageUsed: number
     yesterdaySize: number
     todaySize: number
