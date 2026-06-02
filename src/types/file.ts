@@ -118,6 +118,77 @@ export interface AdminFilePreviewResponse {
   expired_at?: string | null
 }
 
+export interface AdminFileDetailPolicy {
+  expiredAt?: string | null
+  expired_at?: string | null
+  expiredCount?: number | null
+  expired_count?: number | null
+  remainingDownloads?: number | null
+  remaining_downloads?: number | null
+  isExpired?: boolean
+  is_expired?: boolean
+  isPermanent?: boolean
+  is_permanent?: boolean
+}
+
+export interface AdminFileDetailStorage {
+  backend?: string
+  filePath?: string | null
+  file_path?: string | null
+  uuidFileName?: string | null
+  uuid_file_name?: string | null
+  fileHash?: string | null
+  file_hash?: string | null
+  isChunked?: boolean
+  is_chunked?: boolean
+  uploadId?: string | null
+  upload_id?: string | null
+}
+
+export interface AdminFileDetailResponse extends FileListItem {
+  filename?: string
+  displayName?: string
+  display_name?: string
+  isPermanent?: boolean
+  is_permanent?: boolean
+  hasDownloadLimit?: boolean
+  has_download_limit?: boolean
+  hasExpirationTime?: boolean
+  has_expiration_time?: boolean
+  textLength?: number
+  text_length?: number
+  canPreviewText?: boolean
+  can_preview_text?: boolean
+  canDownload?: boolean
+  can_download?: boolean
+  storageBackend?: string
+  storage_backend?: string
+  filePath?: string | null
+  file_path?: string | null
+  uuidFileName?: string | null
+  uuid_file_name?: string | null
+  uploadId?: string | null
+  upload_id?: string | null
+  policy?: AdminFileDetailPolicy
+  storage?: AdminFileDetailStorage
+}
+
+export interface AdminFileDetailViewItem extends AdminFileViewItem {
+  displayCreatedAt: string
+  displayRetrieveUrl: string
+  textLengthValue: number
+  canDownloadFile: boolean
+  isPermanentFile: boolean
+  hasDownloadLimitFile: boolean
+  hasExpirationTimeFile: boolean
+  isChunkedStorage: boolean
+  storageBackendValue: string
+  fileHashValue?: string | null
+  filePathValue?: string | null
+  uuidFileNameValue?: string | null
+  uploadIdValue?: string | null
+}
+
 export interface AdminBatchDeleteFileFailure {
   id: number
   reason: string

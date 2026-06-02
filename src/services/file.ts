@@ -5,6 +5,7 @@ import type {
   AdminBatchUpdateFilesRequest,
   AdminBatchUpdateFilesResponse,
   AdminFilePatchPayload,
+  AdminFileDetailResponse,
   AdminFileListParams,
   AdminFilePreviewResponse,
   ApiResponse,
@@ -126,6 +127,12 @@ export class FileService {
     params: AdminFileListParams
   ): Promise<ApiResponse<FileListResponse>> {
     return api.get('/admin/file/list', { params })
+  }
+
+  static async getAdminFileDetail(id: number): Promise<ApiResponse<AdminFileDetailResponse>> {
+    return api.get('/admin/file/detail', {
+      params: { id }
+    })
   }
 
   static async updateFile(data: FileEditForm | AdminFilePatchPayload): Promise<ApiResponse> {

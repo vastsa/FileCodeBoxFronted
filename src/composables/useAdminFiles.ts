@@ -7,6 +7,8 @@ import type {
   AdminBatchDeleteFilesResponse,
   AdminBatchUpdateFilesRequest,
   AdminBatchUpdateFilesResponse,
+  AdminFileDetailResponse,
+  AdminFileDetailViewItem,
   AdminFilePatchPayload,
   AdminFileListParams,
   AdminFileStatusFilter,
@@ -24,6 +26,7 @@ import {
   exportAdminTextFile,
   getSafeFilename
 } from '@/utils/download-action'
+import { buildRetrieveUrl } from '@/utils/share-url'
 
 const emptySummary = (): AdminFileSummary => ({
   totalFiles: 0,
@@ -50,7 +53,7 @@ type ErrorWithResponse = {
   }
 }
 
-const isLegacyBatchActionUnavailable = (error: unknown) => {
+const isLegacyEndpointUnavailable = (error: unknown) => {
   const status = (error as ErrorWithResponse)?.response?.status
   return status === 404 || status === 405
 }
@@ -100,10 +103,14 @@ export function useAdminFiles() {
   const previewFile = ref<AdminFileViewItem | null>(null)
   const previewMetaText = ref('')
   const isPreviewLoading = ref(false)
+  const showFileDetailModal = ref(false)
+  const selectedFileDetail = ref<AdminFileDetailViewItem | null>(null)
+  const isDetailLoading = ref(false)
   const downloadingFileId = ref<number | null>(null)
   const selectedFileIds = ref<Set<number>>(new Set())
   const isBatchDeleting = ref(false)
   const isBatchUpdating = ref(false)
+  let detailRequestSerial = 0
   const isBatchActionRunning = computed(() => isBatchDeleting.value || isBatchUpdating.value)
   const totalPages = computed(() => Math.max(Math.ceil(params.value.total / params.value.size), 1))
   const storageUsedText = computed(() => formatFileSize(summary.value.storageUsed))
@@ -205,6 +212,78 @@ export function useAdminFiles() {
       isChunkedFile,
       remainingDownloadsValue,
       canPreviewText: isTextFile
+    }
+  }
+
+  const createFileDetailViewItem = (
+    file: FileListItem | AdminFileDetailResponse
+  ): AdminFileDetailViewItem => {
+    const detail = file as AdminFileDetailResponse
+    const policy = detail.policy
+    const storage = detail.storage
+    const expiredAt = policy?.expiredAt ?? policy?.expired_at ?? file.expired_at ?? null
+    const expiredCount = policy?.expiredCount ?? policy?.expired_count ?? file.expired_count ?? null
+    const displayName =
+      detail.displayName ??
+      detail.display_name ??
+      detail.filename ??
+      file.name ??
+      `${file.prefix}${file.suffix}` ??
+      file.code
+    const normalizedFile: FileListItem = {
+      ...file,
+      name: displayName,
+      expired_at: expiredAt,
+      expired_count: expiredCount
+    }
+    const viewItem = createFileViewItem(normalizedFile)
+    const remainingDownloadsValue =
+      policy?.remainingDownloads ?? policy?.remaining_downloads ?? viewItem.remainingDownloadsValue
+    const canPreviewText =
+      detail.canPreviewText ?? detail.can_preview_text ?? viewItem.canPreviewText
+    const canDownloadFile = detail.canDownload ?? detail.can_download ?? !viewItem.isExpiredFile
+    const textLengthValue = normalizeCount(
+      detail.textLength ?? detail.text_length ?? detail.text?.length
+    )
+    const isPermanentFile =
+      detail.isPermanent ??
+      detail.is_permanent ??
+      policy?.isPermanent ??
+      policy?.is_permanent ??
+      (!expiredAt && (expiredCount === null || expiredCount === undefined || expiredCount < 0))
+    const hasDownloadLimitFile =
+      detail.hasDownloadLimit ??
+      detail.has_download_limit ??
+      (expiredCount !== null && expiredCount !== undefined && expiredCount >= 0)
+    const hasExpirationTimeFile =
+      detail.hasExpirationTime ?? detail.has_expiration_time ?? Boolean(expiredAt)
+    const storageBackendValue =
+      storage?.backend ?? detail.storageBackend ?? detail.storage_backend ?? '-'
+    const isChunkedStorage = storage?.isChunked ?? storage?.is_chunked ?? viewItem.isChunkedFile
+
+    return {
+      ...viewItem,
+      displayName,
+      displayExpiredAt: expiredAt ? formatTimestamp(expiredAt) : t('send.expiration.units.forever'),
+      displayCreatedAt: file.created_at ? formatTimestamp(file.created_at) : '-',
+      displayRetrieveUrl: buildRetrieveUrl(file.code),
+      remainingDownloadsValue,
+      canPreviewText,
+      textLengthValue,
+      canDownloadFile,
+      isPermanentFile,
+      hasDownloadLimitFile,
+      hasExpirationTimeFile,
+      isChunkedStorage: Boolean(isChunkedStorage),
+      storageBackendValue,
+      fileHashValue: storage?.fileHash ?? storage?.file_hash ?? detail.fileHash ?? detail.file_hash,
+      filePathValue: storage?.filePath ?? storage?.file_path ?? detail.filePath ?? detail.file_path,
+      uuidFileNameValue:
+        storage?.uuidFileName ??
+        storage?.uuid_file_name ??
+        detail.uuidFileName ??
+        detail.uuid_file_name,
+      uploadIdValue: storage?.uploadId ?? storage?.upload_id ?? detail.uploadId ?? detail.upload_id
     }
   }
 
@@ -433,7 +512,7 @@ export function useAdminFiles() {
     try {
       return await FileService.deleteAdminFiles(ids)
     } catch (error: unknown) {
-      if (!isLegacyBatchActionUnavailable(error)) {
+      if (!isLegacyEndpointUnavailable(error)) {
         throw error
       }
 
@@ -458,7 +537,7 @@ export function useAdminFiles() {
     try {
       return await FileService.updateAdminFiles(payload)
     } catch (error: unknown) {
-      if (!isLegacyBatchActionUnavailable(error)) {
+      if (!isLegacyEndpointUnavailable(error)) {
         throw error
       }
 
@@ -605,9 +684,58 @@ export function useAdminFiles() {
     previewMetaText.value = ''
   }
 
+  const openFileDetail = async (file: AdminFileViewItem) => {
+    const requestSerial = ++detailRequestSerial
+    selectedFileDetail.value = createFileDetailViewItem(file)
+    showFileDetailModal.value = true
+    isDetailLoading.value = true
+
+    try {
+      const response = await FileService.getAdminFileDetail(file.id)
+      if (response.detail && requestSerial === detailRequestSerial) {
+        selectedFileDetail.value = createFileDetailViewItem(response.detail)
+      }
+    } catch (error: unknown) {
+      if (isLegacyEndpointUnavailable(error)) return
+
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.detailFailed')), 'error')
+    } finally {
+      if (requestSerial === detailRequestSerial) {
+        isDetailLoading.value = false
+      }
+    }
+  }
+
+  const closeFileDetail = () => {
+    detailRequestSerial += 1
+    showFileDetailModal.value = false
+    selectedFileDetail.value = null
+    isDetailLoading.value = false
+  }
+
   const copyText = async () => {
     await copyToClipboard(previewText.value, {
       successMsg: t('fileManage.copySuccess'),
+      errorMsg: t('fileManage.copyFailed'),
+      notify: (message, type) => alertStore.showAlert(message, type)
+    })
+  }
+
+  const copyDetailRetrieveCode = async () => {
+    if (!selectedFileDetail.value) return
+
+    await copyToClipboard(selectedFileDetail.value.code, {
+      successMsg: t('fileManage.copyCodeSuccess'),
+      errorMsg: t('fileManage.copyFailed'),
+      notify: (message, type) => alertStore.showAlert(message, type)
+    })
+  }
+
+  const copyDetailRetrieveLink = async () => {
+    if (!selectedFileDetail.value) return
+
+    await copyToClipboard(selectedFileDetail.value.displayRetrieveUrl, {
+      successMsg: t('fileManage.copyLinkSuccess'),
       errorMsg: t('fileManage.copyFailed'),
       notify: (message, type) => alertStore.showAlert(message, type)
     })
@@ -648,6 +776,7 @@ export function useAdminFiles() {
     isBatchDeleting,
     isBatchUpdating,
     isCurrentPagePartiallySelected,
+    isDetailLoading,
     isPreviewLoading,
     isSaving,
     batchEditForm,
@@ -656,19 +785,24 @@ export function useAdminFiles() {
     params,
     previewFile,
     previewMetaText,
+    selectedFileDetail,
     selectedCount,
     selectedFileIds,
     storageUsedText,
     summary,
     showBatchEditModal,
     showEditModal,
+    showFileDetailModal,
     editForm,
     showTextPreview,
     previewText,
     totalPages,
     closeEditModal,
     closeBatchEditModal,
+    closeFileDetail,
     closeTextPreview,
+    copyDetailRetrieveCode,
+    copyDetailRetrieveLink,
     copyText,
     clearSelection,
     deleteFile,
@@ -682,6 +816,7 @@ export function useAdminFiles() {
     loadFiles,
     openBatchEditModal,
     openEditModal,
+    openFileDetail,
     openTextPreview,
     refreshFiles,
     resetFilters,

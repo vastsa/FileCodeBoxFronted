@@ -342,6 +342,20 @@
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <div class="flex items-center justify-end gap-2">
                 <button
+                  type="button"
+                  :title="t('fileManage.detail')"
+                  class="inline-flex items-center rounded-md px-3 py-1.5 transition-colors duration-200"
+                  :class="[
+                    isDarkMode
+                      ? 'bg-indigo-900/20 text-indigo-300 hover:bg-indigo-900/30'
+                      : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                  ]"
+                  @click="openFileDetail(file)"
+                >
+                  <FileTextIcon class="mr-1.5 h-4 w-4" />
+                  {{ t('fileManage.detail') }}
+                </button>
+                <button
                   v-if="file.canPreviewText"
                   type="button"
                   :title="t('fileManage.viewText')"
@@ -418,6 +432,234 @@
         />
       </template>
     </DataTable>
+
+    <BaseModal :show="showFileDetailModal" size="xl" @close="closeFileDetail">
+      <template #header>
+        <div class="flex min-w-0 items-center space-x-3">
+          <div class="rounded-lg p-2" :class="[isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50']">
+            <FileTextIcon
+              class="h-5 w-5"
+              :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+            />
+          </div>
+          <div class="min-w-0">
+            <h3
+              class="truncate text-xl font-semibold leading-6"
+              :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+            >
+              {{ t('fileManage.detailTitle') }}
+            </h3>
+            <p v-if="selectedFileDetail" class="mt-1 truncate text-sm" :class="[mutedTextClass]">
+              {{ selectedFileDetail.displayName }}
+            </p>
+          </div>
+        </div>
+      </template>
+
+      <div v-if="selectedFileDetail" class="space-y-5">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div class="flex min-w-0 items-start gap-3">
+            <div
+              class="rounded-lg p-3"
+              :class="[isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700']"
+            >
+              <FileTextIcon v-if="selectedFileDetail.isTextFile" class="h-5 w-5" />
+              <FileIcon v-else class="h-5 w-5" />
+            </div>
+            <div class="min-w-0">
+              <h4 class="break-words text-lg font-semibold" :class="[primaryTextClass]">
+                {{ selectedFileDetail.displayName }}
+              </h4>
+              <div class="mt-2 flex flex-wrap items-center gap-2">
+                <span
+                  class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+                  :class="getTypeBadgeClass(selectedFileDetail)"
+                >
+                  {{ getTypeLabel(selectedFileDetail) }}
+                </span>
+                <span
+                  class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+                  :class="getStatusBadgeClass(selectedFileDetail)"
+                >
+                  {{
+                    selectedFileDetail.isExpiredFile
+                      ? t('fileManage.expired')
+                      : t('fileManage.active')
+                  }}
+                </span>
+                <span
+                  v-if="selectedFileDetail.isPermanentFile"
+                  class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+                  :class="
+                    isDarkMode
+                      ? 'bg-emerald-900/30 text-emerald-300'
+                      : 'bg-emerald-100 text-emerald-700'
+                  "
+                >
+                  {{ t('fileManage.permanent') }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-if="isDetailLoading"
+            class="inline-flex items-center text-sm"
+            :class="[mutedTextClass]"
+          >
+            <RefreshCwIcon class="mr-2 h-4 w-4 animate-spin" />
+            {{ t('fileManage.detailLoading') }}
+          </div>
+        </div>
+
+        <div
+          class="rounded-lg border px-4 py-3"
+          :class="[isDarkMode ? 'border-gray-700 bg-gray-700/30' : 'border-gray-200 bg-gray-50']"
+        >
+          <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+            <div class="min-w-0">
+              <p class="text-xs font-medium uppercase" :class="[mutedTextClass]">
+                {{ t('fileManage.form.code') }}
+              </p>
+              <p class="mt-1 select-all text-lg font-semibold" :class="[primaryTextClass]">
+                {{ selectedFileDetail.code }}
+              </p>
+              <p class="mt-1 truncate text-xs" :class="[mutedTextClass]">
+                {{ selectedFileDetail.displayRetrieveUrl }}
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <BaseButton size="sm" variant="secondary" @click="copyDetailRetrieveCode">
+                <template #icon>
+                  <CopyIcon class="mr-2 h-4 w-4" />
+                </template>
+                {{ t('fileManage.copyCode') }}
+              </BaseButton>
+              <BaseButton size="sm" variant="secondary" @click="copyDetailRetrieveLink">
+                <template #icon>
+                  <CopyIcon class="mr-2 h-4 w-4" />
+                </template>
+                {{ t('fileManage.copyLink') }}
+              </BaseButton>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <button
+            type="button"
+            class="flex min-h-12 items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            :class="detailActionClass"
+            @click="openDetailEditModal"
+          >
+            <PencilIcon class="mr-2 h-4 w-4" />
+            {{ t('common.edit') }}
+          </button>
+          <button
+            v-if="selectedFileDetail.canPreviewText"
+            type="button"
+            class="flex min-h-12 items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium transition-colors"
+            :class="detailActionClass"
+            @click="openDetailTextPreview"
+          >
+            <EyeIcon class="mr-2 h-4 w-4" />
+            {{ t('fileManage.viewText') }}
+          </button>
+          <button
+            type="button"
+            class="flex min-h-12 items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+            :class="detailActionClass"
+            :disabled="!selectedFileDetail.canDownloadFile || Boolean(downloadingFileId)"
+            @click="downloadFile(selectedFileDetail)"
+          >
+            <RefreshCwIcon
+              v-if="downloadingFileId === selectedFileDetail.id"
+              class="mr-2 h-4 w-4 animate-spin"
+            />
+            <DownloadIcon v-else class="mr-2 h-4 w-4" />
+            {{
+              selectedFileDetail.isTextFile
+                ? t('fileManage.exportText')
+                : t('fileManage.downloadFile')
+            }}
+          </button>
+        </div>
+
+        <section class="space-y-3">
+          <h4 class="text-sm font-semibold" :class="[primaryTextClass]">
+            {{ t('fileManage.overview') }}
+          </h4>
+          <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div
+              v-for="item in detailOverviewItems"
+              :key="item.label"
+              class="rounded-lg border px-4 py-3"
+              :class="[isDarkMode ? 'border-gray-700 bg-gray-700/30' : 'border-gray-200 bg-white']"
+            >
+              <p class="text-xs" :class="[mutedTextClass]">{{ item.label }}</p>
+              <p class="mt-1 break-words text-sm font-medium" :class="[primaryTextClass]">
+                {{ item.value }}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="space-y-3">
+          <h4 class="text-sm font-semibold" :class="[primaryTextClass]">
+            {{ t('fileManage.policyInfo') }}
+          </h4>
+          <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div
+              v-for="item in detailPolicyItems"
+              :key="item.label"
+              class="rounded-lg border px-4 py-3"
+              :class="[isDarkMode ? 'border-gray-700 bg-gray-700/30' : 'border-gray-200 bg-white']"
+            >
+              <p class="text-xs" :class="[mutedTextClass]">{{ item.label }}</p>
+              <p class="mt-1 break-words text-sm font-medium" :class="[primaryTextClass]">
+                {{ item.value }}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="space-y-3">
+          <h4 class="text-sm font-semibold" :class="[primaryTextClass]">
+            {{ t('fileManage.storageInfo') }}
+          </h4>
+          <div class="grid gap-3">
+            <div
+              v-for="item in detailStorageItems"
+              :key="item.label"
+              class="grid gap-1 rounded-lg border px-4 py-3 sm:grid-cols-[160px_minmax(0,1fr)] sm:items-center"
+              :class="[isDarkMode ? 'border-gray-700 bg-gray-700/30' : 'border-gray-200 bg-white']"
+            >
+              <p class="text-xs" :class="[mutedTextClass]">{{ item.label }}</p>
+              <p
+                class="break-all text-sm font-medium"
+                :class="[item.mono ? 'font-mono' : '', primaryTextClass]"
+              >
+                {{ item.value }}
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div
+        v-else
+        class="flex min-h-32 items-center justify-center text-sm"
+        :class="[mutedTextClass]"
+      >
+        <RefreshCwIcon class="mr-2 h-4 w-4 animate-spin" />
+        {{ t('fileManage.detailLoading') }}
+      </div>
+
+      <template #footer>
+        <BaseButton variant="secondary" @click="closeFileDetail">
+          {{ t('common.close') }}
+        </BaseButton>
+      </template>
+    </BaseModal>
 
     <BaseModal :show="showEditModal" size="lg" @close="closeEditModal">
       <template #header>
@@ -699,6 +941,7 @@ const {
   isBatchDeleting,
   isBatchUpdating,
   isCurrentPagePartiallySelected,
+  isDetailLoading,
   isPreviewLoading,
   isSaving,
   batchEditForm,
@@ -707,18 +950,23 @@ const {
   params,
   previewFile,
   previewMetaText,
+  selectedFileDetail,
   selectedCount,
   selectedFileIds,
   storageUsedText,
   summary,
   showBatchEditModal,
   showEditModal,
+  showFileDetailModal,
   editForm,
   showTextPreview,
   previewText,
   closeBatchEditModal,
   closeEditModal,
+  closeFileDetail,
   closeTextPreview,
+  copyDetailRetrieveCode,
+  copyDetailRetrieveLink,
   copyText,
   clearSelection,
   deleteFile,
@@ -732,6 +980,7 @@ const {
   loadFiles,
   openBatchEditModal,
   openEditModal,
+  openFileDetail,
   openTextPreview,
   refreshFiles,
   resetFilters,
@@ -751,6 +1000,127 @@ const fieldClass = computed(() =>
     ? 'border-gray-600 bg-gray-700 text-white'
     : 'border-gray-300 bg-white text-gray-900'
 )
+const detailActionClass = computed(() =>
+  isDarkMode.value
+    ? 'border-gray-700 bg-gray-700/50 text-gray-300 hover:border-gray-600 hover:bg-gray-700'
+    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+)
+
+type DetailInfoItem = {
+  label: string
+  value: string
+  mono?: boolean
+}
+
+const emptyDetailValue = '-'
+const getBooleanLabel = (value: boolean) => t(value ? 'fileManage.yes' : 'fileManage.no')
+const formatDetailValue = (value: string | number | null | undefined) => {
+  if (value === null || value === undefined || value === '') return emptyDetailValue
+  return String(value)
+}
+
+const detailOverviewItems = computed<DetailInfoItem[]>(() => {
+  const file = selectedFileDetail.value
+  if (!file) return []
+
+  return [
+    { label: t('fileManage.form.code'), value: file.code, mono: true },
+    { label: t('fileManage.createdAt'), value: file.displayCreatedAt },
+    { label: t('fileManage.headers.size'), value: file.displaySize },
+    { label: t('fileManage.headers.usage'), value: file.displayUsage },
+    {
+      label: t('fileManage.remainingDownloads'),
+      value:
+        file.remainingDownloadsValue === null
+          ? t('fileManage.unlimited')
+          : t('fileManage.remaining', { count: file.remainingDownloadsValue })
+    },
+    {
+      label: t('fileManage.textLength'),
+      value: file.isTextFile
+        ? t('fileManage.charCount', { count: file.textLengthValue })
+        : emptyDetailValue
+    }
+  ]
+})
+
+const detailPolicyItems = computed<DetailInfoItem[]>(() => {
+  const file = selectedFileDetail.value
+  if (!file) return []
+
+  return [
+    { label: t('fileManage.permanent'), value: getBooleanLabel(file.isPermanentFile) },
+    {
+      label: t('fileManage.hasDownloadLimit'),
+      value: getBooleanLabel(file.hasDownloadLimitFile)
+    },
+    {
+      label: t('fileManage.hasExpirationTime'),
+      value: getBooleanLabel(file.hasExpirationTimeFile)
+    },
+    { label: t('fileManage.headers.expiration'), value: file.displayExpiredAt },
+    {
+      label: t('fileManage.canPreviewText'),
+      value: getBooleanLabel(file.canPreviewText)
+    },
+    {
+      label: t('fileManage.canDownload'),
+      value: getBooleanLabel(file.canDownloadFile)
+    }
+  ]
+})
+
+const detailStorageItems = computed<DetailInfoItem[]>(() => {
+  const file = selectedFileDetail.value
+  if (!file) return []
+
+  return [
+    {
+      label: t('fileManage.storageBackend'),
+      value: formatDetailValue(file.storageBackendValue)
+    },
+    {
+      label: t('fileManage.fileHash'),
+      value: formatDetailValue(file.fileHashValue),
+      mono: true
+    },
+    {
+      label: t('fileManage.isChunked'),
+      value: getBooleanLabel(file.isChunkedStorage)
+    },
+    {
+      label: t('fileManage.filePath'),
+      value: formatDetailValue(file.filePathValue),
+      mono: true
+    },
+    {
+      label: t('fileManage.uuidFileName'),
+      value: formatDetailValue(file.uuidFileNameValue),
+      mono: true
+    },
+    {
+      label: t('fileManage.uploadId'),
+      value: formatDetailValue(file.uploadIdValue),
+      mono: true
+    }
+  ]
+})
+
+const openDetailEditModal = () => {
+  if (!selectedFileDetail.value) return
+
+  const file = selectedFileDetail.value
+  closeFileDetail()
+  openEditModal(file)
+}
+
+const openDetailTextPreview = () => {
+  if (!selectedFileDetail.value) return
+
+  const file = selectedFileDetail.value
+  closeFileDetail()
+  void openTextPreview(file)
+}
 
 const summaryCards = computed(() => [
   {
