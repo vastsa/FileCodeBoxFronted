@@ -84,6 +84,56 @@
       </StatCard>
     </div>
 
+    <section
+      v-if="dashboardData.hasExtendedStats && dashboardData.operationalInsights.length > 0"
+      class="mt-6"
+    >
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h3 class="text-lg font-semibold" :class="[primaryTextClass]">
+            {{ t('admin.dashboard.operationalInsightsTitle') }}
+          </h3>
+          <p class="text-sm" :class="[mutedTextClass]">
+            {{ t('admin.dashboard.operationalInsightsDesc') }}
+          </p>
+        </div>
+        <LightbulbIcon
+          class="hidden h-5 w-5 sm:block"
+          :class="[isDarkMode ? 'text-amber-300' : 'text-amber-500']"
+        />
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <button
+          v-for="insight in dashboardData.operationalInsights"
+          :key="insight.key"
+          type="button"
+          class="group flex min-h-40 flex-col rounded-lg border p-4 text-left transition-colors"
+          :class="getOperationalInsightClass(insight.severity)"
+          @click="openOperationalInsight(insight)"
+        >
+          <span class="flex items-start justify-between gap-3">
+            <span class="rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-current/15">
+              {{ getOperationalInsightSeverityLabel(insight.severity) }}
+            </span>
+            <component :is="getOperationalInsightIcon(insight.severity)" class="h-5 w-5 shrink-0" />
+          </span>
+          <strong class="mt-4 text-base">
+            {{ getOperationalInsightTitle(insight) }}
+          </strong>
+          <span class="mt-2 line-clamp-3 text-sm opacity-80">
+            {{ getOperationalInsightDescription(insight) }}
+          </span>
+          <span class="mt-auto flex items-center justify-between gap-2 pt-4 text-sm font-medium">
+            <span>{{ getOperationalInsightActionLabel(insight) }}</span>
+            <ArrowRightIcon
+              class="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+            />
+          </span>
+        </button>
+      </div>
+    </section>
+
     <div v-if="dashboardData.hasExtendedStats" class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
       <section class="xl:col-span-2 rounded-lg p-5 shadow-sm" :class="[panelClass]">
         <div class="mb-5 flex items-center justify-between">
@@ -669,6 +719,7 @@ import {
   FileTextIcon,
   HardDriveIcon,
   HistoryIcon,
+  LightbulbIcon,
   ListFilterIcon,
   PencilIcon,
   RefreshCwIcon,
@@ -684,7 +735,12 @@ import { useDashboardStats, useInjectedDarkMode } from '@/composables'
 import { useI18n } from 'vue-i18n'
 import { formatFileSize, formatTimestamp } from '@/utils/common'
 import { ROUTES } from '@/constants'
-import type { DashboardActivityViewItem, DashboardHealthAction } from '@/types'
+import type {
+  DashboardActivityViewItem,
+  DashboardHealthAction,
+  DashboardInsightSeverity,
+  DashboardOperationalInsightViewItem
+} from '@/types'
 
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()
@@ -795,6 +851,66 @@ const healthActions = computed<DashboardHealthAction[]>(() => [
 ])
 
 const getSuffixRatio = (count: number) => Math.round((count / maxSuffixCount.value) * 100)
+
+const operationalInsightIconMap: Record<DashboardInsightSeverity, Component> = {
+  danger: AlertTriangleIcon,
+  warning: ClockIcon,
+  success: CheckCircleIcon,
+  neutral: ShieldCheckIcon
+}
+
+const getOperationalInsightIcon = (severity: DashboardInsightSeverity) =>
+  operationalInsightIconMap[severity]
+
+const getOperationalInsightClass = (severity: DashboardInsightSeverity) => {
+  const darkClasses: Record<DashboardInsightSeverity, string> = {
+    danger: 'border-red-500/25 bg-red-500/10 text-red-100 hover:border-red-400/60',
+    warning: 'border-amber-500/25 bg-amber-500/10 text-amber-100 hover:border-amber-400/60',
+    success: 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100 hover:border-emerald-400/60',
+    neutral: 'border-gray-700 bg-gray-800/70 text-gray-100 hover:border-indigo-500/50'
+  }
+  const lightClasses: Record<DashboardInsightSeverity, string> = {
+    danger: 'border-red-100 bg-red-50 text-red-800 hover:border-red-300',
+    warning: 'border-amber-100 bg-amber-50 text-amber-800 hover:border-amber-300',
+    success: 'border-emerald-100 bg-emerald-50 text-emerald-800 hover:border-emerald-300',
+    neutral: 'border-gray-100 bg-white text-gray-800 shadow-sm hover:border-indigo-200'
+  }
+
+  return isDarkMode.value ? darkClasses[severity] : lightClasses[severity]
+}
+
+const getOperationalInsightSeverityLabel = (severity: DashboardInsightSeverity) =>
+  t(`admin.dashboard.operationalInsightSeverity.${severity}`)
+
+const getOperationalInsightTitle = (insight: DashboardOperationalInsightViewItem) => {
+  const key = `admin.dashboard.operationalInsights.${insight.key}.title`
+  const title = t(key, { count: insight.count })
+  return title === key ? insight.key : title
+}
+
+const getOperationalInsightDescription = (insight: DashboardOperationalInsightViewItem) => {
+  const key = `admin.dashboard.operationalInsights.${insight.key}.description`
+  const description = t(key, { count: insight.count })
+  return description === key ? insight.key : description
+}
+
+const getOperationalInsightActionLabel = (insight: DashboardOperationalInsightViewItem) =>
+  insight.actionTypeValue === 'settings'
+    ? t('admin.dashboard.operationalInsightActionSettings')
+    : t('admin.dashboard.operationalInsightActionFileQueue')
+
+const openOperationalInsight = (insight: DashboardOperationalInsightViewItem) => {
+  if (insight.actionTypeValue === 'settings') {
+    void router.push({ path: ROUTES.SETTINGS })
+    return
+  }
+
+  const health = insight.targetHealthValue
+  void router.push({
+    path: ROUTES.FILE_MANAGE,
+    query: health ? { health } : {}
+  })
+}
 
 const formatCreatedAt = (value: string | null) => {
   if (!value) return '-'

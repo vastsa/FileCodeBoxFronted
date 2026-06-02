@@ -7,6 +7,9 @@ import type {
   DashboardActivityViewItem,
   DashboardData,
   DashboardHealthSummary,
+  DashboardInsightSeverity,
+  DashboardOperationalInsight,
+  DashboardOperationalInsightViewItem,
   DashboardViewData
 } from '@/types'
 import { formatFileSize, getErrorMessage } from '@/utils/common'
@@ -49,6 +52,7 @@ const emptyDashboardData = (): DashboardViewData => ({
   topSuffixes: [],
   recentFiles: [],
   recentActivities: [],
+  operationalInsights: [],
   storageUsedText: '0 Bytes',
   yesterdaySizeText: '0 Bytes',
   todaySizeText: '0 Bytes',
@@ -108,6 +112,45 @@ const normalizeActivityOptions = (
       label: option.label || option.value,
       count: toNumber(option.count)
     }))
+
+const insightSeverities: DashboardInsightSeverity[] = ['danger', 'warning', 'success', 'neutral']
+
+const normalizeInsightSeverity = (severity: string | undefined): DashboardInsightSeverity =>
+  insightSeverities.includes(severity as DashboardInsightSeverity)
+    ? (severity as DashboardInsightSeverity)
+    : 'neutral'
+
+const normalizeOperationalInsights = (
+  insights: DashboardOperationalInsight[] = []
+): DashboardOperationalInsightViewItem[] =>
+  insights
+    .filter((insight) => insight && insight.key)
+    .map((insight) => {
+      const action = insight.action && typeof insight.action === 'object' ? insight.action : {}
+      const actionTypeValue =
+        insight.actionType ??
+        insight.action_type ??
+        action.actionType ??
+        action.action_type ??
+        action.type ??
+        'file_queue'
+      const targetHealthValue =
+        insight.targetHealth ??
+        insight.target_health ??
+        action.targetHealth ??
+        action.target_health ??
+        action.health ??
+        null
+
+      return {
+        ...insight,
+        count: toNumber(insight.count),
+        priority: toNumber(insight.priority),
+        severity: normalizeInsightSeverity(insight.severity),
+        actionTypeValue,
+        targetHealthValue
+      }
+    })
 
 const healthSummaryKeys: (keyof DashboardHealthSummary)[] = [
   'healthAttentionCount',
@@ -209,6 +252,9 @@ export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
       dashboardData.recentFiles = normalizeRecentFiles(detail.recentFiles || [])
       dashboardData.recentActivities = normalizeRecentActivities(
         detail.recentActivities ?? detail.recent_activities ?? []
+      )
+      dashboardData.operationalInsights = normalizeOperationalInsights(
+        detail.operationalInsights ?? detail.operational_insights ?? detail.insights ?? []
       )
 
       dashboardData.storageUsedText = formatFileSize(dashboardData.storageUsed)

@@ -43,6 +43,9 @@ export interface DashboardData {
   recentFiles?: DashboardRecentFile[]
   recentActivities?: DashboardActivity[]
   recent_activities?: DashboardActivity[]
+  operationalInsights?: DashboardOperationalInsight[]
+  operational_insights?: DashboardOperationalInsight[]
+  insights?: DashboardOperationalInsight[]
 }
 
 export interface DashboardSuffixStat {
@@ -120,6 +123,36 @@ export interface DashboardActivitiesResponse {
   target_type_options?: DashboardActivityOption[]
 }
 
+export type DashboardInsightSeverity = 'danger' | 'warning' | 'success' | 'neutral'
+
+export interface DashboardOperationalInsightAction {
+  type?: string
+  actionType?: string
+  action_type?: string
+  health?: AdminFileHealthFilter | string | null
+  targetHealth?: AdminFileHealthFilter | string | null
+  target_health?: AdminFileHealthFilter | string | null
+}
+
+export interface DashboardOperationalInsight {
+  key: string
+  severity: DashboardInsightSeverity | string
+  priority?: number
+  count: number
+  action?: DashboardOperationalInsightAction
+  actionType?: string
+  action_type?: string
+  targetHealth?: AdminFileHealthFilter | string | null
+  target_health?: AdminFileHealthFilter | string | null
+}
+
+export interface DashboardOperationalInsightViewItem extends DashboardOperationalInsight {
+  severity: DashboardInsightSeverity
+  priority: number
+  actionTypeValue: string
+  targetHealthValue: AdminFileHealthFilter | string | null
+}
+
 export type DashboardViewData = Omit<
   DashboardData,
   | keyof DashboardHealthSummary
@@ -138,6 +171,9 @@ export type DashboardViewData = Omit<
   | 'recentFiles'
   | 'recentActivities'
   | 'recent_activities'
+  | 'operationalInsights'
+  | 'operational_insights'
+  | 'insights'
   | 'storageUsed'
   | 'yesterdaySize'
   | 'todaySize'
@@ -158,6 +194,7 @@ export type DashboardViewData = Omit<
     topSuffixes: DashboardSuffixStat[]
     recentFiles: DashboardRecentFile[]
     recentActivities: DashboardActivityViewItem[]
+    operationalInsights: DashboardOperationalInsightViewItem[]
     storageUsed: number
     yesterdaySize: number
     todaySize: number

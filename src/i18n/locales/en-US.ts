@@ -90,6 +90,17 @@ export default {
       textType: 'Text',
       recentActivities: 'Recent Activity',
       recentActivitiesDesc: 'Key admin changes for quick operational traceability.',
+      operationalInsightsTitle: 'Operational Insights',
+      operationalInsightsDesc:
+        'Suggested next actions generated from file health, upload policy, and recent capacity.',
+      operationalInsightActionSettings: 'Adjust settings',
+      operationalInsightActionFileQueue: 'View queue',
+      operationalInsightSeverity: {
+        danger: 'High risk',
+        warning: 'Action needed',
+        success: 'Stable',
+        neutral: 'Suggestion'
+      },
       viewAllActivities: 'View all',
       activityTimelineTitle: 'Activity Timeline',
       activityTimelineFiltered: 'Current Results',
@@ -131,6 +142,43 @@ export default {
         config: 'System settings',
         local_file: 'Local file',
         system: 'System'
+      },
+      operationalInsights: {
+        storage_issue: {
+          title: 'Fix {count} storage issues',
+          description:
+            'Some records are missing download metadata. Review storage settings and file details first.'
+        },
+        expired_cleanup: {
+          title: 'Clean up {count} expired files',
+          description:
+            'Expired records add management noise. Delete them in bulk or extend the files that should remain available.'
+        },
+        expiring_soon: {
+          title: '{count} files expiring soon',
+          description:
+            'These shares will become unavailable soon. Extend them early or notify the recipients.'
+        },
+        never_retrieved: {
+          title: '{count} files never retrieved',
+          description:
+            'Shares that were never retrieved can reveal ineffective uploads or follow-up gaps.'
+        },
+        guest_upload_retention: {
+          title: 'Guest uploads lack retention limits',
+          description:
+            'Guest upload is enabled with unlimited retention. Set a default retention window to reduce storage pressure.'
+        },
+        chunking_disabled: {
+          title: 'Consider enabling chunked upload',
+          description:
+            "Today's added capacity is near the single-file limit. Chunked upload can improve large-file reliability."
+        },
+        healthy: {
+          title: 'Operations look stable',
+          description:
+            'No high-priority operational risk was detected. Keep watching the file health trend.'
+        }
       },
       recentFiles: 'Recent Shares',
       recentFilesDesc: 'Recently created share records for quick status checks.',
@@ -875,6 +923,17 @@ export default {
       textType: 'Text',
       recentActivities: 'Recent Activity',
       recentActivitiesDesc: 'Key admin changes for quick operational traceability.',
+      operationalInsightsTitle: 'Operational Insights',
+      operationalInsightsDesc:
+        'Suggested next actions generated from file health, upload policy, and recent capacity.',
+      operationalInsightActionSettings: 'Adjust settings',
+      operationalInsightActionFileQueue: 'View queue',
+      operationalInsightSeverity: {
+        danger: 'High risk',
+        warning: 'Action needed',
+        success: 'Stable',
+        neutral: 'Suggestion'
+      },
       viewAllActivities: 'View all',
       activityTimelineTitle: 'Activity Timeline',
       activityTimelineFiltered: 'Current Results',
@@ -916,6 +975,43 @@ export default {
         config: 'System settings',
         local_file: 'Local file',
         system: 'System'
+      },
+      operationalInsights: {
+        storage_issue: {
+          title: 'Fix {count} storage issues',
+          description:
+            'Some records are missing download metadata. Review storage settings and file details first.'
+        },
+        expired_cleanup: {
+          title: 'Clean up {count} expired files',
+          description:
+            'Expired records add management noise. Delete them in bulk or extend the files that should remain available.'
+        },
+        expiring_soon: {
+          title: '{count} files expiring soon',
+          description:
+            'These shares will become unavailable soon. Extend them early or notify the recipients.'
+        },
+        never_retrieved: {
+          title: '{count} files never retrieved',
+          description:
+            'Shares that were never retrieved can reveal ineffective uploads or follow-up gaps.'
+        },
+        guest_upload_retention: {
+          title: 'Guest uploads lack retention limits',
+          description:
+            'Guest upload is enabled with unlimited retention. Set a default retention window to reduce storage pressure.'
+        },
+        chunking_disabled: {
+          title: 'Consider enabling chunked upload',
+          description:
+            "Today's added capacity is near the single-file limit. Chunked upload can improve large-file reliability."
+        },
+        healthy: {
+          title: 'Operations look stable',
+          description:
+            'No high-priority operational risk was detected. Keep watching the file health trend.'
+        }
       },
       recentFiles: 'Recent Shares',
       recentFilesDesc: 'Recently created share records for quick status checks.',

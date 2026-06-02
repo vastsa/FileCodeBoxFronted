@@ -90,6 +90,16 @@ export default {
       textType: '文本',
       recentActivities: '最近操作',
       recentActivitiesDesc: '记录管理员最近的关键改动，便于回溯处理链路。',
+      operationalInsightsTitle: '运营建议',
+      operationalInsightsDesc: '根据文件健康、上传策略和近期容量自动生成下一步动作。',
+      operationalInsightActionSettings: '调整设置',
+      operationalInsightActionFileQueue: '查看队列',
+      operationalInsightSeverity: {
+        danger: '高风险',
+        warning: '需处理',
+        success: '稳定',
+        neutral: '建议'
+      },
       viewAllActivities: '查看全部',
       activityTimelineTitle: '操作时间线',
       activityTimelineFiltered: '当前结果',
@@ -131,6 +141,36 @@ export default {
         config: '系统配置',
         local_file: '本地文件',
         system: '系统'
+      },
+      operationalInsights: {
+        storage_issue: {
+          title: '修复 {count} 个存储异常',
+          description: '部分记录缺少下载元数据，建议优先核对存储配置和文件详情。'
+        },
+        expired_cleanup: {
+          title: '清理 {count} 个已过期文件',
+          description: '已过期记录会占用管理视野，建议批量删除或续期仍需保留的文件。'
+        },
+        expiring_soon: {
+          title: '{count} 个文件即将过期',
+          description: '这些分享将在短时间内失效，适合提前续期或通知使用方。'
+        },
+        never_retrieved: {
+          title: '{count} 个文件未被取件',
+          description: '创建后长期无人取件的分享可用于判断无效上传或触达效果。'
+        },
+        guest_upload_retention: {
+          title: '游客上传缺少保留上限',
+          description: '游客上传已开启且保存时间不受限，建议设置默认保留期降低存储压力。'
+        },
+        chunking_disabled: {
+          title: '建议开启分片上传',
+          description: '今日新增容量已接近单文件上限，开启分片上传可提升大文件体验。'
+        },
+        healthy: {
+          title: '运行状态稳定',
+          description: '当前未发现优先级较高的运营风险，可继续观察文件健康趋势。'
+        }
       },
       recentFiles: '最近分享',
       recentFilesDesc: '最近创建的分享记录，便于快速核对状态。',
@@ -837,6 +877,16 @@ export default {
       textType: '文本',
       recentActivities: '最近操作',
       recentActivitiesDesc: '记录管理员最近的关键改动，便于回溯处理链路。',
+      operationalInsightsTitle: '运营建议',
+      operationalInsightsDesc: '根据文件健康、上传策略和近期容量自动生成下一步动作。',
+      operationalInsightActionSettings: '调整设置',
+      operationalInsightActionFileQueue: '查看队列',
+      operationalInsightSeverity: {
+        danger: '高风险',
+        warning: '需处理',
+        success: '稳定',
+        neutral: '建议'
+      },
       viewAllActivities: '查看全部',
       activityTimelineTitle: '操作时间线',
       activityTimelineFiltered: '当前结果',
@@ -878,6 +928,36 @@ export default {
         config: '系统配置',
         local_file: '本地文件',
         system: '系统'
+      },
+      operationalInsights: {
+        storage_issue: {
+          title: '修复 {count} 个存储异常',
+          description: '部分记录缺少下载元数据，建议优先核对存储配置和文件详情。'
+        },
+        expired_cleanup: {
+          title: '清理 {count} 个已过期文件',
+          description: '已过期记录会占用管理视野，建议批量删除或续期仍需保留的文件。'
+        },
+        expiring_soon: {
+          title: '{count} 个文件即将过期',
+          description: '这些分享将在短时间内失效，适合提前续期或通知使用方。'
+        },
+        never_retrieved: {
+          title: '{count} 个文件未被取件',
+          description: '创建后长期无人取件的分享可用于判断无效上传或触达效果。'
+        },
+        guest_upload_retention: {
+          title: '游客上传缺少保留上限',
+          description: '游客上传已开启且保存时间不受限，建议设置默认保留期降低存储压力。'
+        },
+        chunking_disabled: {
+          title: '建议开启分片上传',
+          description: '今日新增容量已接近单文件上限，开启分片上传可提升大文件体验。'
+        },
+        healthy: {
+          title: '运行状态稳定',
+          description: '当前未发现优先级较高的运营风险，可继续观察文件健康趋势。'
+        }
       },
       recentFiles: '最近分享',
       recentFilesDesc: '最近创建的分享记录，便于快速核对状态。',
