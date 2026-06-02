@@ -271,10 +271,31 @@
                       ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   ]"
-                  @click="openTextPreview(file.text || '')"
+                  @click="openTextPreview(file)"
                 >
                   <EyeIcon class="mr-1.5 h-4 w-4" />
                   {{ t('fileManage.viewText') }}
+                </button>
+                <button
+                  type="button"
+                  :title="
+                    file.isTextFile ? t('fileManage.exportText') : t('fileManage.downloadFile')
+                  "
+                  :disabled="Boolean(downloadingFileId)"
+                  class="inline-flex items-center rounded-md px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60"
+                  :class="[
+                    isDarkMode
+                      ? 'bg-emerald-900/20 text-emerald-300 hover:bg-emerald-900/30'
+                      : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                  ]"
+                  @click="downloadFile(file)"
+                >
+                  <RefreshCwIcon
+                    v-if="downloadingFileId === file.id"
+                    class="mr-1.5 h-4 w-4 animate-spin"
+                  />
+                  <DownloadIcon v-else class="mr-1.5 h-4 w-4" />
+                  {{ file.isTextFile ? t('fileManage.exportText') : t('fileManage.downloadFile') }}
                 </button>
                 <button
                   type="button"
@@ -391,7 +412,7 @@
             class="text-xl font-semibold leading-6"
             :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
           >
-            {{ t('fileManage.textPreview') }}
+            {{ previewFile?.displayName || t('fileManage.textPreview') }}
           </h3>
         </div>
       </template>
@@ -400,18 +421,41 @@
         class="max-h-[60vh] overflow-y-auto rounded-lg p-4 custom-scrollbar"
         :class="[isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50']"
       >
+        <div
+          v-if="isPreviewLoading"
+          class="flex min-h-32 items-center justify-center text-sm"
+          :class="[mutedTextClass]"
+        >
+          <RefreshCwIcon class="mr-2 h-4 w-4 animate-spin" />
+          {{ t('fileManage.loadingPreview') }}
+        </div>
         <pre
+          v-else
           class="whitespace-pre-wrap break-words text-sm font-mono"
           :class="[isDarkMode ? 'text-gray-200' : 'text-gray-700']"
           >{{ previewText }}</pre
         >
       </div>
       <div class="mt-2 text-xs" :class="[isDarkMode ? 'text-gray-500' : 'text-gray-400']">
-        {{ t('fileManage.charCount', { count: previewText.length }) }}
+        {{ previewMetaText || t('fileManage.charCount', { count: previewText.length }) }}
       </div>
 
       <template #footer>
-        <BaseButton variant="secondary" @click="copyText">
+        <BaseButton
+          variant="secondary"
+          :disabled="isPreviewLoading || !previewText"
+          @click="exportPreviewText"
+        >
+          <template #icon>
+            <DownloadIcon class="w-4 h-4 mr-2" />
+          </template>
+          {{ t('fileManage.exportText') }}
+        </BaseButton>
+        <BaseButton
+          variant="secondary"
+          :disabled="isPreviewLoading || !previewText"
+          @click="copyText"
+        >
           <template #icon>
             <CopyIcon class="w-4 h-4 mr-2" />
           </template>
@@ -441,6 +485,7 @@ import {
   CheckIcon,
   ClockIcon,
   CopyIcon,
+  DownloadIcon,
   EyeIcon,
   FileIcon,
   FileTextIcon,
@@ -478,8 +523,12 @@ const {
   hasActiveFilters,
   hasLoadError,
   isLoading,
+  isPreviewLoading,
   isSaving,
+  downloadingFileId,
   params,
+  previewFile,
+  previewMetaText,
   storageUsedText,
   summary,
   showEditModal,
@@ -490,6 +539,8 @@ const {
   closeTextPreview,
   copyText,
   deleteFile,
+  downloadFile,
+  exportPreviewText,
   handlePageChange,
   handleSearch,
   handleUpdate,

@@ -91,6 +91,24 @@ export interface FileListResponse {
   summary?: AdminFileSummary
 }
 
+export interface AdminFilePreviewResponse {
+  id: number
+  code: string
+  name: string
+  type: 'text'
+  content: string
+  length: number
+  previewLength?: number
+  preview_length?: number
+  truncated: boolean
+  maxChars?: number
+  max_chars?: number
+  createdAt?: string | null
+  created_at?: string | null
+  expiredAt?: string | null
+  expired_at?: string | null
+}
+
 export interface FileUploadResponse {
   code: string
   name: string

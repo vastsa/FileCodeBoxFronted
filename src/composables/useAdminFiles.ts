@@ -13,6 +13,11 @@ import type {
 } from '@/types'
 import { copyToClipboard } from '@/utils/clipboard'
 import { formatFileSize, formatTimestamp, getErrorMessage } from '@/utils/common'
+import {
+  downloadAdminManagedFile,
+  exportAdminTextFile,
+  getSafeFilename
+} from '@/utils/download-action'
 
 const emptySummary = (): AdminFileSummary => ({
   totalFiles: 0,
@@ -65,6 +70,10 @@ export function useAdminFiles() {
 
   const showTextPreview = ref(false)
   const previewText = ref('')
+  const previewFile = ref<AdminFileViewItem | null>(null)
+  const previewMetaText = ref('')
+  const isPreviewLoading = ref(false)
+  const downloadingFileId = ref<number | null>(null)
   const totalPages = computed(() => Math.max(Math.ceil(params.value.total / params.value.size), 1))
   const storageUsedText = computed(() => formatFileSize(summary.value.storageUsed))
 
@@ -153,7 +162,7 @@ export function useAdminFiles() {
       isExpiredFile,
       isChunkedFile,
       remainingDownloadsValue,
-      canPreviewText: Boolean(file.text)
+      canPreviewText: isTextFile
     }
   }
 
@@ -276,14 +285,47 @@ export function useAdminFiles() {
     }
   }
 
-  const openTextPreview = (text: string) => {
-    previewText.value = text
+  const openTextPreview = async (file: AdminFileViewItem) => {
+    if (!file.isTextFile || isPreviewLoading.value) return
+
+    previewFile.value = file
+    previewText.value = file.text || ''
+    previewMetaText.value = ''
     showTextPreview.value = true
+    isPreviewLoading.value = true
+
+    try {
+      const response = await FileService.previewAdminFile(file.id)
+      if (!response.detail) {
+        throw new Error(t('fileManage.previewFailed'))
+      }
+
+      previewText.value = response.detail.content
+      previewMetaText.value = response.detail.truncated
+        ? t('fileManage.previewTruncated', {
+            shown: response.detail.previewLength ?? response.detail.preview_length ?? 0,
+            total: response.detail.length
+          })
+        : t('fileManage.previewComplete', { count: response.detail.length })
+    } catch (error: unknown) {
+      if (file.text) {
+        previewText.value = file.text
+        previewMetaText.value = t('fileManage.previewFallback')
+        return
+      }
+
+      closeTextPreview()
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.previewFailed')), 'error')
+    } finally {
+      isPreviewLoading.value = false
+    }
   }
 
   const closeTextPreview = () => {
     showTextPreview.value = false
     previewText.value = ''
+    previewFile.value = null
+    previewMetaText.value = ''
   }
 
   const copyText = async () => {
@@ -294,13 +336,42 @@ export function useAdminFiles() {
     })
   }
 
+  const exportPreviewText = () => {
+    if (!previewFile.value || !previewText.value) return
+    exportAdminTextFile(previewFile.value, previewText.value)
+  }
+
+  const downloadFile = async (file: AdminFileViewItem) => {
+    if (downloadingFileId.value) return
+
+    downloadingFileId.value = file.id
+    try {
+      const response = await FileService.downloadAdminFile(file.id)
+      await downloadAdminManagedFile(file, response)
+      alertStore.showAlert(
+        t(file.isTextFile ? 'fileManage.exportSuccess' : 'fileManage.downloadSuccess', {
+          name: getSafeFilename(file.displayName || file.code)
+        }),
+        'success'
+      )
+    } catch (error: unknown) {
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.downloadFailed')), 'error')
+    } finally {
+      downloadingFileId.value = null
+    }
+  }
+
   return {
     tableData,
     hasLoadError,
     hasActiveFilters,
     isLoading,
+    isPreviewLoading,
     isSaving,
+    downloadingFileId,
     params,
+    previewFile,
+    previewMetaText,
     storageUsedText,
     summary,
     showEditModal,
@@ -312,6 +383,8 @@ export function useAdminFiles() {
     closeTextPreview,
     copyText,
     deleteFile,
+    downloadFile,
+    exportPreviewText,
     handlePageChange,
     handleSearch,
     handleUpdate,

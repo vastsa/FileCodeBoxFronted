@@ -1,13 +1,14 @@
 import api, { rawApiClient } from './client'
 import { multipartUploadConfig } from './shared'
 import type {
+  AdminFileListParams,
+  AdminFilePreviewResponse,
   ApiResponse,
   ChunkUploadCompleteRequest,
   ChunkUploadInitRequest,
   ChunkUploadInitResponse,
   ChunkUploadResponse,
   FileEditForm,
-  AdminFileListParams,
   FileInfo,
   FileListResponse,
   FileUploadResponse,
@@ -144,5 +145,17 @@ export class FileService {
       data: response.data,
       headers: response.headers as Record<string, string>
     }
+  }
+
+  static async previewAdminFile(
+    id: number,
+    maxChars = 20000
+  ): Promise<ApiResponse<AdminFilePreviewResponse>> {
+    return api.get('/admin/file/preview', {
+      params: {
+        id,
+        maxChars
+      }
+    })
   }
 }
