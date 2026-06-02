@@ -1,24 +1,24 @@
 export interface DashboardData {
   totalFiles: number
-  storageUsed: number
+  storageUsed: number | string
   yesterdayCount: number
   todayCount: number
-  yesterdaySize: number
-  todaySize: number
+  yesterdaySize: number | string
+  todaySize: number | string
   sysUptime: number | null
-  activeCount: number
-  expiredCount: number
-  textCount: number
-  fileCount: number
-  chunkedCount: number
-  usedCount: number
-  storageBackend: string
-  uploadSizeLimit: number
-  openUpload: number
-  enableChunk: number
-  maxSaveSeconds: number
-  topSuffixes: DashboardSuffixStat[]
-  recentFiles: DashboardRecentFile[]
+  activeCount?: number
+  expiredCount?: number
+  textCount?: number
+  fileCount?: number
+  chunkedCount?: number
+  usedCount?: number
+  storageBackend?: string
+  uploadSizeLimit?: number
+  openUpload?: number
+  enableChunk?: number
+  maxSaveSeconds?: number
+  topSuffixes?: DashboardSuffixStat[]
+  recentFiles?: DashboardRecentFile[]
 }
 
 export interface DashboardSuffixStat {
@@ -42,6 +42,22 @@ export interface DashboardRecentFile {
 
 export interface DashboardViewData extends DashboardData {
   hasExtendedStats: boolean
+  activeCount: number
+  expiredCount: number
+  textCount: number
+  fileCount: number
+  chunkedCount: number
+  usedCount: number
+  storageBackend: string
+  uploadSizeLimit: number
+  openUpload: number
+  enableChunk: number
+  maxSaveSeconds: number
+  topSuffixes: DashboardSuffixStat[]
+  recentFiles: DashboardRecentFile[]
+  storageUsed: number
+  yesterdaySize: number
+  todaySize: number
   storageUsedText: string
   yesterdaySizeText: string
   todaySizeText: string

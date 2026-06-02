@@ -6,20 +6,36 @@
         <h2 class="text-2xl font-bold" :class="[primaryTextClass]">
           {{ t('admin.dashboard.title') }}
         </h2>
+        <p class="mt-1 text-xs" :class="[mutedTextClass]">
+          {{ t('admin.dashboard.lastUpdated', { time: lastUpdatedText }) }}
+        </p>
       </div>
       <button
         type="button"
+        :disabled="isLoading"
         @click="fetchDashboardData"
-        class="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+        class="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-70"
         :class="[
           isDarkMode
             ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
             : 'bg-white text-gray-700 shadow-sm hover:bg-gray-50'
         ]"
       >
-        <RefreshCwIcon class="mr-2 h-4 w-4" />
-        {{ t('admin.dashboard.refresh') }}
+        <RefreshCwIcon class="mr-2 h-4 w-4" :class="{ 'animate-spin': isLoading }" />
+        {{ isLoading ? t('admin.dashboard.refreshing') : t('admin.dashboard.refresh') }}
       </button>
+    </div>
+
+    <div
+      v-if="errorMessage"
+      class="mb-6 rounded-lg border px-4 py-3 text-sm"
+      :class="[
+        isDarkMode
+          ? 'border-red-900/50 bg-red-950/30 text-red-200'
+          : 'border-red-200 bg-red-50 text-red-700'
+      ]"
+    >
+      {{ errorMessage }}
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -79,7 +95,10 @@
               {{ t('admin.dashboard.fileHealthDesc') }}
             </p>
           </div>
-          <ActivityIcon class="h-5 w-5" :class="[isDarkMode ? 'text-indigo-300' : 'text-indigo-500']" />
+          <ActivityIcon
+            class="h-5 w-5"
+            :class="[isDarkMode ? 'text-indigo-300' : 'text-indigo-500']"
+          />
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -157,10 +176,7 @@
             :label="t('admin.dashboard.guestUpload')"
             :value="dashboardData.openUpload ? t('common.enabled') : t('common.disabled')"
           />
-          <PolicyRow
-            :label="t('admin.dashboard.maxSaveTime')"
-            :value="maxSaveTimeText"
-          />
+          <PolicyRow :label="t('admin.dashboard.maxSaveTime')" :value="maxSaveTimeText" />
         </div>
 
         <div class="mt-5">
@@ -168,7 +184,10 @@
             <span :class="[mutedTextClass]">{{ t('admin.dashboard.todayCapacityReference') }}</span>
             <span :class="[primaryTextClass]">{{ dashboardData.todaySizeRatio }}%</span>
           </div>
-          <div class="h-2 overflow-hidden rounded-full" :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']">
+          <div
+            class="h-2 overflow-hidden rounded-full"
+            :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']"
+          >
             <div
               class="h-full rounded-full bg-indigo-500"
               :style="{ width: `${dashboardData.todaySizeRatio}%` }"
@@ -184,15 +203,24 @@
           {{ t('admin.dashboard.fileTypeDistribution') }}
         </h3>
         <div class="mt-4 space-y-3">
-          <div v-if="dashboardData.topSuffixes.length === 0" class="text-sm" :class="[mutedTextClass]">
+          <div
+            v-if="dashboardData.topSuffixes.length === 0"
+            class="text-sm"
+            :class="[mutedTextClass]"
+          >
             {{ t('common.noData') }}
           </div>
           <div v-for="item in dashboardData.topSuffixes" :key="item.suffix" class="space-y-1">
             <div class="flex items-center justify-between text-sm">
-              <span :class="[primaryTextClass]">{{ item.suffix || t('admin.dashboard.textType') }}</span>
+              <span :class="[primaryTextClass]">{{
+                item.suffix || t('admin.dashboard.textType')
+              }}</span>
               <span :class="[mutedTextClass]">{{ item.count }}</span>
             </div>
-            <div class="h-2 overflow-hidden rounded-full" :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']">
+            <div
+              class="h-2 overflow-hidden rounded-full"
+              :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']"
+            >
               <div
                 class="h-full rounded-full bg-purple-500"
                 :style="{ width: `${getSuffixRatio(item.count)}%` }"
@@ -214,20 +242,38 @@
           </div>
         </div>
 
-        <div class="overflow-hidden rounded-lg border" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-          <table class="min-w-full divide-y" :class="[isDarkMode ? 'divide-gray-700' : 'divide-gray-200']">
+        <div
+          class="overflow-hidden rounded-lg border"
+          :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']"
+        >
+          <table
+            class="min-w-full divide-y"
+            :class="[isDarkMode ? 'divide-gray-700' : 'divide-gray-200']"
+          >
             <thead :class="[isDarkMode ? 'bg-gray-900/50' : 'bg-gray-50']">
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" :class="[mutedTextClass]">
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  :class="[mutedTextClass]"
+                >
                   {{ t('admin.dashboard.table.file') }}
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" :class="[mutedTextClass]">
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  :class="[mutedTextClass]"
+                >
                   {{ t('admin.dashboard.table.size') }}
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" :class="[mutedTextClass]">
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  :class="[mutedTextClass]"
+                >
                   {{ t('admin.dashboard.table.usage') }}
                 </th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" :class="[mutedTextClass]">
+                <th
+                  class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  :class="[mutedTextClass]"
+                >
                   {{ t('admin.dashboard.table.status') }}
                 </th>
               </tr>
@@ -241,7 +287,10 @@
               <tr v-for="file in dashboardData.recentFiles" :key="file.id">
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-3">
-                    <div class="rounded-lg p-2" :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']">
+                    <div
+                      class="rounded-lg p-2"
+                      :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']"
+                    >
                       <FileTextIcon v-if="file.text" class="h-4 w-4" :class="[mutedTextClass]" />
                       <FileIcon v-else class="h-4 w-4" :class="[mutedTextClass]" />
                     </div>
@@ -306,7 +355,10 @@ import { formatFileSize, formatTimestamp } from '@/utils/common'
 
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()
-const { dashboardData, fetchDashboardData } = useDashboardStats()
+const { dashboardData, errorMessage, fetchDashboardData, isLoading, lastUpdatedText } =
+  useDashboardStats({
+    loadFailedMessage: t('admin.dashboard.loadFailed')
+  })
 
 const primaryTextClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-gray-900'))
 const mutedTextClass = computed(() => (isDarkMode.value ? 'text-gray-400' : 'text-gray-500'))
@@ -381,10 +433,17 @@ const PolicyRow = defineComponent({
   },
   setup(props) {
     return () =>
-      h('div', { class: 'flex items-center justify-between gap-4 border-b border-gray-200/60 pb-3 last:border-b-0 dark:border-gray-700' }, [
-        h('span', { class: 'text-sm text-gray-500 dark:text-gray-400' }, props.label),
-        h('span', { class: 'text-sm font-medium text-gray-900 dark:text-white' }, props.value)
-      ])
+      h(
+        'div',
+        {
+          class:
+            'flex items-center justify-between gap-4 border-b border-gray-200/60 pb-3 last:border-b-0 dark:border-gray-700'
+        },
+        [
+          h('span', { class: 'text-sm text-gray-500 dark:text-gray-400' }, props.label),
+          h('span', { class: 'text-sm font-medium text-gray-900 dark:text-white' }, props.value)
+        ]
+      )
   }
 })
 
