@@ -1,6 +1,7 @@
 import api, { rawApiClient } from './client'
 import { multipartUploadConfig } from './shared'
 import type {
+  AdminBatchDeleteFilesResponse,
   AdminFileListParams,
   AdminFilePreviewResponse,
   ApiResponse,
@@ -131,6 +132,14 @@ export class FileService {
   static async deleteAdminFile(id: number): Promise<ApiResponse> {
     return api.delete('/admin/file/delete', {
       data: { id }
+    })
+  }
+
+  static async deleteAdminFiles(
+    ids: number[]
+  ): Promise<ApiResponse<AdminBatchDeleteFilesResponse>> {
+    return api.delete('/admin/file/batch-delete', {
+      data: { ids }
     })
   }
 

@@ -144,6 +144,57 @@
       </div>
     </section>
 
+    <section
+      v-if="tableData.length > 0"
+      class="mb-4 flex flex-col gap-3 rounded-lg border px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+      :class="[panelClass]"
+    >
+      <label class="inline-flex items-center gap-2 text-sm" :class="[primaryTextClass]">
+        <input
+          type="checkbox"
+          class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+          :checked="isAllCurrentPageSelected"
+          :disabled="isBatchDeleting"
+          :indeterminate="isCurrentPagePartiallySelected"
+          @change="toggleCurrentPageSelection"
+        />
+        <span>
+          {{
+            hasSelectedFiles
+              ? t('fileManage.selectedCount', { count: selectedCount })
+              : t('fileManage.selectCurrentPage')
+          }}
+        </span>
+      </label>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <BaseButton
+          v-if="hasSelectedFiles"
+          variant="outline"
+          size="sm"
+          :disabled="isBatchDeleting"
+          @click="clearSelection"
+        >
+          <template #icon>
+            <XIcon class="mr-2 h-4 w-4" />
+          </template>
+          {{ t('fileManage.clearSelection') }}
+        </BaseButton>
+        <BaseButton
+          variant="danger"
+          size="sm"
+          :disabled="!hasSelectedFiles"
+          :loading="isBatchDeleting"
+          @click="deleteSelectedFiles"
+        >
+          <template #icon>
+            <TrashIcon class="mr-2 h-4 w-4" />
+          </template>
+          {{ t('fileManage.batchDelete') }}
+        </BaseButton>
+      </div>
+    </section>
+
     <DataTable :title="t('fileManage.allFiles')" :headers="fileTableHeaders">
       <template #body>
         <tr v-if="isLoading">
@@ -197,8 +248,25 @@
             v-for="file in tableData"
             :key="file.id"
             class="transition-colors duration-200"
-            :class="[isDarkMode ? 'hover:bg-gray-700/70' : 'hover:bg-gray-50']"
+            :class="[
+              selectedFileIds.has(file.id)
+                ? isDarkMode
+                  ? 'bg-indigo-950/30'
+                  : 'bg-indigo-50/70'
+                : '',
+              isDarkMode ? 'hover:bg-gray-700/70' : 'hover:bg-gray-50'
+            ]"
           >
+            <td class="px-6 py-4 whitespace-nowrap">
+              <input
+                type="checkbox"
+                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                :checked="selectedFileIds.has(file.id)"
+                :disabled="isBatchDeleting"
+                :aria-label="t('fileManage.selectFile', { name: file.displayName })"
+                @change="toggleFileSelection(file.id)"
+              />
+            </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span class="font-medium select-all" :class="[primaryTextClass]">
                 {{ file.code }}
@@ -508,6 +576,7 @@ const { t } = useI18n()
 const isDarkMode = useInjectedDarkMode()
 
 const fileTableHeaders = computed(() => [
+  t('fileManage.headers.select'),
   t('fileManage.headers.code'),
   t('fileManage.headers.name'),
   t('fileManage.headers.type'),
@@ -523,12 +592,18 @@ const {
   hasActiveFilters,
   hasLoadError,
   isLoading,
+  isAllCurrentPageSelected,
+  isBatchDeleting,
+  isCurrentPagePartiallySelected,
   isPreviewLoading,
   isSaving,
   downloadingFileId,
+  hasSelectedFiles,
   params,
   previewFile,
   previewMetaText,
+  selectedCount,
+  selectedFileIds,
   storageUsedText,
   summary,
   showEditModal,
@@ -538,7 +613,9 @@ const {
   closeEditModal,
   closeTextPreview,
   copyText,
+  clearSelection,
   deleteFile,
+  deleteSelectedFiles,
   downloadFile,
   exportPreviewText,
   handlePageChange,
@@ -550,7 +627,9 @@ const {
   refreshFiles,
   resetFilters,
   setStatusFilter,
-  setTypeFilter
+  setTypeFilter,
+  toggleCurrentPageSelection,
+  toggleFileSelection
 } = useAdminFiles()
 
 const primaryTextClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-gray-900'))

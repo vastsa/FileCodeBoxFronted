@@ -3,11 +3,13 @@ import { useI18n } from 'vue-i18n'
 import { FileService } from '@/services'
 import { useAlertStore } from '@/stores/alertStore'
 import type {
+  AdminBatchDeleteFilesResponse,
   AdminFileListParams,
   AdminFileStatusFilter,
   AdminFileSummary,
   AdminFileTypeFilter,
   AdminFileViewItem,
+  ApiResponse,
   FileEditForm,
   FileListItem
 } from '@/types'
@@ -36,6 +38,17 @@ const isExpiredByDate = (value: string | null | undefined) => {
   if (!value) return false
   const timestamp = new Date(value).getTime()
   return Number.isFinite(timestamp) && timestamp < Date.now()
+}
+
+type ErrorWithResponse = {
+  response?: {
+    status?: number
+  }
+}
+
+const isLegacyBatchDeleteUnavailable = (error: unknown) => {
+  const status = (error as ErrorWithResponse)?.response?.status
+  return status === 404 || status === 405
 }
 
 export function useAdminFiles() {
@@ -74,8 +87,21 @@ export function useAdminFiles() {
   const previewMetaText = ref('')
   const isPreviewLoading = ref(false)
   const downloadingFileId = ref<number | null>(null)
+  const selectedFileIds = ref<Set<number>>(new Set())
+  const isBatchDeleting = ref(false)
   const totalPages = computed(() => Math.max(Math.ceil(params.value.total / params.value.size), 1))
   const storageUsedText = computed(() => formatFileSize(summary.value.storageUsed))
+  const currentPageSelectedCount = computed(
+    () => tableData.value.filter((file) => selectedFileIds.value.has(file.id)).length
+  )
+  const selectedCount = computed(() => selectedFileIds.value.size)
+  const hasSelectedFiles = computed(() => selectedCount.value > 0)
+  const isAllCurrentPageSelected = computed(
+    () => tableData.value.length > 0 && currentPageSelectedCount.value === tableData.value.length
+  )
+  const isCurrentPagePartiallySelected = computed(
+    () => currentPageSelectedCount.value > 0 && !isAllCurrentPageSelected.value
+  )
 
   const requestParams = computed<AdminFileListParams>(() => ({
     page: params.value.page,
@@ -166,6 +192,36 @@ export function useAdminFiles() {
     }
   }
 
+  const syncSelectedFilesWithCurrentPage = () => {
+    const visibleIds = new Set(tableData.value.map((file) => file.id))
+    selectedFileIds.value = new Set(
+      Array.from(selectedFileIds.value).filter((id) => visibleIds.has(id))
+    )
+  }
+
+  const clearSelection = () => {
+    selectedFileIds.value = new Set()
+  }
+
+  const toggleFileSelection = (id: number) => {
+    const nextSelectedIds = new Set(selectedFileIds.value)
+    if (nextSelectedIds.has(id)) {
+      nextSelectedIds.delete(id)
+    } else {
+      nextSelectedIds.add(id)
+    }
+    selectedFileIds.value = nextSelectedIds
+  }
+
+  const toggleCurrentPageSelection = () => {
+    if (isAllCurrentPageSelected.value) {
+      clearSelection()
+      return
+    }
+
+    selectedFileIds.value = new Set(tableData.value.map((file) => file.id))
+  }
+
   const resetEditForm = () => {
     editForm.value = {
       id: null,
@@ -187,6 +243,7 @@ export function useAdminFiles() {
       tableData.value = res.detail.data.map(createFileViewItem)
       params.value.total = res.detail.total
       summary.value = res.detail.summary || buildFallbackSummary(tableData.value, res.detail.total)
+      syncSelectedFilesWithCurrentPage()
     } catch (error) {
       hasLoadError.value = true
       alertStore.showAlert(
@@ -214,6 +271,7 @@ export function useAdminFiles() {
     params.value.type = 'all'
     params.value.sortBy = 'created_at'
     params.value.sortOrder = 'desc'
+    clearSelection()
     await loadFiles()
   }
 
@@ -279,9 +337,75 @@ export function useAdminFiles() {
       if (tableData.value.length === 1 && params.value.page > 1) {
         params.value.page -= 1
       }
+      selectedFileIds.value.delete(id)
+      selectedFileIds.value = new Set(selectedFileIds.value)
       await loadFiles()
     } catch (error: unknown) {
       alertStore.showAlert(getErrorMessage(error, t('manage.fileManage.deleteFailed')), 'error')
+    }
+  }
+
+  const deleteAdminFilesWithFallback = async (
+    ids: number[]
+  ): Promise<ApiResponse<AdminBatchDeleteFilesResponse>> => {
+    try {
+      return await FileService.deleteAdminFiles(ids)
+    } catch (error: unknown) {
+      if (!isLegacyBatchDeleteUnavailable(error)) {
+        throw error
+      }
+
+      await Promise.all(ids.map((id) => FileService.deleteAdminFile(id)))
+      return {
+        code: 200,
+        detail: {
+          deletedCount: ids.length,
+          deleted_count: ids.length,
+          deleted: ids,
+          missing: [],
+          failed: []
+        }
+      }
+    }
+  }
+
+  const deleteSelectedFiles = async () => {
+    if (!hasSelectedFiles.value || isBatchDeleting.value) return
+
+    const ids = Array.from(selectedFileIds.value)
+    if (!window.confirm(t('fileManage.batchDeleteConfirm', { count: ids.length }))) {
+      return
+    }
+
+    isBatchDeleting.value = true
+    try {
+      const response = await deleteAdminFilesWithFallback(ids)
+      const detail = response.detail
+      const deletedCount = detail?.deletedCount ?? detail?.deleted_count ?? ids.length
+      const failedCount = detail?.failedCount ?? detail?.failed_count ?? 0
+
+      if (tableData.value.length <= deletedCount && params.value.page > 1) {
+        params.value.page -= 1
+      }
+
+      clearSelection()
+      await loadFiles()
+      alertStore.showAlert(
+        t(
+          failedCount > 0
+            ? 'fileManage.batchDeletePartialSuccess'
+            : 'fileManage.batchDeleteSuccess',
+          {
+            count: deletedCount,
+            failed: failedCount
+          }
+        ),
+        failedCount > 0 ? 'warning' : 'success'
+      )
+    } catch (error: unknown) {
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.batchDeleteFailed')), 'error')
+    } finally {
+      isBatchDeleting.value = false
     }
   }
 
@@ -366,12 +490,18 @@ export function useAdminFiles() {
     hasLoadError,
     hasActiveFilters,
     isLoading,
+    isAllCurrentPageSelected,
+    isBatchDeleting,
+    isCurrentPagePartiallySelected,
     isPreviewLoading,
     isSaving,
     downloadingFileId,
+    hasSelectedFiles,
     params,
     previewFile,
     previewMetaText,
+    selectedCount,
+    selectedFileIds,
     storageUsedText,
     summary,
     showEditModal,
@@ -382,7 +512,9 @@ export function useAdminFiles() {
     closeEditModal,
     closeTextPreview,
     copyText,
+    clearSelection,
     deleteFile,
+    deleteSelectedFiles,
     downloadFile,
     exportPreviewText,
     handlePageChange,
@@ -394,6 +526,8 @@ export function useAdminFiles() {
     refreshFiles,
     resetFilters,
     setStatusFilter,
-    setTypeFilter
+    setTypeFilter,
+    toggleCurrentPageSelection,
+    toggleFileSelection
   }
 }

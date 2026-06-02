@@ -109,6 +109,27 @@ export interface AdminFilePreviewResponse {
   expired_at?: string | null
 }
 
+export interface AdminBatchDeleteFileFailure {
+  id: number
+  reason: string
+}
+
+export interface AdminBatchDeleteFilesResponse {
+  requestedCount?: number
+  requested_count?: number
+  uniqueCount?: number
+  unique_count?: number
+  deletedCount?: number
+  deleted_count?: number
+  missingCount?: number
+  missing_count?: number
+  failedCount?: number
+  failed_count?: number
+  deleted?: number[]
+  missing?: number[]
+  failed?: AdminBatchDeleteFileFailure[]
+}
+
 export interface FileUploadResponse {
   code: string
   name: string
