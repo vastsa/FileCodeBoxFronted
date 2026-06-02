@@ -5,6 +5,8 @@ import { useAlertStore } from '@/stores/alertStore'
 import type {
   AdminBatchEditForm,
   AdminBatchDeleteFilesResponse,
+  AdminBatchPolicyActionRequest,
+  AdminBatchPolicyActionResponse,
   AdminBatchUpdateFilesRequest,
   AdminBatchUpdateFilesResponse,
   AdminFileDetailResponse,
@@ -81,6 +83,8 @@ type DetailPolicyActionOption = {
   description: string
 }
 
+type BatchPolicyActionOption = DetailPolicyActionOption
+
 type HealthFilterOption = {
   value: AdminFileHealthFilter
   label: string
@@ -151,8 +155,11 @@ export function useAdminFiles() {
   const selectedFileIds = ref<Set<number>>(new Set())
   const isBatchDeleting = ref(false)
   const isBatchUpdating = ref(false)
+  const isBatchPolicyActionRunning = ref(false)
   let detailRequestSerial = 0
-  const isBatchActionRunning = computed(() => isBatchDeleting.value || isBatchUpdating.value)
+  const isBatchActionRunning = computed(
+    () => isBatchDeleting.value || isBatchUpdating.value || isBatchPolicyActionRunning.value
+  )
   const totalPages = computed(() => Math.max(Math.ceil(params.value.total / params.value.size), 1))
   const storageUsedText = computed(() => formatFileSize(summary.value.storageUsed))
   const currentPageSelectedCount = computed(
@@ -256,6 +263,10 @@ export function useAdminFiles() {
       })
     }
   ])
+
+  const batchPolicyActionOptions = computed<BatchPolicyActionOption[]>(
+    () => detailPolicyActionOptions.value
+  )
 
   const inferIsText = (file: FileListItem) => {
     if (typeof file.isText === 'boolean') return file.isText
@@ -657,7 +668,24 @@ export function useAdminFiles() {
     return request
   }
 
-  const getPolicyActionBaseDate = (file: AdminFileDetailViewItem) => {
+  const buildBatchPolicyActionRequest = (
+    ids: number[],
+    action: AdminFilePolicyAction
+  ): AdminBatchPolicyActionRequest => {
+    const request: AdminBatchPolicyActionRequest = {
+      ids,
+      action
+    }
+
+    if (action === 'reset_download_limit') {
+      request.downloadLimit = detailPolicyDownloadLimit
+      request.download_limit = detailPolicyDownloadLimit
+    }
+
+    return request
+  }
+
+  const getPolicyActionBaseDate = (file: Pick<FileListItem, 'expired_at'>) => {
     const now = new Date()
     const expiredAt = file.expired_at ? new Date(file.expired_at) : null
     if (!expiredAt || Number.isNaN(expiredAt.getTime()) || expiredAt.getTime() < now.getTime()) {
@@ -667,7 +695,7 @@ export function useAdminFiles() {
   }
 
   const buildLegacyPolicyActionPayload = (
-    file: AdminFileDetailViewItem,
+    file: Pick<FileListItem, 'id' | 'expired_at'>,
     action: AdminFilePolicyAction
   ): AdminFilePatchPayload => {
     if (action === 'make_permanent') {
@@ -889,6 +917,60 @@ export function useAdminFiles() {
     }
   }
 
+  const applyAdminFilesPolicyActionWithFallback = async (
+    ids: number[],
+    action: AdminFilePolicyAction
+  ): Promise<ApiResponse<AdminBatchPolicyActionResponse>> => {
+    const request = buildBatchPolicyActionRequest(ids, action)
+    try {
+      return await FileService.applyAdminFilesPolicyAction(request)
+    } catch (error: unknown) {
+      if (!isLegacyEndpointUnavailable(error)) {
+        throw error
+      }
+
+      const filesById = new Map(tableData.value.map((file) => [file.id, file]))
+      const updated: number[] = []
+      const missing: number[] = []
+      const failed: { id: number; reason: string }[] = []
+
+      for (const id of ids) {
+        const file = filesById.get(id)
+        if (!file) {
+          missing.push(id)
+          continue
+        }
+
+        try {
+          await FileService.updateFile(buildLegacyPolicyActionPayload(file, action))
+          updated.push(id)
+        } catch (legacyError: unknown) {
+          failed.push({ id, reason: getErrorMessage(legacyError, t('common.unknownError')) })
+        }
+      }
+
+      return {
+        code: 200,
+        detail: {
+          requestedCount: ids.length,
+          requested_count: ids.length,
+          uniqueCount: ids.length,
+          unique_count: ids.length,
+          updatedCount: updated.length,
+          updated_count: updated.length,
+          missingCount: missing.length,
+          missing_count: missing.length,
+          failedCount: failed.length,
+          failed_count: failed.length,
+          action,
+          updated,
+          missing,
+          failed
+        }
+      }
+    }
+  }
+
   const deleteSelectedFiles = async () => {
     if (!hasSelectedFiles.value || isBatchActionRunning.value) return
 
@@ -969,6 +1051,53 @@ export function useAdminFiles() {
       alertStore.showAlert(getErrorMessage(error, t('fileManage.batchUpdateFailed')), 'error')
     } finally {
       isBatchUpdating.value = false
+    }
+  }
+
+  const applySelectedPolicyAction = async (action: AdminFilePolicyAction) => {
+    if (!hasSelectedFiles.value || isBatchActionRunning.value) return
+
+    const ids = Array.from(selectedFileIds.value)
+    const actionLabel =
+      batchPolicyActionOptions.value.find((option) => option.action === action)?.label || action
+    if (
+      !window.confirm(
+        t('fileManage.batchPolicyActionConfirm', {
+          count: ids.length,
+          action: actionLabel
+        })
+      )
+    ) {
+      return
+    }
+
+    isBatchPolicyActionRunning.value = true
+    try {
+      const response = await applyAdminFilesPolicyActionWithFallback(ids, action)
+      const detail = response.detail
+      const updatedCount = detail?.updatedCount ?? detail?.updated_count ?? ids.length
+      const failedCount =
+        (detail?.failedCount ?? detail?.failed_count ?? 0) +
+        (detail?.missingCount ?? detail?.missing_count ?? 0)
+
+      clearSelection()
+      await loadFiles()
+      alertStore.showAlert(
+        t(
+          failedCount > 0
+            ? 'fileManage.batchPolicyActionPartialSuccess'
+            : 'fileManage.batchPolicyActionSuccess',
+          {
+            count: updatedCount,
+            failed: failedCount
+          }
+        ),
+        failedCount > 0 ? 'warning' : 'success'
+      )
+    } catch (error: unknown) {
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.batchPolicyActionFailed')), 'error')
+    } finally {
+      isBatchPolicyActionRunning.value = false
     }
   }
 
@@ -1135,6 +1264,7 @@ export function useAdminFiles() {
     isAllCurrentPageSelected,
     isBatchActionRunning,
     isBatchDeleting,
+    isBatchPolicyActionRunning,
     isBatchUpdating,
     isCurrentPagePartiallySelected,
     isDetailLoading,
@@ -1142,6 +1272,7 @@ export function useAdminFiles() {
     isPreviewLoading,
     isSaving,
     batchEditForm,
+    batchPolicyActionOptions,
     detailPolicyActionOptions,
     downloadingFileId,
     healthFilterOptions,
@@ -1176,6 +1307,7 @@ export function useAdminFiles() {
     handlePageChange,
     handleSearch,
     applyDetailPolicyAction,
+    applySelectedPolicyAction,
     handleBatchUpdate,
     handleUpdate,
     loadFiles,

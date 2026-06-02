@@ -482,6 +482,10 @@ export default {
     batchUpdatePartialSuccess: 'Updated {count} files, {failed} failed',
     batchUpdateFailed: 'Batch update failed',
     batchUpdateNoFields: 'Choose a policy to update',
+    batchPolicyActionConfirm: 'Apply "{action}" to the selected {count} files?',
+    batchPolicyActionSuccess: 'Processed {count} files',
+    batchPolicyActionPartialSuccess: 'Processed {count} files, {failed} failed',
+    batchPolicyActionFailed: 'Batch policy action failed',
     policyActionSuccess: 'File policy updated',
     policyActionFailed: 'Failed to apply policy action',
     policyActions: {

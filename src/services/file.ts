@@ -2,6 +2,8 @@ import api, { rawApiClient } from './client'
 import { multipartUploadConfig } from './shared'
 import type {
   AdminBatchDeleteFilesResponse,
+  AdminBatchPolicyActionRequest,
+  AdminBatchPolicyActionResponse,
   AdminBatchUpdateFilesRequest,
   AdminBatchUpdateFilesResponse,
   AdminFilePatchPayload,
@@ -156,6 +158,20 @@ export class FileService {
       }
 
       return api.post('/admin/file/policy-action', data)
+    }
+  }
+
+  static async applyAdminFilesPolicyAction(
+    data: AdminBatchPolicyActionRequest
+  ): Promise<ApiResponse<AdminBatchPolicyActionResponse>> {
+    try {
+      return await api.patch('/admin/file/batch-policy-action', data)
+    } catch (error: unknown) {
+      if (!isMethodFallbackError(error)) {
+        throw error
+      }
+
+      return api.post('/admin/file/batch-policy-action', data)
     }
   }
 

@@ -480,6 +480,10 @@ export default {
     batchUpdatePartialSuccess: '已更新 {count} 个文件，{failed} 个失败',
     batchUpdateFailed: '批量更新失败',
     batchUpdateNoFields: '请选择要更新的策略',
+    batchPolicyActionConfirm: '确认对选中的 {count} 个文件执行“{action}”？',
+    batchPolicyActionSuccess: '已处理 {count} 个文件',
+    batchPolicyActionPartialSuccess: '已处理 {count} 个文件，{failed} 个失败',
+    batchPolicyActionFailed: '批量策略动作执行失败',
     policyActionSuccess: '文件策略已更新',
     policyActionFailed: '策略动作执行失败',
     policyActions: {

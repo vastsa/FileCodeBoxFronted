@@ -323,6 +323,17 @@ export interface AdminBatchUpdateFilesResponse {
   failed?: AdminBatchUpdateFileFailure[]
 }
 
+export interface AdminBatchPolicyActionRequest {
+  ids: number[]
+  action: AdminFilePolicyAction
+  downloadLimit?: number
+  download_limit?: number
+}
+
+export interface AdminBatchPolicyActionResponse extends AdminBatchUpdateFilesResponse {
+  action?: AdminFilePolicyAction | string
+}
+
 export type AdminBatchEditMode = 'expiresAt' | 'downloadLimit' | 'forever'
 
 export interface AdminBatchEditForm {

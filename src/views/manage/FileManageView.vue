@@ -199,9 +199,24 @@
           {{ t('fileManage.clearSelection') }}
         </BaseButton>
         <BaseButton
+          v-for="option in batchPolicyActionOptions"
+          :key="option.action"
+          variant="outline"
+          size="sm"
+          :title="option.description"
+          :disabled="!hasSelectedFiles || isBatchDeleting || isBatchUpdating"
+          :loading="isBatchPolicyActionRunning"
+          @click="applySelectedPolicyAction(option.action)"
+        >
+          <template #icon>
+            <component :is="getDetailPolicyActionIcon(option.action)" class="mr-2 h-4 w-4" />
+          </template>
+          {{ option.label }}
+        </BaseButton>
+        <BaseButton
           variant="secondary"
           size="sm"
-          :disabled="!hasSelectedFiles || isBatchDeleting"
+          :disabled="!hasSelectedFiles || isBatchDeleting || isBatchPolicyActionRunning"
           :loading="isBatchUpdating"
           @click="openBatchEditModal"
         >
@@ -213,7 +228,7 @@
         <BaseButton
           variant="danger"
           size="sm"
-          :disabled="!hasSelectedFiles || isBatchUpdating"
+          :disabled="!hasSelectedFiles || isBatchUpdating || isBatchPolicyActionRunning"
           :loading="isBatchDeleting"
           @click="deleteSelectedFiles"
         >
@@ -1093,6 +1108,7 @@ const {
   isAllCurrentPageSelected,
   isBatchActionRunning,
   isBatchDeleting,
+  isBatchPolicyActionRunning,
   isBatchUpdating,
   isCurrentPagePartiallySelected,
   isDetailLoading,
@@ -1100,6 +1116,7 @@ const {
   isPreviewLoading,
   isSaving,
   batchEditForm,
+  batchPolicyActionOptions,
   detailPolicyActionOptions,
   downloadingFileId,
   healthFilterOptions,
@@ -1133,6 +1150,7 @@ const {
   handlePageChange,
   handleSearch,
   applyDetailPolicyAction,
+  applySelectedPolicyAction,
   handleBatchUpdate,
   handleUpdate,
   loadFiles,
