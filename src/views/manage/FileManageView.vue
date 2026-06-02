@@ -159,6 +159,64 @@
             {{ option.label }}
           </option>
         </select>
+        <div class="flex flex-col gap-2 sm:ml-auto sm:flex-row sm:items-center">
+          <label class="inline-flex items-center text-sm" :class="[mutedTextClass]">
+            <FilterIcon class="mr-1 h-3.5 w-3.5" />
+            {{ t('fileManage.viewPreset') }}
+          </label>
+          <select
+            :value="selectedViewPresetId"
+            class="min-w-[160px] rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+            :class="[fieldClass]"
+            :disabled="isViewPresetLoading"
+            @change="handleViewPresetChange"
+          >
+            <option value="">{{ t('fileManage.viewPresetCustom') }}</option>
+            <option v-for="preset in viewPresets" :key="preset.id" :value="preset.id">
+              {{ preset.name }}
+            </option>
+          </select>
+          <div class="flex flex-wrap items-center gap-2">
+            <BaseButton
+              size="sm"
+              variant="secondary"
+              :title="t('fileManage.saveViewPreset')"
+              :loading="isViewPresetSaving"
+              @click="handleSaveViewPreset"
+            >
+              <template #icon>
+                <CheckIcon class="mr-2 h-4 w-4" />
+              </template>
+              {{ t('fileManage.saveViewPreset') }}
+            </BaseButton>
+            <BaseButton
+              size="sm"
+              variant="outline"
+              :title="t('fileManage.updateViewPreset')"
+              :disabled="!canModifySelectedViewPreset"
+              :loading="isViewPresetSaving"
+              @click="updateSelectedViewPreset"
+            >
+              <template #icon>
+                <PencilIcon class="mr-2 h-4 w-4" />
+              </template>
+              {{ t('fileManage.updateViewPreset') }}
+            </BaseButton>
+            <BaseButton
+              size="sm"
+              variant="danger"
+              :title="t('fileManage.deleteViewPreset')"
+              :disabled="!canModifySelectedViewPreset"
+              :loading="isViewPresetDeleting"
+              @click="deleteSelectedViewPreset"
+            >
+              <template #icon>
+                <TrashIcon class="mr-2 h-4 w-4" />
+              </template>
+              {{ t('fileManage.deleteViewPreset') }}
+            </BaseButton>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1178,6 +1236,9 @@ const {
   isDetailPolicyActionRunning,
   isPreviewLoading,
   isSaving,
+  isViewPresetDeleting,
+  isViewPresetLoading,
+  isViewPresetSaving,
   batchEditForm,
   batchPolicyActionOptions,
   detailPolicyActionOptions,
@@ -1191,6 +1252,7 @@ const {
   selectedFileDetail,
   selectedCount,
   selectedFileIds,
+  selectedViewPresetId,
   storageUsedText,
   summary,
   showBatchEditModal,
@@ -1199,6 +1261,8 @@ const {
   editForm,
   showTextPreview,
   previewText,
+  viewPresets,
+  applyViewPreset,
   closeBatchEditModal,
   closeEditModal,
   closeFileDetail,
@@ -1209,6 +1273,7 @@ const {
   clearSelection,
   deleteFile,
   deleteSelectedFiles,
+  deleteSelectedViewPreset,
   downloadFile,
   exportPreviewText,
   handlePageChange,
@@ -1217,6 +1282,7 @@ const {
   applySelectedPolicyAction,
   handleBatchUpdate,
   handleUpdate,
+  loadViewPresets,
   loadFiles,
   openBatchEditModal,
   openEditModal,
@@ -1224,9 +1290,11 @@ const {
   openTextPreview,
   refreshFiles,
   resetFilters,
+  saveCurrentViewPreset,
   setHealthFilter,
   setStatusFilter,
   setTypeFilter,
+  updateSelectedViewPreset,
   updateDetailMetadata,
   toggleCurrentPageSelection,
   toggleFileSelection
@@ -1364,6 +1432,11 @@ const detailInsightReasonLabels = computed(() => {
   return file.statusInsightReasons.map((reason) => t(`fileManage.insightReasons.${reason}`))
 })
 
+const canModifySelectedViewPreset = computed(() => {
+  const preset = viewPresets.value.find((item) => item.id === selectedViewPresetId.value)
+  return Boolean(preset && !preset.isBuiltIn)
+})
+
 const openDetailEditModal = () => {
   if (!selectedFileDetail.value) return
 
@@ -1477,6 +1550,24 @@ const handleHealthFilterChange = async (health: AdminFileHealthFilter) => {
 const handleResetFilters = async () => {
   await resetFilters()
   await syncHealthFilterQuery('all')
+}
+
+const handleViewPresetChange = async (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  if (!target.value) {
+    selectedViewPresetId.value = ''
+    return
+  }
+
+  await applyViewPreset(target.value)
+  await syncHealthFilterQuery(params.value.health || 'all')
+}
+
+const handleSaveViewPreset = async () => {
+  const name = window.prompt(t('fileManage.viewPresetNamePrompt'))
+  if (!name) return
+
+  await saveCurrentViewPreset(name)
 }
 
 const batchEditModeOptions = computed<
@@ -1626,6 +1717,7 @@ watch(
 
 onMounted(() => {
   params.value.health = getRouteHealthFilter()
+  void loadViewPresets()
   void loadFiles()
 })
 </script>

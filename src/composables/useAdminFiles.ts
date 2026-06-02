@@ -22,6 +22,9 @@ import type {
   AdminFileStatusFilter,
   AdminFileSummary,
   AdminFileTypeFilter,
+  AdminFileViewPreset,
+  AdminFileViewPresetParams,
+  AdminFileViewPresetRequest,
   AdminFileViewItem,
   ApiResponse,
   FileEditForm,
@@ -117,6 +120,89 @@ const formatLocalDateTime = (date: Date) => {
   return `${year}-${month}-${day}T${hours}:${minutes}`
 }
 
+const builtInAllViewPresetId = 'built_in_all'
+const adminFileStatusFilters: AdminFileStatusFilter[] = ['all', 'active', 'expired']
+const adminFileTypeFilters: AdminFileTypeFilter[] = ['all', 'file', 'text', 'chunked']
+const adminFileHealthFilters: AdminFileHealthFilter[] = [
+  'all',
+  'attention',
+  'danger',
+  'warning',
+  'healthy',
+  'expired',
+  'expiring_soon',
+  'storage_issue',
+  'never_retrieved',
+  'permanent'
+]
+const adminFileSortFields = [
+  'created_at',
+  'expired_at',
+  'name',
+  'size',
+  'used_count',
+  'code'
+] as const
+const adminFileSortOrders = ['asc', 'desc'] as const
+
+type RawViewPresetParams = Partial<
+  Record<keyof AdminFileViewPresetParams | 'sort_by' | 'sort_order', unknown>
+>
+
+const normalizePresetChoice = <T extends string>(
+  value: unknown,
+  allowedValues: readonly T[],
+  fallback: T
+): T => {
+  const normalizedValue = String(value ?? fallback)
+    .replace('-', '_')
+    .trim()
+    .toLowerCase()
+  return allowedValues.includes(normalizedValue as T) ? (normalizedValue as T) : fallback
+}
+
+const normalizePresetSize = (value: unknown) => {
+  const normalizedSize = Number(value)
+  if (!Number.isFinite(normalizedSize)) return 10
+  return Math.min(Math.max(Math.trunc(normalizedSize), 1), 100)
+}
+
+const buildDefaultViewPresetParams = (): AdminFileViewPresetParams => ({
+  keyword: '',
+  status: 'all',
+  type: 'all',
+  health: 'all',
+  sortBy: 'created_at',
+  sortOrder: 'desc',
+  size: 10
+})
+
+const normalizeViewPresetParams = (params: unknown): AdminFileViewPresetParams => {
+  const defaults = buildDefaultViewPresetParams()
+  const rawParams =
+    params && typeof params === 'object'
+      ? (params as RawViewPresetParams)
+      : ({} as RawViewPresetParams)
+
+  return {
+    keyword: String(rawParams.keyword ?? defaults.keyword).trim(),
+    status: normalizePresetChoice(rawParams.status, adminFileStatusFilters, defaults.status),
+    type: normalizePresetChoice(rawParams.type, adminFileTypeFilters, defaults.type),
+    health: normalizePresetChoice(rawParams.health, adminFileHealthFilters, defaults.health),
+    sortBy: normalizePresetChoice(
+      rawParams.sortBy ?? rawParams.sort_by,
+      adminFileSortFields,
+      defaults.sortBy
+    ),
+    sortOrder: normalizePresetChoice(
+      rawParams.sortOrder ?? rawParams.sort_order,
+      adminFileSortOrders,
+      defaults.sortOrder
+    ),
+    size: normalizePresetSize(rawParams.size ?? defaults.size)
+  }
+}
+
 export function useAdminFiles() {
   const { t } = useI18n()
   const alertStore = useAlertStore()
@@ -166,6 +252,11 @@ export function useAdminFiles() {
   const isBatchDeleting = ref(false)
   const isBatchUpdating = ref(false)
   const isBatchPolicyActionRunning = ref(false)
+  const savedViewPresets = ref<AdminFileViewPreset[]>([])
+  const selectedViewPresetId = ref(builtInAllViewPresetId)
+  const isViewPresetLoading = ref(false)
+  const isViewPresetSaving = ref(false)
+  const isViewPresetDeleting = ref(false)
   let detailRequestSerial = 0
   const isBatchActionRunning = computed(
     () => isBatchDeleting.value || isBatchUpdating.value || isBatchPolicyActionRunning.value
@@ -202,6 +293,61 @@ export function useAdminFiles() {
       params.value.type !== 'all' ||
       params.value.health !== 'all'
   )
+
+  const buildCurrentViewPresetParams = (): AdminFileViewPresetParams => ({
+    keyword: params.value.keyword || '',
+    status: params.value.status || 'all',
+    type: params.value.type || 'all',
+    health: params.value.health || 'all',
+    sortBy: params.value.sortBy || 'created_at',
+    sortOrder: params.value.sortOrder || 'desc',
+    size: params.value.size || 10
+  })
+
+  const buildBuiltInViewPreset = (
+    id: string,
+    nameKey: string,
+    filters: Partial<AdminFileViewPresetParams> = {}
+  ): AdminFileViewPreset => {
+    const presetFilters = normalizeViewPresetParams({
+      ...buildDefaultViewPresetParams(),
+      ...filters
+    })
+
+    return {
+      id,
+      name: t(nameKey),
+      filters: presetFilters,
+      params: presetFilters,
+      isBuiltIn: true,
+      isDefault: id === builtInAllViewPresetId,
+      is_default: id === builtInAllViewPresetId
+    }
+  }
+
+  const builtInViewPresets = computed<AdminFileViewPreset[]>(() => [
+    buildBuiltInViewPreset(builtInAllViewPresetId, 'fileManage.viewPresetAll'),
+    buildBuiltInViewPreset('built_in_attention', 'fileManage.viewPresetAttention', {
+      health: 'attention'
+    }),
+    buildBuiltInViewPreset('built_in_expiring_soon', 'fileManage.viewPresetExpiringSoon', {
+      health: 'expiring_soon'
+    }),
+    buildBuiltInViewPreset('built_in_storage_issue', 'fileManage.viewPresetStorageIssue', {
+      health: 'storage_issue'
+    }),
+    buildBuiltInViewPreset('built_in_never_retrieved', 'fileManage.viewPresetNeverRetrieved', {
+      health: 'never_retrieved'
+    }),
+    buildBuiltInViewPreset('built_in_permanent', 'fileManage.viewPresetPermanent', {
+      health: 'permanent'
+    })
+  ])
+
+  const viewPresets = computed<AdminFileViewPreset[]>(() => [
+    ...builtInViewPresets.value,
+    ...savedViewPresets.value
+  ])
 
   const healthFilterOptions = computed<HealthFilterOption[]>(() => [
     { value: 'all', label: t('fileManage.healthFilters.all'), count: summary.value.totalFiles },
@@ -766,6 +912,161 @@ export function useAdminFiles() {
     }
   }
 
+  const getPresetParams = (preset: AdminFileViewPreset) =>
+    normalizeViewPresetParams(preset.filters ?? preset.params)
+
+  const normalizeSavedViewPreset = (preset: AdminFileViewPreset): AdminFileViewPreset | null => {
+    const id = String(preset.id || '').trim()
+    const name = String(preset.name || '').trim()
+    if (!id || !name) return null
+
+    const presetParams = getPresetParams(preset)
+    return {
+      ...preset,
+      id,
+      name,
+      filters: presetParams,
+      params: presetParams,
+      isBuiltIn: false
+    }
+  }
+
+  const upsertSavedViewPreset = (preset: AdminFileViewPreset) => {
+    const normalizedPreset = normalizeSavedViewPreset(preset)
+    if (!normalizedPreset) return null
+
+    savedViewPresets.value = [
+      ...savedViewPresets.value.filter((item) => item.id !== normalizedPreset.id),
+      normalizedPreset
+    ]
+    return normalizedPreset
+  }
+
+  const buildViewPresetRequest = (name: string, id?: string): AdminFileViewPresetRequest | null => {
+    const normalizedName = name.trim()
+    if (!normalizedName) return null
+
+    const filters = normalizeViewPresetParams(buildCurrentViewPresetParams())
+    return {
+      id,
+      name: normalizedName,
+      filters,
+      params: filters
+    }
+  }
+
+  const markViewPresetDirty = () => {
+    selectedViewPresetId.value = ''
+  }
+
+  const loadViewPresets = async () => {
+    isViewPresetLoading.value = true
+    try {
+      const response = await FileService.getAdminFileViewPresets()
+      const rawPresets = response.detail?.presets ?? response.detail?.items ?? []
+      savedViewPresets.value = rawPresets
+        .map((preset) => normalizeSavedViewPreset(preset))
+        .filter((preset): preset is AdminFileViewPreset => Boolean(preset))
+
+      if (
+        selectedViewPresetId.value &&
+        !viewPresets.value.some((preset) => preset.id === selectedViewPresetId.value)
+      ) {
+        selectedViewPresetId.value = builtInAllViewPresetId
+      }
+    } catch (error: unknown) {
+      savedViewPresets.value = []
+      alertStore.showAlert(
+        isLegacyEndpointUnavailable(error)
+          ? t('fileManage.viewPresetLoadFailed')
+          : getErrorMessage(error, t('fileManage.viewPresetLoadFailed')),
+        'warning'
+      )
+    } finally {
+      isViewPresetLoading.value = false
+    }
+  }
+
+  const applyViewPreset = async (idOrPreset: string | AdminFileViewPreset) => {
+    const preset =
+      typeof idOrPreset === 'string'
+        ? viewPresets.value.find((item) => item.id === idOrPreset)
+        : idOrPreset
+    if (!preset) return
+
+    const presetParams = getPresetParams(preset)
+    params.value.keyword = presetParams.keyword
+    params.value.status = presetParams.status
+    params.value.type = presetParams.type
+    params.value.health = presetParams.health
+    params.value.sortBy = presetParams.sortBy
+    params.value.sortOrder = presetParams.sortOrder
+    params.value.size = presetParams.size
+    params.value.page = 1
+    selectedViewPresetId.value = preset.id
+    clearSelection()
+    await loadFiles()
+  }
+
+  const saveCurrentViewPreset = async (name: string) => {
+    const request = buildViewPresetRequest(name)
+    if (!request || isViewPresetSaving.value) return null
+
+    isViewPresetSaving.value = true
+    try {
+      const response = await FileService.saveAdminFileViewPreset(request)
+      const savedPreset = response.detail ? upsertSavedViewPreset(response.detail) : null
+      selectedViewPresetId.value = savedPreset?.id || selectedViewPresetId.value
+      alertStore.showAlert(t('fileManage.viewPresetSaveSuccess'), 'success')
+      return savedPreset
+    } catch (error: unknown) {
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.viewPresetSaveFailed')), 'error')
+      return null
+    } finally {
+      isViewPresetSaving.value = false
+    }
+  }
+
+  const updateSelectedViewPreset = async () => {
+    const preset = savedViewPresets.value.find((item) => item.id === selectedViewPresetId.value)
+    if (!preset || isViewPresetSaving.value) return null
+
+    const request = buildViewPresetRequest(preset.name, preset.id)
+    if (!request) return null
+
+    isViewPresetSaving.value = true
+    try {
+      const response = await FileService.saveAdminFileViewPreset(request)
+      const savedPreset = response.detail ? upsertSavedViewPreset(response.detail) : null
+      selectedViewPresetId.value = savedPreset?.id || preset.id
+      alertStore.showAlert(t('fileManage.viewPresetSaveSuccess'), 'success')
+      return savedPreset
+    } catch (error: unknown) {
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.viewPresetSaveFailed')), 'error')
+      return null
+    } finally {
+      isViewPresetSaving.value = false
+    }
+  }
+
+  const deleteSelectedViewPreset = async () => {
+    const preset = savedViewPresets.value.find((item) => item.id === selectedViewPresetId.value)
+    if (!preset || isViewPresetDeleting.value) return
+    if (!window.confirm(t('fileManage.viewPresetDeleteConfirm', { name: preset.name }))) return
+
+    isViewPresetDeleting.value = true
+    try {
+      await FileService.deleteAdminFileViewPreset(preset.id)
+      savedViewPresets.value = savedViewPresets.value.filter((item) => item.id !== preset.id)
+      markViewPresetDirty()
+      alertStore.showAlert(t('fileManage.viewPresetDeleteSuccess'), 'success')
+    } catch (error: unknown) {
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.viewPresetDeleteFailed')), 'error')
+    } finally {
+      isViewPresetDeleting.value = false
+    }
+  }
+
   const refreshSelectedFileDetail = async (fileId: number, detail?: AdminFileDetailResponse) => {
     if (detail) {
       setSelectedFileDetail(detail)
@@ -812,6 +1113,7 @@ export function useAdminFiles() {
   }
 
   const handleSearch = async () => {
+    markViewPresetDirty()
     params.value.page = 1
     await loadFiles()
   }
@@ -828,23 +1130,27 @@ export function useAdminFiles() {
     params.value.health = 'all'
     params.value.sortBy = 'created_at'
     params.value.sortOrder = 'desc'
+    selectedViewPresetId.value = builtInAllViewPresetId
     clearSelection()
     await loadFiles()
   }
 
   const setStatusFilter = async (status: AdminFileStatusFilter) => {
+    markViewPresetDirty()
     params.value.status = status
     params.value.page = 1
     await loadFiles()
   }
 
   const setTypeFilter = async (type: AdminFileTypeFilter) => {
+    markViewPresetDirty()
     params.value.type = type
     params.value.page = 1
     await loadFiles()
   }
 
   const setHealthFilter = async (health: AdminFileHealthFilter) => {
+    markViewPresetDirty()
     params.value.health = health
     params.value.page = 1
     await loadFiles()
@@ -1342,6 +1648,9 @@ export function useAdminFiles() {
     isDetailPolicyActionRunning,
     isPreviewLoading,
     isSaving,
+    isViewPresetDeleting,
+    isViewPresetLoading,
+    isViewPresetSaving,
     batchEditForm,
     batchPolicyActionOptions,
     detailPolicyActionOptions,
@@ -1355,6 +1664,7 @@ export function useAdminFiles() {
     selectedFileDetail,
     selectedCount,
     selectedFileIds,
+    selectedViewPresetId,
     storageUsedText,
     summary,
     showBatchEditModal,
@@ -1364,6 +1674,8 @@ export function useAdminFiles() {
     showTextPreview,
     previewText,
     totalPages,
+    viewPresets,
+    applyViewPreset,
     closeEditModal,
     closeBatchEditModal,
     closeFileDetail,
@@ -1374,6 +1686,7 @@ export function useAdminFiles() {
     clearSelection,
     deleteFile,
     deleteSelectedFiles,
+    deleteSelectedViewPreset,
     downloadFile,
     exportPreviewText,
     handlePageChange,
@@ -1382,6 +1695,7 @@ export function useAdminFiles() {
     applySelectedPolicyAction,
     handleBatchUpdate,
     handleUpdate,
+    loadViewPresets,
     loadFiles,
     openBatchEditModal,
     openEditModal,
@@ -1389,9 +1703,11 @@ export function useAdminFiles() {
     openTextPreview,
     refreshFiles,
     resetFilters,
+    saveCurrentViewPreset,
     setHealthFilter,
     setStatusFilter,
     setTypeFilter,
+    updateSelectedViewPreset,
     updateDetailMetadata,
     toggleCurrentPageSelection,
     toggleFileSelection

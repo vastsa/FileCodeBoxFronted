@@ -102,6 +102,43 @@ export interface AdminFileListParams {
   sortOrder?: AdminFileSortOrder
 }
 
+export interface AdminFileViewPresetParams {
+  keyword: string
+  status: AdminFileStatusFilter
+  type: AdminFileTypeFilter
+  health: AdminFileHealthFilter
+  sortBy: AdminFileSortBy
+  sortOrder: AdminFileSortOrder
+  size: number
+}
+
+export interface AdminFileViewPreset {
+  id: string
+  name: string
+  filters?: AdminFileViewPresetParams
+  params?: AdminFileViewPresetParams
+  isBuiltIn?: boolean
+  isDefault?: boolean
+  is_default?: boolean
+  createdAt?: string | null
+  created_at?: string | null
+  updatedAt?: string | null
+  updated_at?: string | null
+}
+
+export interface AdminFileViewPresetRequest {
+  id?: string
+  name: string
+  filters: AdminFileViewPresetParams
+  params?: AdminFileViewPresetParams
+}
+
+export interface AdminFileViewPresetsResponse {
+  presets?: AdminFileViewPreset[]
+  items?: AdminFileViewPreset[]
+  total?: number
+}
+
 export interface FileEditForm {
   id: number | null
   code: string

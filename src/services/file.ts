@@ -12,6 +12,9 @@ import type {
   AdminFileMetadataRequest,
   AdminFilePolicyActionRequest,
   AdminFilePreviewResponse,
+  AdminFileViewPreset,
+  AdminFileViewPresetRequest,
+  AdminFileViewPresetsResponse,
   ApiResponse,
   ChunkUploadCompleteRequest,
   ChunkUploadInitRequest,
@@ -190,6 +193,24 @@ export class FileService {
     }
   }
 
+  static async getAdminFileViewPresets(): Promise<ApiResponse<AdminFileViewPresetsResponse>> {
+    return api.get('/admin/file/view-presets')
+  }
+
+  static async saveAdminFileViewPreset(
+    data: AdminFileViewPresetRequest
+  ): Promise<ApiResponse<AdminFileViewPreset>> {
+    try {
+      return await api.patch('/admin/file/view-presets', data)
+    } catch (error: unknown) {
+      if (!isMethodFallbackError(error)) {
+        throw error
+      }
+
+      return api.post('/admin/file/view-presets', data)
+    }
+  }
+
   static async updateAdminFiles(
     data: AdminBatchUpdateFilesRequest
   ): Promise<ApiResponse<AdminBatchUpdateFilesResponse>> {
@@ -208,6 +229,20 @@ export class FileService {
     return api.delete('/admin/file/batch-delete', {
       data: { ids }
     })
+  }
+
+  static async deleteAdminFileViewPreset(id: string): Promise<ApiResponse> {
+    try {
+      return await api.delete('/admin/file/view-presets', {
+        data: { id }
+      })
+    } catch (error: unknown) {
+      if (!isMethodFallbackError(error)) {
+        throw error
+      }
+
+      return api.post('/admin/file/view-presets/delete', { id })
+    }
   }
 
   static async downloadAdminFile(
