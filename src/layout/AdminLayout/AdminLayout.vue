@@ -120,7 +120,7 @@ import {
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ROUTE_NAMES, ROUTES } from '@/constants'
-import { useAdminStore } from '@/stores/adminStore'
+import { useAdminSession } from '@/composables'
 
 interface MenuItem {
   id: string
@@ -133,7 +133,7 @@ const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
 const isDarkMode = inject('isDarkMode')
-const adminStore = useAdminStore()
+const { verifySession, logout } = useAdminSession()
 const menuItems: MenuItem[] = [
   {
     id: ROUTE_NAMES.DASHBOARD,
@@ -172,6 +172,11 @@ const handleResize = () => {
 onMounted(() => {
   handleResize()
   window.addEventListener('resize', handleResize)
+  void verifySession().then((isValid) => {
+    if (!isValid) {
+      void router.push(ROUTES.LOGIN)
+    }
+  })
 })
 
 onUnmounted(() => {
@@ -179,9 +184,9 @@ onUnmounted(() => {
 })
 
 // 登出处理
-const handleLogout = () => {
-  adminStore.logout()
-  router.push(ROUTES.LOGIN)
+const handleLogout = async () => {
+  await logout()
+  await router.push(ROUTES.LOGIN)
 }
 </script>
 
