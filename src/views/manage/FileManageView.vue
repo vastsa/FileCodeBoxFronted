@@ -10,19 +10,31 @@
     <!-- 搜索和操作栏 -->
     <div
       class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-opacity-70 p-4 rounded-lg shadow-sm"
-      :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']">
+      :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']"
+    >
       <div class="flex flex-1 gap-4 w-full sm:w-auto">
         <div class="relative flex-1">
-          <input type="text" v-model="params.keyword" @keyup.enter="handleSearch" :class="[
-            isDarkMode
-              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
-              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400',
-            'w-full pl-10 pr-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
-          ]" :placeholder="t('fileManage.searchPlaceholder')" />
-          <SearchIcon class="absolute left-3 top-3 w-5 h-5" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']" />
+          <input
+            type="text"
+            v-model="params.keyword"
+            @keyup.enter="handleSearch"
+            :class="[
+              isDarkMode
+                ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400',
+              'w-full pl-10 pr-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
+            ]"
+            :placeholder="t('fileManage.searchPlaceholder')"
+          />
+          <SearchIcon
+            class="absolute left-3 top-3 w-5 h-5"
+            :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+          />
         </div>
-        <button @click="handleSearch"
-          class="px-4 py-2.5 rounded-lg inline-flex items-center transition-all duration-200 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
+        <button
+          @click="handleSearch"
+          class="px-4 py-2.5 rounded-lg inline-flex items-center transition-all duration-200 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm"
+        >
           <SearchIcon class="w-5 h-5 mr-2" />
           {{ t('common.search') }}
         </button>
@@ -32,26 +44,39 @@
     <!-- 文件列表 -->
     <DataTable :title="t('fileManage.allFiles')" :headers="fileTableHeaders">
       <template #body>
-        <tr v-for="file in tableData" :key="file.id" class="hover:bg-opacity-50 transition-colors duration-200"
-          :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50']">
+        <tr
+          v-for="file in tableData"
+          :key="file.id"
+          class="hover:bg-opacity-50 transition-colors duration-200"
+          :class="[isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50']"
+        >
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center">
-              <span class="font-medium select-all" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
+              <span
+                class="font-medium select-all"
+                :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+              >
                 {{ file.code }}
               </span>
             </div>
           </td>
           <td class="px-6 py-4">
             <div class="flex items-center group relative">
-              <FileIcon class="w-5 h-5 mr-2 flex-shrink-0"
-                :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-500']" />
-              <span class="font-medium truncate max-w-[200px]"
-                :class="[isDarkMode ? 'text-white' : 'text-gray-900']" :title="file.prefix">
+              <FileIcon
+                class="w-5 h-5 mr-2 flex-shrink-0"
+                :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-500']"
+              />
+              <span
+                class="font-medium truncate max-w-[200px]"
+                :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+                :title="file.prefix"
+              >
                 {{ file.prefix }}
               </span>
               <!-- 悬浮提示 -->
               <div
-                class="absolute left-0 -top-2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                class="absolute left-0 -top-2 -translate-y-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
+              >
                 <div class="bg-gray-900 text-white text-sm rounded px-2 py-1 max-w-xs break-all">
                   {{ file.prefix }}
                 </div>
@@ -59,14 +84,19 @@
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-              :class="[isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800']">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              :class="[isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800']"
+            >
               {{ file.displaySize }}
             </span>
           </td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-2">
-              <span class="block truncate max-w-[200px]" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
+              <span
+                class="block truncate max-w-[200px]"
+                :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+              >
                 {{ file.text || '-' }}
               </span>
               <!-- 查看全文按钮 - 仅当文本超过一定长度时显示 -->
@@ -86,31 +116,44 @@
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="[
-              file.expired_at
-                ? (isDarkMode ? 'bg-yellow-900/30 text-yellow-400' : 'bg-yellow-100 text-yellow-800')
-                : (isDarkMode ? 'bg-green-900/30 text-green-400' : 'bg-green-100 text-green-800')
-            ]">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              :class="[
+                file.expired_at
+                  ? isDarkMode
+                    ? 'bg-yellow-900/30 text-yellow-400'
+                    : 'bg-yellow-100 text-yellow-800'
+                  : isDarkMode
+                    ? 'bg-green-900/30 text-green-400'
+                    : 'bg-green-100 text-green-800'
+              ]"
+            >
               {{ file.displayExpiredAt }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
             <div class="flex items-center space-x-2">
-              <button @click="openEditModal(file)"
-                class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" :class="[
+              <button
+                @click="openEditModal(file)"
+                class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200"
+                :class="[
                   isDarkMode
                     ? 'bg-blue-900/20 text-blue-400 hover:bg-blue-900/30'
                     : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                ]">
+                ]"
+              >
                 <PencilIcon class="w-4 h-4 mr-1.5" />
                 {{ t('common.edit') }}
               </button>
-              <button @click="deleteFile(file.id)"
-                class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200" :class="[
+              <button
+                @click="deleteFile(file.id)"
+                class="inline-flex items-center px-3 py-1.5 rounded-md transition-colors duration-200"
+                :class="[
                   isDarkMode
                     ? 'bg-red-900/20 text-red-400 hover:bg-red-900/30'
                     : 'bg-red-50 text-red-600 hover:bg-red-100'
-                ]">
+                ]"
+              >
                 <TrashIcon class="w-4 h-4 mr-1.5" />
                 {{ t('common.delete') }}
               </button>
@@ -128,171 +171,110 @@
       </template>
     </DataTable>
 
-    <!-- 添加编辑模态框 -->
-    <div v-if="showEditModal" class="fixed inset-0 z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <!-- 背景遮罩 - 添加高斯模糊和渐变效果 -->
-      <div
-        class="fixed inset-0 bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm transition-opacity duration-300"
-        @click="closeEditModal"></div>
-
-      <!-- 模态框容器 - 添加缩放动画效果 -->
-      <div class="fixed inset-0 z-10 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-          <div
-            class="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-xl animate-modal-scale"
-            :class="[isDarkMode ? 'bg-gray-800/95 backdrop-blur-md' : 'bg-white']">
-
-            <!-- 模态框头部 - 添加渐变背景 -->
-            <div class="relative px-6 pt-6 pb-4"
-              :class="[isDarkMode ? 'bg-gradient-to-r from-gray-800/50 to-gray-700/50' : 'bg-gradient-to-r from-gray-50 to-white']">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50']">
-                    <PencilIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-                  </div>
-                  <h3 class="text-xl font-semibold leading-6" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
-                    {{ t('fileManage.editFileInfo') }}
-                  </h3>
-                </div>
-                <!-- 优化的关闭按钮 -->
-                <button @click="closeEditModal" class="rounded-lg p-2 transition-all duration-200 hover:rotate-90"
-                  :class="[isDarkMode ? 'text-gray-400 hover:text-white hover:bg-white/10' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100']">
-                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- 表单内容 -->
-            <div class="px-6 py-5">
-              <div class="grid gap-6">
-                <FileEditField
-                  v-model="editForm.code"
-                  :label="t('fileManage.form.code')"
-                  :placeholder="t('fileManage.form.codePlaceholder')"
-                />
-                <FileEditField
-                  v-model="editForm.prefix"
-                  :label="t('fileManage.form.filename')"
-                  :placeholder="t('fileManage.form.filenamePlaceholder')"
-                />
-                <FileEditField
-                  v-model="editForm.suffix"
-                  :label="t('fileManage.form.suffix')"
-                  :placeholder="t('fileManage.form.suffixPlaceholder')"
-                />
-                <FileEditField
-                  v-model="editForm.expired_at"
-                  type="datetime-local"
-                  :label="t('send.expiration.label')"
-                />
-                <FileEditField
-                  v-model="editForm.expired_count"
-                  type="number"
-                  :label="t('fileManage.form.downloadLimit')"
-                  :placeholder="t('fileManage.form.downloadLimitPlaceholder')"
-                />
-              </div>
-            </div>
-
-            <!-- 优化的操作按钮区域 -->
-            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t bg-gradient-to-b"
-              :class="[isDarkMode ? 'border-gray-700/50 from-gray-800/50 to-gray-800' : 'border-gray-200 from-gray-50 to-white']">
-              <button @click="closeEditModal"
-                class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200"
-                :class="[
-                  isDarkMode
-                    ? 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                ]">
-                {{ t('common.cancel') }}
-              </button>
-              <button @click="handleUpdate"
-                class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/35">
-                <CheckIcon class="w-4 h-4 mr-2" />
-                {{ t('fileManage.saveChanges') }}
-              </button>
-            </div>
+    <BaseModal :show="showEditModal" size="lg" @close="closeEditModal">
+      <template #header>
+        <div class="flex items-center space-x-3">
+          <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50']">
+            <PencilIcon
+              class="w-5 h-5"
+              :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+            />
           </div>
+          <h3
+            class="text-xl font-semibold leading-6"
+            :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+          >
+            {{ t('fileManage.editFileInfo') }}
+          </h3>
         </div>
+      </template>
+
+      <div class="grid gap-6">
+        <FileEditField
+          v-model="editForm.code"
+          :label="t('fileManage.form.code')"
+          :placeholder="t('fileManage.form.codePlaceholder')"
+        />
+        <FileEditField
+          v-model="editForm.prefix"
+          :label="t('fileManage.form.filename')"
+          :placeholder="t('fileManage.form.filenamePlaceholder')"
+        />
+        <FileEditField
+          v-model="editForm.suffix"
+          :label="t('fileManage.form.suffix')"
+          :placeholder="t('fileManage.form.suffixPlaceholder')"
+        />
+        <FileEditField
+          v-model="editForm.expired_at"
+          type="datetime-local"
+          :label="t('send.expiration.label')"
+        />
+        <FileEditField
+          v-model="editForm.expired_count"
+          type="number"
+          :label="t('fileManage.form.downloadLimit')"
+          :placeholder="t('fileManage.form.downloadLimitPlaceholder')"
+        />
       </div>
-    </div>
 
-    <!-- 文本预览模态框 -->
-    <div v-if="showTextPreview" class="fixed inset-0 z-50" aria-labelledby="text-preview-title" role="dialog" aria-modal="true">
-      <!-- 背景遮罩 -->
-      <div
-        class="fixed inset-0 bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm transition-opacity duration-300"
-        @click="closeTextPreview"></div>
+      <template #footer>
+        <BaseButton variant="secondary" @click="closeEditModal">
+          {{ t('common.cancel') }}
+        </BaseButton>
+        <BaseButton @click="handleUpdate">
+          <template #icon>
+            <CheckIcon class="w-4 h-4 mr-2" />
+          </template>
+          {{ t('fileManage.saveChanges') }}
+        </BaseButton>
+      </template>
+    </BaseModal>
 
-      <!-- 模态框容器 -->
-      <div class="fixed inset-0 z-10 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-          <div
-            class="relative transform overflow-hidden rounded-2xl text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl animate-modal-scale"
-            :class="[isDarkMode ? 'bg-gray-800/95 backdrop-blur-md' : 'bg-white']">
-
-            <!-- 模态框头部 -->
-            <div class="relative px-6 pt-6 pb-4"
-              :class="[isDarkMode ? 'bg-gradient-to-r from-gray-800/50 to-gray-700/50' : 'bg-gradient-to-r from-gray-50 to-white']">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50']">
-                    <FileTextIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
-                  </div>
-                  <h3 class="text-xl font-semibold leading-6" :class="[isDarkMode ? 'text-white' : 'text-gray-900']">
-                    {{ t('fileManage.textPreview') }}
-                  </h3>
-                </div>
-                <!-- 关闭按钮 -->
-                <button @click="closeTextPreview" class="rounded-lg p-2 transition-all duration-200 hover:rotate-90"
-                  :class="[isDarkMode ? 'text-gray-400 hover:text-white hover:bg-white/10' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100']">
-                  <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- 文本内容区域 -->
-            <div class="px-6 py-4">
-              <div
-                class="max-h-[60vh] overflow-y-auto rounded-lg p-4 custom-scrollbar"
-                :class="[isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50']">
-                <pre
-                  class="whitespace-pre-wrap break-words text-sm font-mono"
-                  :class="[isDarkMode ? 'text-gray-200' : 'text-gray-700']"
-                >{{ previewText }}</pre>
-              </div>
-              <!-- 字符统计 -->
-              <div class="mt-2 text-xs" :class="[isDarkMode ? 'text-gray-500' : 'text-gray-400']">
-                {{ t('fileManage.charCount', { count: previewText.length }) }}
-              </div>
-            </div>
-
-            <!-- 操作按钮区域 -->
-            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t"
-              :class="[isDarkMode ? 'border-gray-700/50' : 'border-gray-200']">
-              <button @click="copyText"
-                class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200"
-                :class="[
-                  isDarkMode
-                    ? 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                ]">
-                <CopyIcon class="w-4 h-4 mr-2" />
-                {{ t('fileManage.copyText') }}
-              </button>
-              <button @click="closeTextPreview"
-                class="inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 text-white shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/35">
-                {{ t('common.close') }}
-              </button>
-            </div>
+    <BaseModal :show="showTextPreview" size="lg" @close="closeTextPreview">
+      <template #header>
+        <div class="flex items-center space-x-3">
+          <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50']">
+            <FileTextIcon
+              class="w-5 h-5"
+              :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+            />
           </div>
+          <h3
+            class="text-xl font-semibold leading-6"
+            :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+          >
+            {{ t('fileManage.textPreview') }}
+          </h3>
         </div>
+      </template>
+
+      <div
+        class="max-h-[60vh] overflow-y-auto rounded-lg p-4 custom-scrollbar"
+        :class="[isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50']"
+      >
+        <pre
+          class="whitespace-pre-wrap break-words text-sm font-mono"
+          :class="[isDarkMode ? 'text-gray-200' : 'text-gray-700']"
+          >{{ previewText }}</pre
+        >
       </div>
-    </div>
+      <div class="mt-2 text-xs" :class="[isDarkMode ? 'text-gray-500' : 'text-gray-400']">
+        {{ t('fileManage.charCount', { count: previewText.length }) }}
+      </div>
+
+      <template #footer>
+        <BaseButton variant="secondary" @click="copyText">
+          <template #icon>
+            <CopyIcon class="w-4 h-4 mr-2" />
+          </template>
+          {{ t('fileManage.copyText') }}
+        </BaseButton>
+        <BaseButton @click="closeTextPreview">
+          {{ t('common.close') }}
+        </BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -307,11 +289,13 @@ import {
   CheckIcon,
   EyeIcon,
   CopyIcon,
-  FileTextIcon,
+  FileTextIcon
 } from 'lucide-vue-next'
 import DataTable from '@/components/common/DataTable.vue'
 import DataPagination from '@/components/common/DataPagination.vue'
 import FileEditField from '@/components/common/FileEditField.vue'
+import BaseModal from '@/components/common/BaseModal.vue'
+import BaseButton from '@/components/common/BaseButton.vue'
 import { useAdminFiles } from '@/composables'
 
 const { t } = useI18n()
@@ -349,26 +333,3 @@ onMounted(() => {
   void loadFiles()
 })
 </script>
-
-<style>
-.animate-modal-scale {
-  animation: modal-scale 0.3s ease-out;
-}
-
-@keyframes modal-scale {
-  from {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* 添加输入框聚焦时的微妙缩放效果 */
-input:focus {
-  transform: scale(1.002);
-}
-</style>
