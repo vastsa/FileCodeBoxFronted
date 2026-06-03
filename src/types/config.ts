@@ -15,53 +15,6 @@ export interface ThemeChoice {
   version: string
 }
 
-export type ConfigDiagnosticSeverity = 'danger' | 'warning' | 'success' | 'neutral'
-
-export interface ConfigDiagnosticAction {
-  type?: string
-  field?: keyof ConfigState | string | null
-  fields?: string[]
-  category?: string
-}
-
-export interface ConfigDiagnosticItem {
-  key: string
-  severity: ConfigDiagnosticSeverity | string
-  category: string
-  priority?: number
-  count?: number
-  field?: keyof ConfigState | string | null
-  fields?: string[]
-  action?: ConfigDiagnosticAction
-  actionType?: string
-  action_type?: string
-  targetField?: keyof ConfigState | string | null
-  target_field?: keyof ConfigState | string | null
-}
-
-export interface ConfigDiagnosticSummary {
-  total: number
-  dangerCount: number
-  danger_count?: number
-  warningCount: number
-  warning_count?: number
-  successCount: number
-  success_count?: number
-  neutralCount: number
-  neutral_count?: number
-  strongestSeverity: ConfigDiagnosticSeverity
-  strongest_severity?: ConfigDiagnosticSeverity
-}
-
-export interface ConfigDiagnosticsResponse {
-  items?: ConfigDiagnosticItem[]
-  diagnosticItems?: ConfigDiagnosticItem[]
-  diagnostic_items?: ConfigDiagnosticItem[]
-  summary?: Partial<ConfigDiagnosticSummary>
-  diagnosticSummary?: Partial<ConfigDiagnosticSummary>
-  diagnostic_summary?: Partial<ConfigDiagnosticSummary>
-}
-
 export interface ConfigState {
   name: string
   description: string
@@ -99,9 +52,4 @@ export interface ConfigState {
   webdav_url: string
   webdav_username: string
   webdav_password: string
-  diagnostics?: ConfigDiagnosticsResponse
-  diagnosticItems?: ConfigDiagnosticItem[]
-  diagnostic_items?: ConfigDiagnosticItem[]
-  diagnosticSummary?: Partial<ConfigDiagnosticSummary>
-  diagnostic_summary?: Partial<ConfigDiagnosticSummary>
 }

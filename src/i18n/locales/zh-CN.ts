@@ -802,58 +802,7 @@ export default {
       saving: '保存中',
       unsavedChanges: '有未保存的配置变更',
       allChangesSaved: '所有配置已保存',
-      refreshBlocked: '请先保存当前变更再刷新',
-      diagnosticsTitle: '配置体检',
-      diagnosticsDesc: '自动检查安全、存储、上传和保留策略，点击建议可定位到相关配置。',
-      diagnosticsRefresh: '刷新体检',
-      diagnosticsTotal: '建议项',
-      diagnosticsDanger: '高风险',
-      diagnosticsWarning: '需处理',
-      diagnosticsFocusAction: '定位配置',
-      diagnosticSeverity: {
-        danger: '高风险',
-        warning: '需处理',
-        success: '稳定',
-        neutral: '建议'
-      },
-      diagnosticsItems: {
-        default_admin_password: {
-          title: '管理员密码仍为默认值',
-          description: '默认管理员密码存在安全风险，建议立即设置一个强密码。'
-        },
-        s3_incomplete: {
-          title: 'S3 配置不完整',
-          description: '当前 S3 存储缺少 {count} 项必要配置，补齐后再启用对象存储。'
-        },
-        webdav_incomplete: {
-          title: 'WebDAV 配置不完整',
-          description: '当前 WebDAV 存储缺少 {count} 项必要配置，补齐后再启用远程存储。'
-        },
-        guest_upload_retention: {
-          title: '游客上传缺少保留上限',
-          description: '游客上传已开启且保存时间不受限，建议设置默认保留期降低存储压力。'
-        },
-        chunking_recommended: {
-          title: '建议开启分片上传',
-          description: '大文件上传场景建议启用分片上传，提升上传稳定性和失败恢复能力。'
-        },
-        upload_guard_disabled: {
-          title: '上传限流未启用',
-          description: '当前上传次数限制未生效，建议设置上传窗口和次数上限。'
-        },
-        access_guard_disabled: {
-          title: '访问保护未启用',
-          description: '当前错误访问保护未生效，建议设置检测窗口和错误次数上限。'
-        },
-        expiration_style_empty: {
-          title: '未配置过期方式',
-          description: '建议选择默认过期方式，确保上传文件按预期保留或失效。'
-        },
-        healthy: {
-          title: '配置状态稳定',
-          description: '当前未发现需要优先处理的配置风险。'
-        }
-      }
+      refreshBlocked: '请先保存当前变更再刷新'
     },
     dashboard: {
       title: '仪表盘',

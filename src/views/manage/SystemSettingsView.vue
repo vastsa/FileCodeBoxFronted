@@ -1,20 +1,11 @@
 <script setup lang="ts">
-import { inject, nextTick, onMounted, unref, type Component } from 'vue'
+import { inject, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-  AlertTriangleIcon,
-  ArrowRightIcon,
-  CheckCircleIcon,
-  InfoIcon,
-  RefreshCwIcon,
-  SaveIcon,
-  ShieldAlertIcon
-} from 'lucide-vue-next'
+import { RefreshCwIcon, SaveIcon } from 'lucide-vue-next'
 import BaseButton from '@/components/common/BaseButton.vue'
 import SettingNumberInput from '@/components/common/SettingNumberInput.vue'
 import SettingSwitch from '@/components/common/SettingSwitch.vue'
 import { useSystemConfig } from '@/composables'
-import type { ConfigDiagnosticItem, ConfigDiagnosticSeverity } from '@/types'
 
 const isDarkMode = inject('isDarkMode')
 const { t } = useI18n()
@@ -22,133 +13,15 @@ const {
   config,
   isRefreshing,
   isSaving,
-  isDiagnosticsRefreshing,
   isDirty,
-  configDiagnosticItems,
-  configDiagnosticSummary,
   fileSize,
   sizeUnit,
   saveTime,
   saveTimeUnit,
   refreshConfig,
-  refreshDiagnostics,
   submitConfig,
   toggleConfigFlag
 } = useSystemConfig()
-
-const diagnosticSeverities: ConfigDiagnosticSeverity[] = ['danger', 'warning', 'success', 'neutral']
-
-const normalizeDiagnosticSeverity = (severity: string): ConfigDiagnosticSeverity =>
-  diagnosticSeverities.includes(severity as ConfigDiagnosticSeverity)
-    ? (severity as ConfigDiagnosticSeverity)
-    : 'neutral'
-
-const isDark = () => Boolean(unref(isDarkMode))
-
-const getDiagnosticTitle = (item: ConfigDiagnosticItem) =>
-  t(`manage.settings.diagnosticsItems.${item.key}.title`, {
-    count: item.count ?? 0
-  })
-
-const getDiagnosticDescription = (item: ConfigDiagnosticItem) =>
-  t(`manage.settings.diagnosticsItems.${item.key}.description`, {
-    count: item.count ?? 0
-  })
-
-const getDiagnosticSeverityLabel = (severity: string) =>
-  t(`manage.settings.diagnosticSeverity.${normalizeDiagnosticSeverity(severity)}`)
-
-const getDiagnosticIcon = (severity: string): Component => {
-  const normalizedSeverity = normalizeDiagnosticSeverity(severity)
-  if (normalizedSeverity === 'danger') {
-    return ShieldAlertIcon
-  }
-  if (normalizedSeverity === 'warning') {
-    return AlertTriangleIcon
-  }
-  if (normalizedSeverity === 'success') {
-    return CheckCircleIcon
-  }
-  return InfoIcon
-}
-
-const getDiagnosticClass = (severity: string) => {
-  const normalizedSeverity = normalizeDiagnosticSeverity(severity)
-  const darkMode = isDark()
-
-  if (normalizedSeverity === 'danger') {
-    return darkMode
-      ? 'border-red-500/40 bg-red-500/10 hover:border-red-400'
-      : 'border-red-200 bg-red-50 hover:border-red-300'
-  }
-  if (normalizedSeverity === 'warning') {
-    return darkMode
-      ? 'border-amber-500/40 bg-amber-500/10 hover:border-amber-400'
-      : 'border-amber-200 bg-amber-50 hover:border-amber-300'
-  }
-  if (normalizedSeverity === 'success') {
-    return darkMode
-      ? 'border-emerald-500/40 bg-emerald-500/10 hover:border-emerald-400'
-      : 'border-emerald-200 bg-emerald-50 hover:border-emerald-300'
-  }
-  return darkMode
-    ? 'border-gray-600 bg-gray-700/50 hover:border-gray-500'
-    : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-}
-
-const getDiagnosticIconClass = (severity: string) => {
-  const normalizedSeverity = normalizeDiagnosticSeverity(severity)
-  if (normalizedSeverity === 'danger') {
-    return 'bg-red-100 text-red-600'
-  }
-  if (normalizedSeverity === 'warning') {
-    return 'bg-amber-100 text-amber-600'
-  }
-  if (normalizedSeverity === 'success') {
-    return 'bg-emerald-100 text-emerald-600'
-  }
-  return 'bg-gray-100 text-gray-600'
-}
-
-const getDiagnosticTargetField = (item: ConfigDiagnosticItem) => {
-  const field =
-    item.targetField ??
-    item.target_field ??
-    item.field ??
-    item.fields?.[0] ??
-    item.action?.field ??
-    item.action?.fields?.[0]
-  return field ? String(field) : ''
-}
-
-const findConfigFieldElement = (field: string) =>
-  document.querySelector<HTMLElement>(`[data-config-field="${field}"]`)
-
-const focusDiagnosticField = async (item: ConfigDiagnosticItem) => {
-  const targetField = getDiagnosticTargetField(item)
-  if (!targetField) {
-    return
-  }
-
-  await nextTick()
-
-  const fieldElement =
-    findConfigFieldElement(targetField) ??
-    (targetField === 'enableChunk' ? findConfigFieldElement('file_storage') : null)
-
-  if (!fieldElement) {
-    return
-  }
-
-  fieldElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
-
-  window.setTimeout(() => {
-    const focusable = fieldElement.matches('input, select, textarea, button')
-      ? fieldElement
-      : fieldElement.querySelector<HTMLElement>('input, select, textarea, button')
-    focusable?.focus({ preventScroll: true })
-  }, 260)
-}
 
 onMounted(() => {
   void refreshConfig()
@@ -207,143 +80,6 @@ onMounted(() => {
         </div>
       </div>
     </div>
-
-    <section
-      class="mb-6 space-y-4 border-b pb-6"
-      :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']"
-    >
-      <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div class="max-w-3xl">
-          <div class="flex items-center gap-3">
-            <div
-              class="flex h-10 w-10 items-center justify-center rounded-md"
-              :class="[
-                isDarkMode ? 'bg-indigo-500/15 text-indigo-300' : 'bg-indigo-50 text-indigo-600'
-              ]"
-            >
-              <ShieldAlertIcon class="h-5 w-5" />
-            </div>
-            <div>
-              <h3
-                class="text-lg font-semibold"
-                :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
-              >
-                {{ t('manage.settings.diagnosticsTitle') }}
-              </h3>
-              <p class="mt-1 text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
-                {{ t('manage.settings.diagnosticsDesc') }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <div
-            class="min-w-24 rounded-md border px-3 py-2"
-            :class="[isDarkMode ? 'border-gray-700 bg-gray-800/70' : 'border-gray-200 bg-white']"
-          >
-            <p class="text-xs" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']">
-              {{ t('manage.settings.diagnosticsTotal') }}
-            </p>
-            <p
-              class="mt-1 text-xl font-semibold"
-              :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
-            >
-              {{ configDiagnosticSummary.total }}
-            </p>
-          </div>
-          <div
-            class="min-w-24 rounded-md border px-3 py-2"
-            :class="[isDarkMode ? 'border-red-500/30 bg-red-500/10' : 'border-red-200 bg-red-50']"
-          >
-            <p class="text-xs" :class="[isDarkMode ? 'text-red-200' : 'text-red-600']">
-              {{ t('manage.settings.diagnosticsDanger') }}
-            </p>
-            <p
-              class="mt-1 text-xl font-semibold"
-              :class="[isDarkMode ? 'text-red-100' : 'text-red-700']"
-            >
-              {{ configDiagnosticSummary.dangerCount }}
-            </p>
-          </div>
-          <div
-            class="min-w-24 rounded-md border px-3 py-2"
-            :class="[
-              isDarkMode ? 'border-amber-500/30 bg-amber-500/10' : 'border-amber-200 bg-amber-50'
-            ]"
-          >
-            <p class="text-xs" :class="[isDarkMode ? 'text-amber-200' : 'text-amber-600']">
-              {{ t('manage.settings.diagnosticsWarning') }}
-            </p>
-            <p
-              class="mt-1 text-xl font-semibold"
-              :class="[isDarkMode ? 'text-amber-100' : 'text-amber-700']"
-            >
-              {{ configDiagnosticSummary.warningCount }}
-            </p>
-          </div>
-
-          <BaseButton
-            variant="outline"
-            :loading="isDiagnosticsRefreshing"
-            :disabled="isRefreshing || isSaving"
-            @click="() => void refreshDiagnostics()"
-          >
-            <template #icon>
-              <RefreshCwIcon class="mr-2 h-4 w-4" />
-            </template>
-            {{ t('manage.settings.diagnosticsRefresh') }}
-          </BaseButton>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 gap-3 xl:grid-cols-2">
-        <button
-          v-for="item in configDiagnosticItems"
-          :key="item.key"
-          type="button"
-          class="group flex h-full items-start gap-3 rounded-md border p-4 text-left transition"
-          :class="getDiagnosticClass(item.severity)"
-          @click="focusDiagnosticField(item)"
-        >
-          <span
-            class="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md"
-            :class="getDiagnosticIconClass(item.severity)"
-          >
-            <component :is="getDiagnosticIcon(item.severity)" class="h-4 w-4" />
-          </span>
-          <span class="min-w-0 flex-1">
-            <span class="flex flex-wrap items-center gap-2">
-              <span
-                class="text-sm font-semibold"
-                :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
-              >
-                {{ getDiagnosticTitle(item) }}
-              </span>
-              <span
-                class="rounded-full px-2 py-0.5 text-xs font-medium"
-                :class="[isDarkMode ? 'bg-gray-900/70 text-gray-300' : 'bg-white/80 text-gray-600']"
-              >
-                {{ getDiagnosticSeverityLabel(item.severity) }}
-              </span>
-            </span>
-            <span
-              class="mt-1 block text-sm leading-6"
-              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-600']"
-            >
-              {{ getDiagnosticDescription(item) }}
-            </span>
-          </span>
-          <span
-            class="mt-1 inline-flex items-center gap-1 text-xs font-medium"
-            :class="[isDarkMode ? 'text-indigo-300' : 'text-indigo-600']"
-          >
-            {{ t('manage.settings.diagnosticsFocusAction') }}
-            <ArrowRightIcon class="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-          </span>
-        </button>
-      </div>
-    </section>
 
     <div
       class="space-y-6 rounded-lg shadow-md p-6"
@@ -407,7 +143,6 @@ onMounted(() => {
                 type="password"
                 minlength="6"
                 v-model="config.admin_token"
-                data-config-field="admin_token"
                 :placeholder="t('admin.settings.passwordPlaceholder')"
                 class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                 :class="[
@@ -569,7 +304,6 @@ onMounted(() => {
               </label>
               <select
                 v-model="config.file_storage"
-                data-config-field="file_storage"
                 class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border appearance-none bg-no-repeat bg-right focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer"
                 :class="[
                   isDarkMode
@@ -587,7 +321,6 @@ onMounted(() => {
             </div>
             <SettingSwitch
               v-if="config.file_storage === 'local'"
-              data-config-field="enableChunk"
               :label="t('manage.settings.chunkUploadNote')"
               :model-value="config.enableChunk"
               :enabled-text="t('common.enabled')"
@@ -607,7 +340,6 @@ onMounted(() => {
                   type="text"
                   :placeholder="t('manage.settings.webdavUrlPlaceholder')"
                   v-model="config.webdav_url"
-                  data-config-field="webdav_url"
                   class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                   :class="[
                     isDarkMode
@@ -628,7 +360,6 @@ onMounted(() => {
                     type="text"
                     :placeholder="t('manage.settings.webdavUsernamePlaceholder')"
                     v-model="config.webdav_username"
-                    data-config-field="webdav_username"
                     class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     :class="[
                       isDarkMode
@@ -649,7 +380,6 @@ onMounted(() => {
                     type="password"
                     :placeholder="t('manage.settings.webdavPasswordPlaceholder')"
                     v-model="config.webdav_password"
-                    data-config-field="webdav_password"
                     class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     :class="[
                       isDarkMode
@@ -673,7 +403,6 @@ onMounted(() => {
                   <input
                     type="text"
                     v-model="config.s3_access_key_id"
-                    data-config-field="s3_access_key_id"
                     class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     :class="[
                       isDarkMode
@@ -693,7 +422,6 @@ onMounted(() => {
                   <input
                     type="password"
                     v-model="config.s3_secret_access_key"
-                    data-config-field="s3_secret_access_key"
                     class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     :class="[
                       isDarkMode
@@ -713,7 +441,6 @@ onMounted(() => {
                   <input
                     type="text"
                     v-model="config.s3_bucket_name"
-                    data-config-field="s3_bucket_name"
                     class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                     :class="[
                       isDarkMode
@@ -811,7 +538,6 @@ onMounted(() => {
                 />
 
                 <SettingSwitch
-                  data-config-field="enableChunk"
                   :label="t('manage.settings.chunkUploadNote')"
                   :model-value="config.enableChunk"
                   :enabled-text="t('common.enabled')"
@@ -835,14 +561,12 @@ onMounted(() => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <SettingNumberInput
               v-model="config.uploadMinute"
-              data-config-field="uploadMinute"
               :label="t('manage.settings.uploadPerMinute')"
               :suffix="t('common.minute')"
             />
 
             <SettingNumberInput
               v-model="config.uploadCount"
-              data-config-field="uploadCount"
               :label="t('manage.settings.uploadCountLimit')"
               :suffix="t('common.files')"
             />
@@ -881,7 +605,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="space-y-2" data-config-field="expireStyle">
+            <div class="space-y-2">
               <label
                 class="block text-sm font-medium mb-2"
                 :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
@@ -918,7 +642,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <div class="space-y-2" data-config-field="max_save_seconds">
+            <div class="space-y-2">
               <label
                 class="block text-sm font-medium"
                 :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
@@ -975,14 +699,12 @@ onMounted(() => {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <SettingNumberInput
               v-model="config.errorMinute"
-              data-config-field="errorMinute"
               :label="t('manage.settings.errorPerMinute')"
               :suffix="t('common.minute')"
             />
 
             <SettingNumberInput
               v-model="config.errorCount"
-              data-config-field="errorCount"
               :label="t('manage.settings.errorCountLimit')"
               :suffix="t('common.times')"
             />

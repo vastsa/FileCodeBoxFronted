@@ -774,66 +774,7 @@ export default {
       saving: 'Saving',
       unsavedChanges: 'Unsaved configuration changes',
       allChangesSaved: 'All configuration changes are saved',
-      refreshBlocked: 'Save current changes before refreshing',
-      diagnosticsTitle: 'Configuration Checkup',
-      diagnosticsDesc:
-        'Automatically checks security, storage, upload, and retention policies. Click a suggestion to jump to the related field.',
-      diagnosticsRefresh: 'Refresh checkup',
-      diagnosticsTotal: 'Suggestions',
-      diagnosticsDanger: 'High risk',
-      diagnosticsWarning: 'Action needed',
-      diagnosticsFocusAction: 'Locate setting',
-      diagnosticSeverity: {
-        danger: 'High risk',
-        warning: 'Action needed',
-        success: 'Stable',
-        neutral: 'Suggestion'
-      },
-      diagnosticsItems: {
-        default_admin_password: {
-          title: 'Default admin password is still in use',
-          description:
-            'The default admin password is a security risk. Set a strong password as soon as possible.'
-        },
-        s3_incomplete: {
-          title: 'S3 configuration is incomplete',
-          description: 'S3 is missing {count} fields. Complete them before enabling object storage.'
-        },
-        webdav_incomplete: {
-          title: 'WebDAV configuration is incomplete',
-          description:
-            'WebDAV is missing {count} fields. Complete them before enabling remote storage.'
-        },
-        guest_upload_retention: {
-          title: 'Guest uploads have no retention limit',
-          description:
-            'Guest upload is enabled with unlimited retention. Set a default retention window to reduce storage pressure.'
-        },
-        chunking_recommended: {
-          title: 'Chunked upload is recommended',
-          description:
-            'Enable chunked upload for large files to improve upload stability and recovery after failures.'
-        },
-        upload_guard_disabled: {
-          title: 'Upload rate limiting is disabled',
-          description:
-            'Upload count limits are not active. Set an upload window and maximum upload count.'
-        },
-        access_guard_disabled: {
-          title: 'Access protection is disabled',
-          description:
-            'Error access protection is not active. Set a detection window and maximum error count.'
-        },
-        expiration_style_empty: {
-          title: 'Expiration method is not configured',
-          description:
-            'Choose a default expiration method so uploaded files are retained or expired as expected.'
-        },
-        healthy: {
-          title: 'Configuration looks stable',
-          description: 'No configuration risks need priority attention right now.'
-        }
-      }
+      refreshBlocked: 'Save current changes before refreshing'
     },
     systemSettings: {
       title: 'System Settings',

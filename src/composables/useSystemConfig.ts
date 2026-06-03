@@ -2,13 +2,7 @@ import { ref, computed } from 'vue'
 import { ConfigService } from '@/services'
 import { useAlertStore } from '@/stores/alertStore'
 import { useConfigStore } from '@/stores/configStore'
-import type {
-  ConfigDiagnosticItem,
-  ConfigDiagnosticsResponse,
-  ConfigDiagnosticSeverity,
-  ConfigDiagnosticSummary,
-  ConfigState
-} from '@/types'
+import type { ConfigState } from '@/types'
 import { DEFAULT_CONFIG_STATE, readStoredConfig } from '@/utils/config-storage'
 import { getErrorMessage } from '@/utils/common'
 import {
@@ -21,122 +15,6 @@ import {
 
 type ConfigFlagKey = 'enableChunk' | 's3_proxy' | 'openUpload'
 
-type NormalizedConfigDiagnostics = {
-  items: ConfigDiagnosticItem[]
-  diagnosticItems: ConfigDiagnosticItem[]
-  diagnostic_items: ConfigDiagnosticItem[]
-  summary: ConfigDiagnosticSummary
-  diagnosticSummary: ConfigDiagnosticSummary
-  diagnostic_summary: ConfigDiagnosticSummary
-}
-
-type ConfigDiagnosticsSource =
-  | (Partial<ConfigState> &
-      ConfigDiagnosticsResponse & {
-        diagnostics?: ConfigDiagnosticsResponse
-      })
-  | null
-  | undefined
-
-const diagnosticSeverities: ConfigDiagnosticSeverity[] = ['danger', 'warning', 'success', 'neutral']
-
-const emptyDiagnosticSummary = (): ConfigDiagnosticSummary => ({
-  total: 0,
-  dangerCount: 0,
-  warningCount: 0,
-  successCount: 0,
-  neutralCount: 0,
-  strongestSeverity: 'success'
-})
-
-const emptyConfigDiagnostics = (): NormalizedConfigDiagnostics => {
-  const items: ConfigDiagnosticItem[] = []
-  const summary = emptyDiagnosticSummary()
-  return {
-    items,
-    diagnosticItems: items,
-    diagnostic_items: items,
-    summary,
-    diagnosticSummary: summary,
-    diagnostic_summary: summary
-  }
-}
-
-const normalizeDiagnosticSeverity = (severity: string | undefined): ConfigDiagnosticSeverity =>
-  diagnosticSeverities.includes(severity as ConfigDiagnosticSeverity)
-    ? (severity as ConfigDiagnosticSeverity)
-    : 'neutral'
-
-const normalizeConfigDiagnostics = (
-  value: ConfigDiagnosticsSource
-): NormalizedConfigDiagnostics => {
-  const diagnostics = value?.diagnostics
-  const items = (
-    diagnostics?.items ??
-    diagnostics?.diagnosticItems ??
-    diagnostics?.diagnostic_items ??
-    value?.items ??
-    value?.diagnosticItems ??
-    value?.diagnostic_items ??
-    []
-  )
-    .filter((item) => item && item.key)
-    .map((item) => ({
-      ...item,
-      count: Number(item.count || 0),
-      priority: Number(item.priority || 0),
-      severity: normalizeDiagnosticSeverity(item.severity),
-      fields: item.fields || (item.field ? [String(item.field)] : [])
-    }))
-
-  const rawSummary =
-    diagnostics?.summary ??
-    diagnostics?.diagnosticSummary ??
-    diagnostics?.diagnostic_summary ??
-    value?.summary ??
-    value?.diagnosticSummary ??
-    value?.diagnostic_summary ??
-    {}
-  const summary: ConfigDiagnosticSummary = {
-    total: Number(rawSummary.total ?? items.length),
-    dangerCount: Number(rawSummary.dangerCount ?? rawSummary.danger_count ?? 0),
-    danger_count: Number(rawSummary.dangerCount ?? rawSummary.danger_count ?? 0),
-    warningCount: Number(rawSummary.warningCount ?? rawSummary.warning_count ?? 0),
-    warning_count: Number(rawSummary.warningCount ?? rawSummary.warning_count ?? 0),
-    successCount: Number(rawSummary.successCount ?? rawSummary.success_count ?? 0),
-    success_count: Number(rawSummary.successCount ?? rawSummary.success_count ?? 0),
-    neutralCount: Number(rawSummary.neutralCount ?? rawSummary.neutral_count ?? 0),
-    neutral_count: Number(rawSummary.neutralCount ?? rawSummary.neutral_count ?? 0),
-    strongestSeverity: normalizeDiagnosticSeverity(
-      rawSummary.strongestSeverity ?? rawSummary.strongest_severity
-    ),
-    strongest_severity: normalizeDiagnosticSeverity(
-      rawSummary.strongestSeverity ?? rawSummary.strongest_severity
-    )
-  }
-
-  return {
-    items,
-    diagnosticItems: items,
-    diagnostic_items: items,
-    summary,
-    diagnosticSummary: summary,
-    diagnostic_summary: summary
-  }
-}
-
-const stripDiagnosticFields = (nextConfig: Partial<ConfigState>): Partial<ConfigState> => {
-  const {
-    diagnostics: _diagnostics,
-    diagnosticItems: _diagnosticItems,
-    diagnostic_items: _diagnosticItemsSnake,
-    diagnosticSummary: _diagnosticSummary,
-    diagnostic_summary: _diagnosticSummarySnake,
-    ...editableConfig
-  } = nextConfig
-  return editableConfig
-}
-
 export function useSystemConfig() {
   const alertStore = useAlertStore()
   const configStore = useConfigStore()
@@ -145,9 +23,7 @@ export function useSystemConfig() {
   const config = ref<ConfigState>({ ...DEFAULT_CONFIG_STATE })
   const isRefreshing = ref(false)
   const isSaving = ref(false)
-  const isDiagnosticsRefreshing = ref(false)
   const savedPayloadSnapshot = ref('')
-  const configDiagnostics = ref<NormalizedConfigDiagnostics>(emptyConfigDiagnostics())
   const fileSize = ref(1)
   const sizeUnit = ref<FileSizeUnit>('MB')
   const saveTime = ref(1)
@@ -171,14 +47,11 @@ export function useSystemConfig() {
 
   const snapshotPayload = (payload: Partial<ConfigState>) => JSON.stringify(payload)
 
-  const normalizeEditableConfig = (nextConfig: Partial<ConfigState>): ConfigState => {
-    const editableConfig = stripDiagnosticFields(nextConfig)
-    return {
-      ...DEFAULT_CONFIG_STATE,
-      ...editableConfig,
-      admin_token: ''
-    }
-  }
+  const normalizeEditableConfig = (nextConfig: Partial<ConfigState>): ConfigState => ({
+    ...DEFAULT_CONFIG_STATE,
+    ...nextConfig,
+    admin_token: ''
+  })
 
   const markConfigSaved = () => {
     savedPayloadSnapshot.value = snapshotPayload(buildSubmitPayload())
@@ -203,24 +76,6 @@ export function useSystemConfig() {
     configStore.updateConfig(configData)
   }
 
-  const refreshDiagnostics = async (showError = true) => {
-    try {
-      isDiagnosticsRefreshing.value = true
-      const response = await ConfigService.getDiagnostics()
-      if (response.code === 200 && response.detail) {
-        configDiagnostics.value = normalizeConfigDiagnostics(response.detail)
-      } else {
-        throw new Error(response.message || '获取配置诊断失败')
-      }
-    } catch (error) {
-      if (showError) {
-        alertStore.showAlert(getErrorMessage(error, '获取配置诊断失败'), 'error')
-      }
-    } finally {
-      isDiagnosticsRefreshing.value = false
-    }
-  }
-
   // 获取系统配置
   const fetchConfig = async (): Promise<ConfigState | null> => {
     try {
@@ -229,7 +84,6 @@ export function useSystemConfig() {
       const response = await ConfigService.getConfig()
 
       if (response.code === 200 && response.detail) {
-        configDiagnostics.value = normalizeConfigDiagnostics(response.detail)
         config.value = normalizeEditableConfig(response.detail)
         const notifyMessage = configStore.applyRemoteConfig(config.value)
         if (notifyMessage) {
@@ -245,7 +99,6 @@ export function useSystemConfig() {
       const storedConfig = getStoredConfig()
       if (storedConfig) {
         config.value = storedConfig
-        configDiagnostics.value = emptyConfigDiagnostics()
         return config.value
       }
 
@@ -268,7 +121,6 @@ export function useSystemConfig() {
         syncConfigForm(config.value)
         markConfigSaved()
         saveConfigToStorage(config.value)
-        await refreshDiagnostics(false)
         alertStore.showAlert('配置更新成功！', 'success')
         return true
       } else {
@@ -331,9 +183,6 @@ export function useSystemConfig() {
     return Math.round(config.value.uploadSize / 1024 / 1024)
   })
 
-  const configDiagnosticItems = computed(() => configDiagnostics.value.items)
-  const configDiagnosticSummary = computed(() => configDiagnostics.value.summary)
-
   const isConfigLoaded = computed(() => {
     return config.value.name !== DEFAULT_CONFIG_STATE.name || !isLoading.value
   })
@@ -344,10 +193,7 @@ export function useSystemConfig() {
     isLoading,
     isRefreshing,
     isSaving,
-    isDiagnosticsRefreshing,
     isDirty,
-    configDiagnosticItems,
-    configDiagnosticSummary,
     fileSize,
     sizeUnit,
     saveTime,
@@ -361,7 +207,6 @@ export function useSystemConfig() {
     fetchConfig,
     updateConfig,
     refreshConfig,
-    refreshDiagnostics,
     submitConfig,
     toggleConfigFlag,
     initConfig,
