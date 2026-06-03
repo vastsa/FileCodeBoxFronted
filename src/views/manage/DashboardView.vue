@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 overflow-y-auto custom-scrollbar">
+  <div class="p-6">
     <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p class="text-sm" :class="[mutedTextClass]">FileCodeBox Admin</p>

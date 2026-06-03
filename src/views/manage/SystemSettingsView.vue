@@ -29,7 +29,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6 h-screen overflow-y-auto custom-scrollbar">
+  <div class="p-6">
     <div
       class="sticky top-0 z-20 -mx-6 -mt-6 mb-6 border-b px-6 py-4 backdrop-blur"
       :class="[isDarkMode ? 'border-gray-700 bg-gray-900/85' : 'border-gray-200 bg-gray-50/90']"

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 overflow-y-auto custom-scrollbar">
+  <div class="p-6">
     <div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
       <div>
         <h2 class="text-2xl font-bold" :class="[primaryTextClass]">

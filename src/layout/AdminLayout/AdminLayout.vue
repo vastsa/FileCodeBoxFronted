@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-screen flex flex-col lg:flex-row transition-colors duration-300"
+    class="flex h-screen overflow-hidden flex-col transition-colors duration-300 lg:flex-row"
     :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']"
   >
     <!-- Sidebar -->
@@ -82,7 +82,7 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col h-full">
+    <div class="flex h-full min-h-0 flex-1 flex-col">
       <!-- Header -->
       <header
         class="shadow-md border-b transition-colors duration-300 h-16"
@@ -97,7 +97,7 @@
 
       <!-- Content -->
       <main
-        class="overflow-y-auto transition-colors duration-300 custom-scrollbar"
+        class="min-h-0 flex-1 overflow-y-auto transition-colors duration-300 custom-scrollbar"
         :class="[isDarkMode ? 'bg-gray-900' : 'bg-gray-50']"
       >
         <router-view />
