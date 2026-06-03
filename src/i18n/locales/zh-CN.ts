@@ -559,6 +559,52 @@ export default {
     viewPresetDeleteSuccess: '视图已删除',
     viewPresetDeleteFailed: '视图删除失败',
     viewPresetLoadFailed: '视图预设加载失败，已使用内置视图',
+    viewSummary: {
+      title: '当前视图处置摘要',
+      description: '基于当前筛选结果聚合风险和下一步动作，点击可切换到对应队列。',
+      filteredTotal: '当前结果',
+      allTotal: '全部记录',
+      activeFilters: '筛选条件',
+      action: '查看队列',
+      reset: '清空筛选',
+      severity: {
+        success: '稳定',
+        warning: '需处理',
+        danger: '高风险',
+        info: '提示',
+        neutral: '观察'
+      },
+      items: {
+        storage_issue: {
+          title: '存储异常 {count} 项',
+          description: '优先检查缺少下载元数据的记录，确认存储路径、文件名和配置。'
+        },
+        expired: {
+          title: '已过期 {count} 项',
+          description: '集中处理已不可取件的分享，删除无效记录或续期仍需保留的文件。'
+        },
+        expiring_soon: {
+          title: '即将过期 {count} 项',
+          description: '这些分享将在 24 小时内失效，适合提前续期或提醒使用方。'
+        },
+        never_retrieved: {
+          title: '未取件 {count} 项',
+          description: '查看创建后尚未被取件的分享，用于识别无效上传或触达缺口。'
+        },
+        permanent: {
+          title: '永久有效 {count} 项',
+          description: '复核长期保留的分享，避免历史文件无限增长。'
+        },
+        healthy: {
+          title: '当前视图稳定',
+          description: '当前筛选结果未发现需要优先处理的文件。'
+        },
+        empty: {
+          title: '当前视图无结果',
+          description: '调整筛选条件或清空筛选，查看其他文件队列。'
+        }
+      }
+    },
     all: '全部',
     active: '可取件',
     expired: '已过期',

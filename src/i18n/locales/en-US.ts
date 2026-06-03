@@ -576,6 +576,57 @@ export default {
     viewPresetDeleteSuccess: 'View deleted',
     viewPresetDeleteFailed: 'Failed to delete view',
     viewPresetLoadFailed: 'Failed to load saved views; using built-in views',
+    viewSummary: {
+      title: 'Current View Action Summary',
+      description:
+        'Groups risks and next actions from the current filters. Click an item to open its queue.',
+      filteredTotal: 'Current results',
+      allTotal: 'All records',
+      activeFilters: 'Filters',
+      action: 'View queue',
+      reset: 'Clear filters',
+      severity: {
+        success: 'Stable',
+        warning: 'Action needed',
+        danger: 'High risk',
+        info: 'Info',
+        neutral: 'Watch'
+      },
+      items: {
+        storage_issue: {
+          title: '{count} storage issues',
+          description:
+            'Review records missing download metadata and verify storage paths, file names, and settings.'
+        },
+        expired: {
+          title: '{count} expired items',
+          description:
+            'Handle unavailable shares by deleting stale records or extending files that should remain available.'
+        },
+        expiring_soon: {
+          title: '{count} expiring soon',
+          description:
+            'These shares expire within 24 hours. Extend them early or notify recipients.'
+        },
+        never_retrieved: {
+          title: '{count} never retrieved',
+          description:
+            'Review shares that have not been retrieved to identify ineffective uploads or follow-up gaps.'
+        },
+        permanent: {
+          title: '{count} permanent shares',
+          description: 'Review long-retention shares to prevent unbounded historical growth.'
+        },
+        healthy: {
+          title: 'Current view is stable',
+          description: 'No file in the current filters needs priority handling.'
+        },
+        empty: {
+          title: 'No results in this view',
+          description: 'Adjust or clear filters to inspect other file queues.'
+        }
+      }
+    },
     all: 'All',
     active: 'Available',
     expired: 'Expired',

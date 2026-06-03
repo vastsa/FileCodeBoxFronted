@@ -102,6 +102,64 @@ export interface AdminFileListParams {
   sortOrder?: AdminFileSortOrder
 }
 
+export interface AdminFileViewSummaryItem {
+  key: string
+  severity: AdminFileInsightSeverity | string
+  priority?: number
+  count: number
+  actionType?: string
+  action_type?: string
+  health?: AdminFileHealthFilter | string
+  targetHealth?: AdminFileHealthFilter | string
+  target_health?: AdminFileHealthFilter | string
+  suggestedAction?: string
+  suggested_action?: string
+  sourceKey?: string
+  source_key?: string
+}
+
+export interface AdminFileViewSummary {
+  total?: number
+  filteredTotal?: number
+  filtered_total?: number
+  allTotal?: number
+  all_total?: number
+  activeFilterCount?: number
+  active_filter_count?: number
+  hasFilters?: boolean
+  has_filters?: boolean
+  strongestSeverity?: AdminFileInsightSeverity | string
+  strongest_severity?: AdminFileInsightSeverity | string
+  filters?: Record<string, unknown>
+  summary?: Partial<AdminFileSummary>
+  healthSummary?: Partial<AdminFileSummary>
+  health_summary?: Partial<AdminFileSummary>
+  cards?: AdminFileViewSummaryItem[]
+  items?: AdminFileViewSummaryItem[]
+  actions?: AdminFileViewSummaryItem[]
+}
+
+export interface AdminFileViewSummaryViewItem extends AdminFileViewSummaryItem {
+  severity: AdminFileInsightSeverity
+  priority: number
+  actionTypeValue: string
+  sourceKeyValue: string
+  suggestedActionValue: string
+  targetHealthValue: AdminFileHealthFilter | string
+}
+
+export interface AdminFileViewSummaryViewData {
+  total: number
+  filteredTotal: number
+  allTotal: number
+  activeFilterCount: number
+  hasFilters: boolean
+  strongestSeverity: AdminFileInsightSeverity
+  summary: AdminFileSummary
+  cards: AdminFileViewSummaryViewItem[]
+  actions: AdminFileViewSummaryViewItem[]
+}
+
 export interface AdminFileViewPresetParams {
   keyword: string
   status: AdminFileStatusFilter
@@ -189,6 +247,12 @@ export interface FileListResponse {
   page: number
   size: number
   summary?: AdminFileSummary
+  viewSummary?: AdminFileViewSummary
+  view_summary?: AdminFileViewSummary
+  currentViewSummary?: AdminFileViewSummary
+  current_view_summary?: AdminFileViewSummary
+  actionSummary?: AdminFileViewSummary
+  action_summary?: AdminFileViewSummary
 }
 
 export interface AdminFilePreviewResponse {
