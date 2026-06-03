@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import type { ConfigState } from '@/types'
+import type { ConfigState, PublicConfigMeta } from '@/types'
 import {
   DEFAULT_PUBLIC_CONFIG,
   readNotifyKey,
@@ -16,8 +16,10 @@ export const useConfigStore = defineStore('config', () => {
     ...DEFAULT_PUBLIC_CONFIG,
     ...toPublicConfig(readStoredConfig<Partial<ConfigState>>())
   })
+  const publicMeta = ref<PublicConfigMeta>({})
 
   const uploadSizeLimit = computed(() => config.value.uploadSize)
+  const appVersion = computed(() => publicMeta.value.version || '')
 
   const updateConfig = (nextConfig: Partial<ConfigState>) => {
     config.value = {
@@ -45,6 +47,15 @@ export const useConfigStore = defineStore('config', () => {
     return `${notifyTitle}: ${notifyContent}`
   }
 
+  const applyPublicMeta = (nextMeta: PublicConfigMeta | undefined) => {
+    if (!nextMeta) return
+
+    publicMeta.value = {
+      ...publicMeta.value,
+      ...nextMeta
+    }
+  }
+
   const reloadStoredConfig = () => {
     config.value = {
       ...DEFAULT_PUBLIC_CONFIG,
@@ -53,8 +64,11 @@ export const useConfigStore = defineStore('config', () => {
   }
 
   return {
+    appVersion,
     config,
+    publicMeta,
     uploadSizeLimit,
+    applyPublicMeta,
     applyRemoteConfig,
     updateConfig,
     reloadStoredConfig

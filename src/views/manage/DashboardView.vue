@@ -221,12 +221,33 @@
         </div>
       </section>
     </div>
+
+    <footer
+      class="mt-6 flex flex-col gap-2 border-t pt-4 text-xs sm:flex-row sm:items-center sm:justify-between"
+      :class="[isDarkMode ? 'border-gray-800 text-gray-500' : 'border-gray-200 text-gray-500']"
+    >
+      <span>{{ t('admin.dashboard.footerProduct') }}</span>
+      <span class="inline-flex items-center gap-2">
+        <span>{{ t('admin.dashboard.runtimeVersion') }}</span>
+        <span
+          class="rounded-md border px-2 py-0.5 font-medium"
+          :class="[
+            isDarkMode
+              ? 'border-gray-700 bg-gray-800/70 text-gray-300'
+              : 'border-gray-200 bg-white text-gray-700'
+          ]"
+        >
+          {{ versionText }}
+        </span>
+      </span>
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, defineComponent, h, onMounted } from 'vue'
 import type { Component, PropType } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import {
   ActivityIcon,
@@ -244,11 +265,14 @@ import StatCard from '@/components/common/StatCard.vue'
 import { useDashboardStats, useInjectedDarkMode } from '@/composables'
 import { useI18n } from 'vue-i18n'
 import { ROUTES } from '@/constants'
+import { useConfigStore } from '@/stores/configStore'
 import type { DashboardHealthAction } from '@/types'
 
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()
 const router = useRouter()
+const configStore = useConfigStore()
+const { appVersion } = storeToRefs(configStore)
 const { dashboardData, errorMessage, fetchDashboardData, isLoading, lastUpdatedText } =
   useDashboardStats({
     loadFailedMessage: t('admin.dashboard.loadFailed')
@@ -256,6 +280,7 @@ const { dashboardData, errorMessage, fetchDashboardData, isLoading, lastUpdatedT
 
 const primaryTextClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-gray-900'))
 const mutedTextClass = computed(() => (isDarkMode.value ? 'text-gray-400' : 'text-gray-500'))
+const versionText = computed(() => appVersion.value || t('admin.dashboard.versionPending'))
 const panelClass = computed(() =>
   isDarkMode.value ? 'bg-gray-800/80 border border-gray-700' : 'bg-white border border-gray-100'
 )

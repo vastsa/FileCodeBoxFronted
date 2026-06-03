@@ -1,15 +1,31 @@
 import api from './client'
-import type { ApiResponse, ConfigState } from '@/types'
-
-type PublicConfigEnvelope = {
-  config?: Partial<ConfigState>
-  meta?: unknown
-}
+import type { ApiResponse, ConfigState, PublicConfigPayload } from '@/types'
 
 const isPublicConfigEnvelope = (
-  detail: ConfigState | PublicConfigEnvelope | null | undefined
-): detail is PublicConfigEnvelope => {
+  detail: ConfigState | PublicConfigPayload | null | undefined
+): detail is PublicConfigPayload => {
   return !!detail && typeof detail === 'object' && 'config' in detail
+}
+
+const normalizeUserConfigResponse = (
+  response: ApiResponse<ConfigState | PublicConfigPayload>
+): ApiResponse<PublicConfigPayload> => {
+  if (isPublicConfigEnvelope(response.detail)) {
+    return {
+      ...response,
+      detail: {
+        config: response.detail.config,
+        meta: response.detail.meta
+      }
+    }
+  }
+
+  return {
+    ...response,
+    detail: {
+      config: response.detail ?? {}
+    }
+  }
 }
 
 export class ConfigService {
@@ -17,22 +33,16 @@ export class ConfigService {
     return api.get('/admin/config/get')
   }
 
-  static async getUserConfig(): Promise<ApiResponse<ConfigState>> {
+  static async getUserConfig(): Promise<ApiResponse<PublicConfigPayload>> {
     try {
       const response = (await api.get('/api/v1/config')) as ApiResponse<
-        ConfigState | PublicConfigEnvelope
+        ConfigState | PublicConfigPayload
       >
 
-      if (isPublicConfigEnvelope(response.detail) && response.detail.config) {
-        return {
-          ...response,
-          detail: response.detail.config as ConfigState
-        }
-      }
-
-      return response as ApiResponse<ConfigState>
+      return normalizeUserConfigResponse(response)
     } catch {
-      return api.post('/')
+      const response = (await api.post('/')) as ApiResponse<ConfigState>
+      return normalizeUserConfigResponse(response)
     }
   }
 
