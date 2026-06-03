@@ -1,277 +1,109 @@
 <template>
   <div
-    class="transfer-page relative min-h-screen overflow-x-hidden px-4 py-6 transition-colors duration-300 sm:px-6 lg:px-8"
-    :class="[isDarkMode ? 'text-slate-100' : 'text-slate-950']"
+    class="min-h-screen flex items-center justify-center p-4 overflow-hidden transition-colors duration-300"
     @paste.prevent="handlePaste"
   >
-    <main
-      class="relative z-10 mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-6xl items-start lg:items-center"
+    <div
+      class="rounded-3xl shadow-2xl overflow-hidden border w-full max-w-md transition-colors duration-300"
+      :class="[
+        isDarkMode
+          ? 'bg-white bg-opacity-10 backdrop-filter backdrop-blur-xl border-gray-700'
+          : 'bg-white border-gray-200'
+      ]"
     >
-      <section
-        class="grid w-full items-stretch gap-5 lg:grid-cols-[minmax(390px,1.04fr)_minmax(0,0.88fr)]"
-      >
-        <section
-          class="rounded-[28px] border p-5 shadow-xl shadow-slate-900/5 sm:p-8"
-          :class="[isDarkMode ? 'border-white/10 bg-slate-950/70' : 'border-white/90 bg-white/90']"
-        >
-          <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p
-                class="text-sm font-medium"
-                :class="[isDarkMode ? 'text-emerald-200' : 'text-emerald-700']"
-              >
-                {{ t('send.title') }}
-              </p>
-              <h1 class="mt-2 text-3xl font-semibold">
-                {{ selectedPayloadLabel }}
-              </h1>
+      <div class="p-8">
+        <PageHeader :title="config.name" @title-click="toRetrieve" />
+        <form @submit.prevent="handleSubmit" class="space-y-8">
+          <SendTypeSelector
+            :selected-type="sendType"
+            @update:selected-type="sendType = $event"
+          />
+
+          <transition name="fade" mode="out-in">
+            <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8">
+              <FileUploadArea
+                :selected-file="selectedFile"
+                :selected-files="selectedFiles"
+                :progress="uploadProgress"
+                :description="uploadDescription"
+                @file-selected="handleFileSelected"
+                @files-selected="handleFilesSelected"
+                @file-drop="handleFileDrop"
+              />
             </div>
-            <router-link
-              to="/"
-              class="inline-flex h-10 shrink-0 items-center justify-center rounded-full border px-4 text-sm font-medium transition"
-              :class="[
-                isDarkMode
-                  ? 'border-white/10 text-emerald-100 hover:border-emerald-300/40 hover:bg-emerald-300/10'
-                  : 'border-emerald-100 bg-white text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50'
-              ]"
-            >
-              <ArchiveRestoreIcon class="mr-2 h-4 w-4" />
-              {{ t('send.needRetrieveFile') }}
-            </router-link>
-          </div>
-
-          <form class="mt-8 space-y-6" @submit.prevent="handleSubmit">
-            <div
-              class="grid rounded-2xl border p-1 sm:grid-cols-2"
-              :class="[
-                isDarkMode ? 'border-white/10 bg-white/[0.04]' : 'border-slate-200 bg-slate-100/70'
-              ]"
-            >
-              <button
-                type="button"
-                class="flex h-11 items-center justify-center rounded-xl text-sm font-medium transition"
-                :class="[
-                  sendType === 'file'
-                    ? isDarkMode
-                      ? 'bg-white text-slate-950 shadow-sm'
-                      : 'bg-white text-slate-950 shadow-sm'
-                    : isDarkMode
-                      ? 'text-slate-400 hover:text-white'
-                      : 'text-slate-500 hover:text-slate-900'
-                ]"
-                @click="sendType = 'file'"
-              >
-                <CloudUploadIcon class="mr-2 h-4 w-4" />
-                {{ t('nav.sendFile') }}
-              </button>
-              <button
-                type="button"
-                class="flex h-11 items-center justify-center rounded-xl text-sm font-medium transition"
-                :class="[
-                  sendType === 'text'
-                    ? isDarkMode
-                      ? 'bg-white text-slate-950 shadow-sm'
-                      : 'bg-white text-slate-950 shadow-sm'
-                    : isDarkMode
-                      ? 'text-slate-400 hover:text-white'
-                      : 'text-slate-500 hover:text-slate-900'
-                ]"
-                @click="sendType = 'text'"
-              >
-                <TextCursorInputIcon class="mr-2 h-4 w-4" />
-                {{ t('send.sendText') }}
-              </button>
+            <div v-else key="text" class="grid grid-cols-1 gap-8">
+              <TextInputArea v-model="textContent" :placeholder="t('send.uploadArea.textInput')" />
             </div>
-
-            <transition name="fade" mode="out-in">
-              <div v-if="sendType === 'file'" key="file" class="upload-shell">
-                <FileUploadArea
-                  :selected-file="selectedFile"
-                  :selected-files="selectedFiles"
-                  :progress="uploadProgress"
-                  :description="uploadDescription"
-                  :upload-status="isSubmitting ? 'uploading' : 'idle'"
-                  @file-selected="handleFileSelected"
-                  @files-selected="handleFilesSelected"
-                  @file-drop="handleFileDrop"
-                />
-              </div>
-              <div v-else key="text" class="text-shell">
-                <TextInputArea
-                  v-model="textContent"
-                  :rows="9"
-                  :placeholder="t('send.uploadArea.textInput')"
-                />
-              </div>
-            </transition>
-
-            <ExpirationSelector
-              v-model:expiration-method="expirationMethod"
-              v-model:expiration-value="expirationValue"
-              :options="expirationOptions"
-            />
-
-            <button
-              type="submit"
-              :disabled="isSubmitting"
-              class="group flex h-14 w-full items-center justify-center rounded-2xl px-5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
-              :class="[
-                isDarkMode
-                  ? 'bg-emerald-500 hover:bg-emerald-400'
-                  : 'bg-slate-950 hover:bg-slate-800'
-              ]"
-            >
-              <span
-                v-if="isSubmitting"
-                class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
-              ></span>
-              <SendIcon v-else class="mr-2 h-4 w-4 transition group-hover:translate-x-0.5" />
-              {{ isSubmitting ? t('send.submitting') : t('send.submit') }}
-            </button>
-          </form>
-        </section>
-
-        <aside
-          class="flex min-h-0 flex-col justify-between rounded-[28px] border p-5 shadow-sm sm:p-8 lg:min-h-[520px]"
-          :class="[
-            isDarkMode
-              ? 'border-white/10 bg-slate-950/45 shadow-black/20'
-              : 'border-white/80 bg-white/70 shadow-slate-200/70'
-          ]"
-        >
-          <div>
-            <button
-              type="button"
-              class="flex min-w-0 items-center gap-3 text-left"
-              @click="toRetrieve"
-            >
-              <span
-                class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl"
-                :class="[
-                  isDarkMode
-                    ? 'bg-emerald-400/15 text-emerald-200'
-                    : 'bg-emerald-50 text-emerald-700'
-                ]"
-              >
-                <BoxIcon class="h-5 w-5" />
-              </span>
-              <span class="min-w-0">
-                <span class="block truncate text-lg font-semibold">
-                  {{ config.name }}
-                </span>
-                <span
-                  class="mt-1 block text-xs"
-                  :class="[isDarkMode ? 'text-slate-400' : 'text-slate-500']"
-                >
-                  FileCodeBox
-                </span>
-              </span>
-            </button>
-
-            <div class="mt-8 max-w-xl lg:mt-14">
-              <p
-                class="mb-4 inline-flex rounded-full px-3 py-1 text-xs font-medium"
-                :class="[
-                  isDarkMode
-                    ? 'bg-emerald-400/10 text-emerald-200'
-                    : 'bg-emerald-50 text-emerald-700'
-                ]"
-              >
-                {{ t('send.secureEncryption') }}
-              </p>
-              <h2 class="text-4xl font-semibold leading-tight sm:text-5xl">
-                {{ t('nav.sendFile') }}
-              </h2>
-              <p
-                class="mt-5 max-w-lg text-sm leading-7"
-                :class="[isDarkMode ? 'text-slate-300' : 'text-slate-600']"
-              >
-                {{ config.description || t('common.appDescription') }}
-              </p>
-            </div>
-
-            <div class="mt-7 grid gap-3 sm:grid-cols-3 lg:mt-10 lg:grid-cols-1 xl:grid-cols-3">
-              <div
-                v-for="item in workspaceStats"
-                :key="item.label"
-                class="rounded-2xl border px-4 py-3"
-                :class="[
-                  isDarkMode ? 'border-white/10 bg-white/[0.04]' : 'border-slate-200/70 bg-white/75'
-                ]"
-              >
-                <p class="text-xs" :class="[isDarkMode ? 'text-slate-400' : 'text-slate-500']">
-                  {{ item.label }}
-                </p>
-                <p class="mt-1 truncate text-sm font-semibold">
-                  {{ item.value }}
-                </p>
-              </div>
-            </div>
-
-            <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-              <button
-                type="button"
-                class="rounded-2xl border p-4 text-left transition"
-                :class="[
-                  isDarkMode
-                    ? 'border-white/10 bg-white/[0.04] hover:bg-white/[0.07]'
-                    : 'border-slate-200 bg-white hover:bg-slate-50'
-                ]"
-                @click="toggleDrawer"
-              >
-                <ClipboardListIcon class="h-5 w-5 text-emerald-500" />
-                <p class="mt-3 text-sm font-medium">{{ t('send.sendRecords') }}</p>
-                <p class="mt-1 text-xs" :class="[isDarkMode ? 'text-slate-400' : 'text-slate-500']">
-                  {{ t('send.workspace.historyCount', { count: sendRecords.length }) }}
-                </p>
-              </button>
-
-              <button
-                type="button"
-                class="rounded-2xl border p-4 text-left transition"
-                :class="[
-                  isDarkMode
-                    ? 'border-white/10 bg-white/[0.04] hover:bg-white/[0.07]'
-                    : 'border-slate-200 bg-white hover:bg-slate-50'
-                ]"
-                @click="viewLatestRecord"
-              >
-                <ClockIcon class="h-5 w-5 text-slate-400" />
-                <p class="mt-3 text-sm font-medium">{{ t('send.workspace.latestRecord') }}</p>
-                <p
-                  class="mt-1 truncate text-xs"
-                  :class="[isDarkMode ? 'text-slate-400' : 'text-slate-500']"
-                >
-                  {{ latestRecord ? latestRecord.retrieveCode : t('send.workspace.noRecord') }}
-                </p>
-              </button>
-            </div>
-          </div>
-
-          <div
-            class="mt-7 rounded-2xl border p-4 lg:mt-10"
-            :class="[
-              isDarkMode ? 'border-white/10 bg-slate-900/45' : 'border-slate-200/70 bg-white/65'
-            ]"
+          </transition>
+          <ExpirationSelector
+            v-model:expiration-method="expirationMethod"
+            v-model:expiration-value="expirationValue"
+            :options="expirationOptions"
+          />
+          <!-- 提交按钮 -->
+          <button
+            type="submit"
+            :disabled="isSubmitting"
+            class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-4 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-all duration-300 transform hover:scale-105 hover:shadow-lg relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:scale-100"
           >
-            <div class="flex items-start gap-3">
-              <ShieldCheckIcon class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
-              <div>
-                <p class="text-sm font-medium">
-                  {{ t('send.workspace.security') }}
-                </p>
-                <p
-                  class="mt-1 text-xs leading-5"
-                  :class="[isDarkMode ? 'text-slate-400' : 'text-slate-500']"
-                >
-                  {{ t('send.secureEncryption') }} · {{ expirationPreview }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </aside>
-      </section>
-    </main>
+            <span
+              class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+            ></span>
+            <span class="relative z-10 flex items-center justify-center text-lg">
+              <svg
+                v-if="isSubmitting"
+                class="w-6 h-6 mr-2 animate-spin"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              <SendIcon v-else class="w-6 h-6 mr-2" />
+              <span>{{ isSubmitting ? t('send.submitting') : t('send.submit') }}</span>
+            </span>
+          </button>
+        </form>
+        <div class="mt-6 text-center">
+          <router-link to="/" class="text-indigo-400 hover:text-indigo-300 transition duration-300">
+            {{ t('send.needRetrieveFile') }}
+          </router-link>
+        </div>
+      </div>
+
+      <div
+        class="px-8 py-4 bg-opacity-50 flex justify-between items-center"
+        :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']"
+      >
+        <span
+          class="text-sm flex items-center"
+          :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
+        >
+          <ShieldCheckIcon class="w-4 h-4 mr-1 text-green-400" />
+          {{ t('send.secureEncryption') }}
+        </span>
+        <button
+          @click="toggleDrawer"
+          class="text-sm hover:text-indigo-300 transition duration-300 flex items-center"
+          :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+        >
+          {{ t('send.sendRecords') }}
+          <ClipboardListIcon class="w-4 h-4 ml-1" />
+        </button>
+      </div>
+    </div>
 
     <SideDrawer :visible="showDrawer" :title="t('send.sendRecords')" @close="toggleDrawer">
       <SentRecordList
@@ -294,29 +126,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { inject } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import {
-  ArchiveRestoreIcon,
-  BoxIcon,
-  ClipboardListIcon,
-  ClockIcon,
-  CloudUploadIcon,
   SendIcon,
-  ShieldCheckIcon,
-  TextCursorInputIcon
+  ClipboardListIcon,
+  ShieldCheckIcon
 } from 'lucide-vue-next'
+import PageHeader from '@/components/common/PageHeader.vue'
+import SendTypeSelector from '@/components/common/SendTypeSelector.vue'
 import FileUploadArea from '@/components/common/FileUploadArea.vue'
 import ExpirationSelector from '@/components/common/ExpirationSelector.vue'
 import TextInputArea from '@/components/common/TextInputArea.vue'
 import SideDrawer from '@/components/common/SideDrawer.vue'
 import SentRecordList from '@/components/common/SentRecordList.vue'
 import SentRecordDetailModal from '@/components/common/SentRecordDetailModal.vue'
-import { useInjectedDarkMode, useSendFlow } from '@/composables'
-import { getStorageUnit } from '@/utils/convert'
+import { useSendFlow } from '@/composables'
 
-const isDarkMode = useInjectedDarkMode()
+const isDarkMode = inject('isDarkMode')
 const { t } = useI18n()
 const router = useRouter()
 const {
@@ -340,7 +168,6 @@ const {
   copySentRecordWgetCommand,
   deleteRecord,
   getQRCodeValue,
-  getUnit,
   handleFileDrop,
   handleFileSelected,
   handleFilesSelected,
@@ -350,95 +177,102 @@ const {
   viewDetails
 } = useSendFlow()
 
-const selectedFileCount = computed(() =>
-  selectedFiles.value.length > 0 ? selectedFiles.value.length : selectedFile.value ? 1 : 0
-)
-
-const selectedPayloadLabel = computed(() => {
-  if (sendType.value === 'text') {
-    return t('send.workspace.textDraft', { count: textContent.value.trim().length })
-  }
-  if (selectedFileCount.value > 0) {
-    return t('send.workspace.fileReady', { count: selectedFileCount.value })
-  }
-  return t('send.workspace.awaitingFile')
-})
-
-const latestRecord = computed(() => {
-  if (sendRecords.value.length === 0) return null
-  return sendRecords.value[sendRecords.value.length - 1]
-})
-
-const expirationPreview = computed(() => {
-  if (expirationMethod.value === 'forever') {
-    return getUnit('forever')
-  }
-  return `${expirationValue.value || 1} ${getUnit(expirationMethod.value)}`
-})
-
-const workspaceStats = computed(() => [
-  {
-    label: t('send.workspace.uploadLimit'),
-    value: getStorageUnit(config.value.uploadSize)
-  },
-  {
-    label: t('send.workspace.uploadMode'),
-    value: config.value.enableChunk
-      ? t('send.workspace.chunkMode')
-      : t('send.workspace.standardMode')
-  },
-  {
-    label: t('send.workspace.guestPolicy'),
-    value: config.value.openUpload ? t('send.workspace.guestOpen') : t('send.workspace.guestClosed')
-  }
-])
-
 const toRetrieve = () => {
   router.push('/')
-}
-
-const viewLatestRecord = () => {
-  if (latestRecord.value) {
-    viewDetails(latestRecord.value)
-  } else {
-    toggleDrawer()
-  }
 }
 </script>
 
 <style scoped>
-.transfer-page::before {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  content: '';
-  background-image:
-    linear-gradient(to right, rgb(148 163 184 / 0.12) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(148 163 184 / 0.12) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: linear-gradient(to bottom, black, transparent 82%);
-}
-
 .fade-enter-active,
 .fade-leave-active {
   transition:
-    opacity 0.22s ease,
-    transform 0.22s ease;
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(10px);
 }
 
-:deep(.upload-shell > div) {
-  min-height: 18rem;
-  border-radius: 1.5rem;
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-:deep(.text-shell textarea) {
-  min-height: 18rem;
-  border-radius: 1.5rem;
+select option {
+  padding: 8px;
+  margin: 4px;
+  border-radius: 6px;
+}
+
+select option:checked {
+  background: linear-gradient(to right, rgb(99 102 241 / 0.5), rgb(168 85 247 / 0.5)) !important;
+  color: white !important;
+}
+
+.dark select option:checked {
+  background: linear-gradient(to right, rgb(99 102 241 / 0.7), rgb(168 85 247 / 0.7)) !important;
+}
+
+select option:hover {
+  background-color: rgb(99 102 241 / 0.1);
+}
+
+.dark select option:hover {
+  background-color: rgb(99 102 241 / 0.2);
+}
+
+/* 自定义滚动条样式 */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.4) rgba(243, 244, 246, 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(243, 244, 246, 0.3);
+  border-radius: 6px;
+  margin: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.6), rgba(168, 85, 247, 0.6));
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(168, 85, 247, 0.8));
+  transform: scale(1.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* 深色模式下的滚动条样式 */
+.dark .custom-scrollbar {
+  scrollbar-color: rgba(75, 85, 99, 0.6) rgba(31, 41, 55, 0.4);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(31, 41, 55, 0.4);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.7), rgba(168, 85, 247, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(168, 85, 247, 0.9));
 }
 </style>

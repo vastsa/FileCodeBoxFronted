@@ -5,7 +5,8 @@ import { readStoredToken } from '@/utils/auth-storage'
 
 const publicPageMeta = {
   showGlobalControls: true,
-  showRouteLoading: true
+  showRouteLoading: false,
+  routeTransition: 'transfer-fade'
 }
 
 const adminPageMeta = {
