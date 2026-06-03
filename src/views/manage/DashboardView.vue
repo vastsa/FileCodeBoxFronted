@@ -134,6 +134,80 @@
       </div>
     </section>
 
+    <section
+      v-if="dashboardData.hasExtendedStats && dashboardData.maintenanceItems.length > 0"
+      class="mt-6 rounded-lg p-5 shadow-sm"
+      :class="[panelClass]"
+    >
+      <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <div>
+          <h3 class="text-lg font-semibold" :class="[primaryTextClass]">
+            {{ t('admin.dashboard.maintenanceQueueTitle') }}
+          </h3>
+          <p class="text-sm" :class="[mutedTextClass]">
+            {{ t('admin.dashboard.maintenanceQueueDesc') }}
+          </p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 sm:min-w-[24rem]">
+          <div class="rounded-lg border px-3 py-2" :class="[subtlePanelClass]">
+            <p class="text-xs" :class="[mutedTextClass]">
+              {{ t('admin.dashboard.maintenanceActionable') }}
+            </p>
+            <strong class="mt-1 block text-xl" :class="[primaryTextClass]">
+              {{ dashboardData.maintenanceSummary.actionableCount }}
+            </strong>
+          </div>
+          <div class="rounded-lg border px-3 py-2" :class="[subtlePanelClass]">
+            <p class="text-xs" :class="[mutedTextClass]">
+              {{ t('admin.dashboard.maintenanceFileQueue') }}
+            </p>
+            <strong class="mt-1 block text-xl" :class="[primaryTextClass]">
+              {{ dashboardData.maintenanceSummary.fileQueueCount }}
+            </strong>
+          </div>
+          <div class="rounded-lg border px-3 py-2" :class="[subtlePanelClass]">
+            <p class="text-xs" :class="[mutedTextClass]">
+              {{ t('admin.dashboard.maintenanceSettings') }}
+            </p>
+            <strong class="mt-1 block text-xl" :class="[primaryTextClass]">
+              {{ dashboardData.maintenanceSummary.settingsCount }}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+        <button
+          v-for="item in dashboardData.maintenanceItems"
+          :key="item.key"
+          type="button"
+          class="group flex min-h-36 flex-col rounded-lg border p-4 text-left transition-colors"
+          :class="getMaintenanceQueueClass(item.severity)"
+          @click="openMaintenanceQueueItem(item)"
+        >
+          <span class="flex items-start justify-between gap-3">
+            <span class="rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-current/15">
+              {{ getOperationalInsightSeverityLabel(item.severity) }}
+            </span>
+            <component :is="getMaintenanceQueueIcon(item.severity)" class="h-5 w-5 shrink-0" />
+          </span>
+          <strong class="mt-3 text-base">
+            {{ getMaintenanceQueueTitle(item) }}
+          </strong>
+          <span class="mt-2 line-clamp-2 text-sm opacity-80">
+            {{ getMaintenanceQueueDescription(item) }}
+          </span>
+          <span class="mt-auto flex items-center justify-between gap-2 pt-4 text-sm font-medium">
+            <span>{{ getMaintenanceQueueActionLabel(item) }}</span>
+            <ArrowRightIcon
+              class="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+            />
+          </span>
+        </button>
+      </div>
+    </section>
+
     <div v-if="dashboardData.hasExtendedStats" class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
       <section class="xl:col-span-2 rounded-lg p-5 shadow-sm" :class="[panelClass]">
         <div class="mb-5 flex items-center justify-between">
@@ -739,6 +813,7 @@ import type {
   DashboardActivityViewItem,
   DashboardHealthAction,
   DashboardInsightSeverity,
+  DashboardMaintenanceQueueViewItem,
   DashboardOperationalInsightViewItem
 } from '@/types'
 
@@ -906,6 +981,42 @@ const openOperationalInsight = (insight: DashboardOperationalInsightViewItem) =>
   }
 
   const health = insight.targetHealthValue
+  void router.push({
+    path: ROUTES.FILE_MANAGE,
+    query: health ? { health } : {}
+  })
+}
+
+const getMaintenanceQueueIcon = (severity: DashboardInsightSeverity) =>
+  operationalInsightIconMap[severity]
+
+const getMaintenanceQueueClass = (severity: DashboardInsightSeverity) =>
+  getOperationalInsightClass(severity)
+
+const getMaintenanceQueueTitle = (item: DashboardMaintenanceQueueViewItem) => {
+  const key = `admin.dashboard.maintenanceQueueItems.${item.key}.title`
+  const title = t(key, { count: item.count })
+  return title === key ? item.key : title
+}
+
+const getMaintenanceQueueDescription = (item: DashboardMaintenanceQueueViewItem) => {
+  const key = `admin.dashboard.maintenanceQueueItems.${item.key}.description`
+  const description = t(key, { count: item.count })
+  return description === key ? item.key : description
+}
+
+const getMaintenanceQueueActionLabel = (item: DashboardMaintenanceQueueViewItem) =>
+  item.actionTypeValue === 'settings'
+    ? t('admin.dashboard.maintenanceQueueActionSettings')
+    : t('admin.dashboard.maintenanceQueueActionFileQueue')
+
+const openMaintenanceQueueItem = (item: DashboardMaintenanceQueueViewItem) => {
+  if (item.actionTypeValue === 'settings') {
+    void router.push({ path: ROUTES.SETTINGS })
+    return
+  }
+
+  const health = item.targetHealthValue
   void router.push({
     path: ROUTES.FILE_MANAGE,
     query: health ? { health } : {}

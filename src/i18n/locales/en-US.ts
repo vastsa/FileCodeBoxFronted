@@ -101,6 +101,54 @@ export default {
         success: 'Stable',
         neutral: 'Suggestion'
       },
+      maintenanceQueueTitle: 'Maintenance Queue',
+      maintenanceQueueDesc:
+        'Groups file health, retention policy, and upload settings into actionable queues. Click an item to open the related view.',
+      maintenanceActionable: 'Actionable',
+      maintenanceFileQueue: 'File queue',
+      maintenanceSettings: 'Settings',
+      maintenanceQueueActionSettings: 'Adjust settings',
+      maintenanceQueueActionFileQueue: 'View queue',
+      maintenanceQueueItems: {
+        storage_issue: {
+          title: '{count} storage issues',
+          description:
+            'Review records missing download metadata and verify storage settings and file details.'
+        },
+        expired_cleanup: {
+          title: '{count} expired items',
+          description:
+            'Review expired shares, delete stale records, or extend files that should stay available.'
+        },
+        expiring_soon: {
+          title: '{count} expiring soon',
+          description: 'These shares will expire soon. Extend them early or notify recipients.'
+        },
+        never_retrieved: {
+          title: '{count} never retrieved',
+          description:
+            'Review shares that have not been retrieved to identify ineffective uploads or follow-up gaps.'
+        },
+        permanent_review: {
+          title: '{count} permanent shares',
+          description:
+            'Periodically review long-retention shares to prevent unbounded historical growth.'
+        },
+        guest_upload_retention: {
+          title: 'Guest uploads lack retention limits',
+          description:
+            'Guest uploads are enabled without a maximum retention period. Add a default retention policy.'
+        },
+        chunking_disabled: {
+          title: 'Large-file experience can improve',
+          description:
+            "Today's capacity is near the single-file limit. Enable chunked upload for better reliability."
+        },
+        healthy: {
+          title: 'Maintenance queue is stable',
+          description: 'No maintenance item needs priority attention right now.'
+        }
+      },
       viewAllActivities: 'View all',
       activityTimelineTitle: 'Activity Timeline',
       activityTimelineFiltered: 'Current Results',
@@ -992,6 +1040,54 @@ export default {
         warning: 'Action needed',
         success: 'Stable',
         neutral: 'Suggestion'
+      },
+      maintenanceQueueTitle: 'Maintenance Queue',
+      maintenanceQueueDesc:
+        'Groups file health, retention policy, and upload settings into actionable queues. Click an item to open the related view.',
+      maintenanceActionable: 'Actionable',
+      maintenanceFileQueue: 'File queue',
+      maintenanceSettings: 'Settings',
+      maintenanceQueueActionSettings: 'Adjust settings',
+      maintenanceQueueActionFileQueue: 'View queue',
+      maintenanceQueueItems: {
+        storage_issue: {
+          title: '{count} storage issues',
+          description:
+            'Review records missing download metadata and verify storage settings and file details.'
+        },
+        expired_cleanup: {
+          title: '{count} expired items',
+          description:
+            'Review expired shares, delete stale records, or extend files that should stay available.'
+        },
+        expiring_soon: {
+          title: '{count} expiring soon',
+          description: 'These shares will expire soon. Extend them early or notify recipients.'
+        },
+        never_retrieved: {
+          title: '{count} never retrieved',
+          description:
+            'Review shares that have not been retrieved to identify ineffective uploads or follow-up gaps.'
+        },
+        permanent_review: {
+          title: '{count} permanent shares',
+          description:
+            'Periodically review long-retention shares to prevent unbounded historical growth.'
+        },
+        guest_upload_retention: {
+          title: 'Guest uploads lack retention limits',
+          description:
+            'Guest uploads are enabled without a maximum retention period. Add a default retention policy.'
+        },
+        chunking_disabled: {
+          title: 'Large-file experience can improve',
+          description:
+            "Today's capacity is near the single-file limit. Enable chunked upload for better reliability."
+        },
+        healthy: {
+          title: 'Maintenance queue is stable',
+          description: 'No maintenance item needs priority attention right now.'
+        }
       },
       viewAllActivities: 'View all',
       activityTimelineTitle: 'Activity Timeline',

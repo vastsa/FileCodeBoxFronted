@@ -46,6 +46,12 @@ export interface DashboardData {
   operationalInsights?: DashboardOperationalInsight[]
   operational_insights?: DashboardOperationalInsight[]
   insights?: DashboardOperationalInsight[]
+  maintenanceQueue?: DashboardMaintenanceQueue
+  maintenance_queue?: DashboardMaintenanceQueue
+  maintenanceItems?: DashboardMaintenanceQueueItem[]
+  maintenance_items?: DashboardMaintenanceQueueItem[]
+  maintenanceSummary?: Partial<DashboardMaintenanceQueueSummary>
+  maintenance_summary?: Partial<DashboardMaintenanceQueueSummary>
 }
 
 export interface DashboardSuffixStat {
@@ -125,6 +131,69 @@ export interface DashboardActivitiesResponse {
 
 export type DashboardInsightSeverity = 'danger' | 'warning' | 'success' | 'neutral'
 
+export interface DashboardMaintenanceQueueAction {
+  type?: string
+  actionType?: string
+  action_type?: string
+  health?: AdminFileHealthFilter | string | null
+  targetHealth?: AdminFileHealthFilter | string | null
+  target_health?: AdminFileHealthFilter | string | null
+  suggestedAction?: string
+  suggested_action?: string
+}
+
+export interface DashboardMaintenanceQueueItem {
+  key: string
+  severity: DashboardInsightSeverity | string
+  category?: string
+  priority?: number
+  count: number
+  action?: DashboardMaintenanceQueueAction
+  actionType?: string
+  action_type?: string
+  suggestedAction?: string
+  suggested_action?: string
+  targetHealth?: AdminFileHealthFilter | string | null
+  target_health?: AdminFileHealthFilter | string | null
+}
+
+export interface DashboardMaintenanceQueueSummary {
+  total: number
+  actionableCount: number
+  actionable_count?: number
+  dangerCount: number
+  danger_count?: number
+  warningCount: number
+  warning_count?: number
+  successCount: number
+  success_count?: number
+  neutralCount: number
+  neutral_count?: number
+  fileQueueCount: number
+  file_queue_count?: number
+  settingsCount: number
+  settings_count?: number
+  strongestSeverity: DashboardInsightSeverity
+  strongest_severity?: DashboardInsightSeverity
+}
+
+export interface DashboardMaintenanceQueue {
+  items?: DashboardMaintenanceQueueItem[]
+  maintenanceItems?: DashboardMaintenanceQueueItem[]
+  maintenance_items?: DashboardMaintenanceQueueItem[]
+  summary?: Partial<DashboardMaintenanceQueueSummary>
+  maintenanceSummary?: Partial<DashboardMaintenanceQueueSummary>
+  maintenance_summary?: Partial<DashboardMaintenanceQueueSummary>
+}
+
+export interface DashboardMaintenanceQueueViewItem extends DashboardMaintenanceQueueItem {
+  severity: DashboardInsightSeverity
+  priority: number
+  actionTypeValue: string
+  suggestedActionValue: string
+  targetHealthValue: AdminFileHealthFilter | string | null
+}
+
 export interface DashboardOperationalInsightAction {
   type?: string
   actionType?: string
@@ -174,6 +243,12 @@ export type DashboardViewData = Omit<
   | 'operationalInsights'
   | 'operational_insights'
   | 'insights'
+  | 'maintenanceQueue'
+  | 'maintenance_queue'
+  | 'maintenanceItems'
+  | 'maintenance_items'
+  | 'maintenanceSummary'
+  | 'maintenance_summary'
   | 'storageUsed'
   | 'yesterdaySize'
   | 'todaySize'
@@ -195,6 +270,8 @@ export type DashboardViewData = Omit<
     recentFiles: DashboardRecentFile[]
     recentActivities: DashboardActivityViewItem[]
     operationalInsights: DashboardOperationalInsightViewItem[]
+    maintenanceItems: DashboardMaintenanceQueueViewItem[]
+    maintenanceSummary: DashboardMaintenanceQueueSummary
     storageUsed: number
     yesterdaySize: number
     todaySize: number

@@ -100,6 +100,47 @@ export default {
         success: '稳定',
         neutral: '建议'
       },
+      maintenanceQueueTitle: '维护队列',
+      maintenanceQueueDesc: '把文件健康、保留策略和上传配置聚合成可处理队列，点击进入对应视图。',
+      maintenanceActionable: '待处理',
+      maintenanceFileQueue: '文件队列',
+      maintenanceSettings: '配置项',
+      maintenanceQueueActionSettings: '调整设置',
+      maintenanceQueueActionFileQueue: '查看队列',
+      maintenanceQueueItems: {
+        storage_issue: {
+          title: '存储异常 {count} 项',
+          description: '优先核对缺少下载元数据的记录，确认存储配置和文件详情。'
+        },
+        expired_cleanup: {
+          title: '已过期 {count} 项',
+          description: '集中检查过期分享，删除无效记录或续期仍需保留的文件。'
+        },
+        expiring_soon: {
+          title: '即将过期 {count} 项',
+          description: '这些分享将在短时间内失效，适合提前续期或通知使用方。'
+        },
+        never_retrieved: {
+          title: '未取件 {count} 项',
+          description: '查看创建后尚未被取件的分享，用于识别无效上传或触达缺口。'
+        },
+        permanent_review: {
+          title: '永久有效 {count} 项',
+          description: '定期复核长期保留的分享，避免历史文件无限增长。'
+        },
+        guest_upload_retention: {
+          title: '游客上传缺少保留上限',
+          description: '游客上传已开启且没有最长保存时间，建议补充默认保留策略。'
+        },
+        chunking_disabled: {
+          title: '大文件体验可优化',
+          description: '今日容量接近单文件上限，开启分片上传可提升上传稳定性。'
+        },
+        healthy: {
+          title: '维护队列稳定',
+          description: '当前未发现需要优先处理的维护事项。'
+        }
+      },
       viewAllActivities: '查看全部',
       activityTimelineTitle: '操作时间线',
       activityTimelineFiltered: '当前结果',
@@ -937,6 +978,47 @@ export default {
         warning: '需处理',
         success: '稳定',
         neutral: '建议'
+      },
+      maintenanceQueueTitle: '维护队列',
+      maintenanceQueueDesc: '把文件健康、保留策略和上传配置聚合成可处理队列，点击进入对应视图。',
+      maintenanceActionable: '待处理',
+      maintenanceFileQueue: '文件队列',
+      maintenanceSettings: '配置项',
+      maintenanceQueueActionSettings: '调整设置',
+      maintenanceQueueActionFileQueue: '查看队列',
+      maintenanceQueueItems: {
+        storage_issue: {
+          title: '存储异常 {count} 项',
+          description: '优先核对缺少下载元数据的记录，确认存储配置和文件详情。'
+        },
+        expired_cleanup: {
+          title: '已过期 {count} 项',
+          description: '集中检查过期分享，删除无效记录或续期仍需保留的文件。'
+        },
+        expiring_soon: {
+          title: '即将过期 {count} 项',
+          description: '这些分享将在短时间内失效，适合提前续期或通知使用方。'
+        },
+        never_retrieved: {
+          title: '未取件 {count} 项',
+          description: '查看创建后尚未被取件的分享，用于识别无效上传或触达缺口。'
+        },
+        permanent_review: {
+          title: '永久有效 {count} 项',
+          description: '定期复核长期保留的分享，避免历史文件无限增长。'
+        },
+        guest_upload_retention: {
+          title: '游客上传缺少保留上限',
+          description: '游客上传已开启且没有最长保存时间，建议补充默认保留策略。'
+        },
+        chunking_disabled: {
+          title: '大文件体验可优化',
+          description: '今日容量接近单文件上限，开启分片上传可提升上传稳定性。'
+        },
+        healthy: {
+          title: '维护队列稳定',
+          description: '当前未发现需要优先处理的维护事项。'
+        }
       },
       viewAllActivities: '查看全部',
       activityTimelineTitle: '操作时间线',
