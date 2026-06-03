@@ -22,6 +22,7 @@
           <transition name="fade" mode="out-in">
             <div v-if="sendType === 'file'" key="file" class="grid grid-cols-1 gap-8">
               <FileUploadArea
+                class="payload-panel"
                 :selected-file="selectedFile"
                 :selected-files="selectedFiles"
                 :progress="uploadProgress"
@@ -32,7 +33,11 @@
               />
             </div>
             <div v-else key="text" class="grid grid-cols-1 gap-8">
-              <TextInputArea v-model="textContent" :placeholder="t('send.uploadArea.textInput')" />
+              <TextInputArea
+                v-model="textContent"
+                class="payload-panel"
+                :placeholder="t('send.uploadArea.textInput')"
+              />
             </div>
           </transition>
           <ExpirationSelector
@@ -200,6 +205,15 @@ const toRetrieve = () => {
 .fade-leave-from {
   opacity: 1;
   transform: translateY(0);
+}
+
+:deep(.payload-panel) {
+  height: 12rem;
+  min-height: 12rem;
+}
+
+:deep(.payload-panel textarea) {
+  height: 100%;
 }
 
 select option {
