@@ -52,83 +52,6 @@
     </div>
 
     <section class="mb-6 rounded-lg border p-4" :class="[panelClass]">
-      <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div class="min-w-0">
-          <div class="flex flex-wrap items-center gap-2">
-            <div
-              class="rounded-lg p-2"
-              :class="isDarkMode ? 'bg-blue-500/10 text-blue-300' : 'bg-blue-50 text-blue-600'"
-            >
-              <ShieldCheckIcon class="h-5 w-5" />
-            </div>
-            <div class="min-w-0">
-              <h3 class="text-base font-semibold" :class="[primaryTextClass]">
-                {{ t('fileManage.viewSummary.title') }}
-              </h3>
-              <p class="mt-1 text-sm" :class="[mutedTextClass]">
-                {{ t('fileManage.viewSummary.description') }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2 sm:min-w-[360px]">
-          <div
-            v-for="metric in viewSummaryMetrics"
-            :key="metric.label"
-            class="rounded-lg border px-3 py-2"
-            :class="[subtleSectionClass]"
-          >
-            <p class="text-xs" :class="[mutedTextClass]">{{ metric.label }}</p>
-            <p class="mt-1 text-lg font-semibold" :class="[primaryTextClass]">
-              {{ metric.value }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-4">
-        <button
-          v-for="item in viewSummary.cards"
-          :key="item.key"
-          type="button"
-          class="group flex min-h-28 items-start gap-3 rounded-lg border px-4 py-3 text-left transition-colors"
-          :class="getViewSummaryItemClass(item)"
-          @click="openViewSummaryItem(item)"
-        >
-          <span class="rounded-lg p-2" :class="getViewSummaryIconClass(item)">
-            <component :is="getViewSummaryIcon(item)" class="h-4 w-4" />
-          </span>
-          <span class="min-w-0 flex-1">
-            <span class="flex items-start justify-between gap-2">
-              <span class="text-sm font-semibold" :class="[primaryTextClass]">
-                {{ getViewSummaryTitle(item) }}
-              </span>
-              <span
-                class="shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium"
-                :class="getInsightBadgeClass(item.severity)"
-              >
-                {{ getViewSummarySeverityLabel(item) }}
-              </span>
-            </span>
-            <span class="mt-1 block text-xs leading-5" :class="[mutedTextClass]">
-              {{ getViewSummaryDescription(item) }}
-            </span>
-            <span
-              class="mt-3 inline-flex items-center text-xs font-medium"
-              :class="[isDarkMode ? 'text-blue-300' : 'text-blue-600']"
-            >
-              {{ getViewSummaryActionLabel(item) }}
-              <ChevronRightIcon
-                class="ml-1 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-              />
-            </span>
-          </span>
-        </button>
-      </div>
-    </section>
-
-    <section class="mb-6 rounded-lg border p-4" :class="[panelClass]">
       <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div class="flex min-w-0 flex-1 flex-col gap-3 md:flex-row">
           <div class="relative min-w-[220px] flex-1">
@@ -1250,16 +1173,12 @@ import type {
   AdminFileSortOrder,
   AdminFileStatusFilter,
   AdminFileTypeFilter,
-  AdminFileViewSummaryViewItem,
   AdminFileViewItem
 } from '@/types'
 import {
   ActivityIcon,
-  AlertTriangleIcon,
   ArchiveIcon,
   CheckIcon,
-  CheckCircleIcon,
-  ChevronRightIcon,
   ClockIcon,
   CopyIcon,
   DownloadIcon,
@@ -1273,7 +1192,6 @@ import {
   RefreshCwIcon,
   RotateCcwIcon,
   SearchIcon,
-  ShieldCheckIcon,
   TrashIcon,
   XIcon
 } from 'lucide-vue-next'
@@ -1337,7 +1255,6 @@ const {
   selectedViewPresetId,
   storageUsedText,
   summary,
-  viewSummary,
   showBatchEditModal,
   showEditModal,
   showFileDetailModal,
@@ -1567,21 +1484,6 @@ const summaryCards = computed(() => [
   }
 ])
 
-const viewSummaryMetrics = computed(() => [
-  {
-    label: t('fileManage.viewSummary.filteredTotal'),
-    value: viewSummary.value.filteredTotal
-  },
-  {
-    label: t('fileManage.viewSummary.allTotal'),
-    value: viewSummary.value.allTotal
-  },
-  {
-    label: t('fileManage.viewSummary.activeFilters'),
-    value: viewSummary.value.activeFilterCount
-  }
-])
-
 const statusFilterOptions = computed<{ value: AdminFileStatusFilter; label: string }[]>(() => [
   { value: 'all', label: t('fileManage.all') },
   { value: 'active', label: t('fileManage.active') },
@@ -1622,78 +1524,10 @@ const healthFilterValues: AdminFileHealthFilter[] = [
   'permanent'
 ]
 
-const isHealthFilterValue = (value: string): value is AdminFileHealthFilter =>
-  healthFilterValues.includes(value as AdminFileHealthFilter)
-
-const getViewSummaryItemKey = (item: AdminFileViewSummaryViewItem) =>
-  item.sourceKeyValue || item.key
-
-const getViewSummaryTitle = (item: AdminFileViewSummaryViewItem) =>
-  t(`fileManage.viewSummary.items.${getViewSummaryItemKey(item)}.title`, {
-    count: item.count
-  })
-
-const getViewSummaryDescription = (item: AdminFileViewSummaryViewItem) =>
-  t(`fileManage.viewSummary.items.${getViewSummaryItemKey(item)}.description`, {
-    count: item.count
-  })
-
-const getViewSummaryActionLabel = (item: AdminFileViewSummaryViewItem) =>
-  item.targetHealthValue === 'all'
-    ? t('fileManage.viewSummary.reset')
-    : t('fileManage.viewSummary.action')
-
-const getViewSummarySeverityLabel = (item: AdminFileViewSummaryViewItem) =>
-  t(`fileManage.viewSummary.severity.${item.severity}`)
-
-const getViewSummaryIcon = (item: AdminFileViewSummaryViewItem) => {
-  if (item.severity === 'success') return CheckCircleIcon
-  if (item.severity === 'danger' || item.severity === 'warning') return AlertTriangleIcon
-  return ShieldCheckIcon
-}
-
-const getViewSummaryItemClass = (item: AdminFileViewSummaryViewItem) => {
-  const darkClasses: Record<AdminFileInsightSeverity, string> = {
-    success: 'border-emerald-500/20 bg-emerald-500/10 hover:border-emerald-500/40',
-    warning: 'border-amber-500/20 bg-amber-500/10 hover:border-amber-500/40',
-    danger: 'border-red-500/20 bg-red-500/10 hover:border-red-500/40',
-    info: 'border-blue-500/20 bg-blue-500/10 hover:border-blue-500/40',
-    neutral: 'border-gray-700 bg-gray-700/30 hover:border-gray-600'
-  }
-  const lightClasses: Record<AdminFileInsightSeverity, string> = {
-    success: 'border-emerald-100 bg-emerald-50 hover:border-emerald-200',
-    warning: 'border-amber-100 bg-amber-50 hover:border-amber-200',
-    danger: 'border-red-100 bg-red-50 hover:border-red-200',
-    info: 'border-blue-100 bg-blue-50 hover:border-blue-200',
-    neutral: 'border-gray-200 bg-gray-50 hover:border-gray-300'
-  }
-
-  return isDarkMode.value ? darkClasses[item.severity] : lightClasses[item.severity]
-}
-
-const getViewSummaryIconClass = (item: AdminFileViewSummaryViewItem) => {
-  const darkClasses: Record<AdminFileInsightSeverity, string> = {
-    success: 'bg-emerald-900/40 text-emerald-200',
-    warning: 'bg-amber-900/40 text-amber-200',
-    danger: 'bg-red-900/40 text-red-200',
-    info: 'bg-blue-900/40 text-blue-200',
-    neutral: 'bg-gray-800 text-gray-300'
-  }
-  const lightClasses: Record<AdminFileInsightSeverity, string> = {
-    success: 'bg-emerald-100 text-emerald-700',
-    warning: 'bg-amber-100 text-amber-700',
-    danger: 'bg-red-100 text-red-700',
-    info: 'bg-blue-100 text-blue-700',
-    neutral: 'bg-gray-100 text-gray-700'
-  }
-
-  return isDarkMode.value ? darkClasses[item.severity] : lightClasses[item.severity]
-}
-
 const getRouteHealthFilter = (): AdminFileHealthFilter => {
   const health = route.query.health
-  if (typeof health === 'string' && isHealthFilterValue(health)) {
-    return health
+  if (typeof health === 'string' && healthFilterValues.includes(health as AdminFileHealthFilter)) {
+    return health as AdminFileHealthFilter
   }
   return 'all'
 }
@@ -1716,16 +1550,6 @@ const handleHealthFilterChange = async (health: AdminFileHealthFilter) => {
 const handleResetFilters = async () => {
   await resetFilters()
   await syncHealthFilterQuery('all')
-}
-
-const openViewSummaryItem = async (item: AdminFileViewSummaryViewItem) => {
-  const health = String(item.targetHealthValue || 'all')
-  if (health !== 'all' && isHealthFilterValue(health)) {
-    await handleHealthFilterChange(health)
-    return
-  }
-
-  await handleResetFilters()
 }
 
 const handleViewPresetChange = async (event: Event) => {

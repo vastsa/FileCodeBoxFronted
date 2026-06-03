@@ -22,10 +22,6 @@ import type {
   AdminFileStatusFilter,
   AdminFileSummary,
   AdminFileTypeFilter,
-  AdminFileViewSummary,
-  AdminFileViewSummaryItem,
-  AdminFileViewSummaryViewData,
-  AdminFileViewSummaryViewItem,
   AdminFileViewPreset,
   AdminFileViewPresetParams,
   AdminFileViewPresetRequest,
@@ -60,18 +56,6 @@ const emptySummary = (): AdminFileSummary => ({
   permanentCount: 0,
   storageUsed: 0,
   usedCount: 0
-})
-
-const emptyViewSummary = (): AdminFileViewSummaryViewData => ({
-  total: 0,
-  filteredTotal: 0,
-  allTotal: 0,
-  activeFilterCount: 0,
-  hasFilters: false,
-  strongestSeverity: 'success',
-  summary: emptySummary(),
-  cards: [],
-  actions: []
 })
 
 const normalizeCount = (value: number | string | null | undefined) => Number(value || 0)
@@ -228,7 +212,6 @@ export function useAdminFiles() {
   const isLoading = ref(false)
   const isSaving = ref(false)
   const summary = ref<AdminFileSummary>(emptySummary())
-  const viewSummary = ref<AdminFileViewSummaryViewData>(emptyViewSummary())
   const params = ref<AdminFileListParams & { total: number }>({
     page: 1,
     size: 10,
@@ -540,7 +523,7 @@ export function useAdminFiles() {
   }
 
   const normalizeInsightSeverity = (
-    severity: AdminFileInsightSeverity | string | undefined
+    severity: AdminFileInsightSeverity | undefined
   ): AdminFileInsightSeverity => {
     if (severity === 'success' || severity === 'warning' || severity === 'danger') {
       return severity
@@ -549,131 +532,6 @@ export function useAdminFiles() {
       return severity
     }
     return 'neutral'
-  }
-
-  const normalizeViewSummaryItems = (
-    items: AdminFileViewSummaryItem[] = []
-  ): AdminFileViewSummaryViewItem[] =>
-    items
-      .filter((item) => item && item.key)
-      .map((item) => {
-        const actionTypeValue = item.actionType ?? item.action_type ?? 'filter'
-        const sourceKeyValue = item.sourceKey ?? item.source_key ?? item.key
-        const suggestedActionValue = item.suggestedAction ?? item.suggested_action ?? sourceKeyValue
-        const targetHealthValue = item.targetHealth ?? item.target_health ?? item.health ?? 'all'
-
-        return {
-          ...item,
-          count: normalizeCount(item.count),
-          priority: normalizeCount(item.priority),
-          severity: normalizeInsightSeverity(item.severity),
-          actionTypeValue,
-          sourceKeyValue,
-          suggestedActionValue,
-          targetHealthValue
-        }
-      })
-
-  const buildFallbackViewSummary = (
-    files: AdminFileViewItem[],
-    total: number,
-    rawSummary?: Partial<AdminFileSummary>
-  ): AdminFileViewSummaryViewData => {
-    const normalizedSummary = normalizeSummary(rawSummary, files, total)
-    const cards: AdminFileViewSummaryItem[] = [
-      {
-        key: 'storage_issue',
-        severity: 'danger',
-        priority: 100,
-        count: normalizedSummary.storageIssueCount,
-        targetHealth: 'storage_issue'
-      },
-      {
-        key: 'expired',
-        severity: normalizedSummary.expiredCount >= 10 ? 'danger' : 'warning',
-        priority: 90,
-        count: normalizedSummary.expiredCount,
-        targetHealth: 'expired'
-      },
-      {
-        key: 'expiring_soon',
-        severity: 'warning',
-        priority: 80,
-        count: normalizedSummary.expiringSoonCount,
-        targetHealth: 'expiring_soon'
-      },
-      {
-        key: 'never_retrieved',
-        severity: 'neutral',
-        priority: 60,
-        count: normalizedSummary.neverRetrievedCount,
-        targetHealth: 'never_retrieved'
-      }
-    ].filter((item) => item.count > 0)
-
-    if (cards.length === 0) {
-      cards.push({
-        key: normalizedSummary.totalFiles > 0 ? 'healthy' : 'empty',
-        severity: normalizedSummary.totalFiles > 0 ? 'success' : 'neutral',
-        priority: 10,
-        count: normalizedSummary.totalFiles,
-        targetHealth: normalizedSummary.totalFiles > 0 ? 'healthy' : 'all'
-      })
-    }
-
-    const normalizedCards = normalizeViewSummaryItems(cards)
-    return {
-      total,
-      filteredTotal: total,
-      allTotal: summary.value.totalFiles || total,
-      activeFilterCount: hasActiveFilters.value ? 1 : 0,
-      hasFilters: hasActiveFilters.value,
-      strongestSeverity: normalizedCards[0]?.severity ?? 'success',
-      summary: normalizedSummary,
-      cards: normalizedCards,
-      actions: normalizedCards.filter((item) => item.severity !== 'success')
-    }
-  }
-
-  const normalizeViewSummary = (
-    rawViewSummary: AdminFileViewSummary | undefined,
-    files: AdminFileViewItem[],
-    total: number,
-    rawSummary?: Partial<AdminFileSummary>
-  ): AdminFileViewSummaryViewData => {
-    if (!rawViewSummary) {
-      return buildFallbackViewSummary(files, total, rawSummary)
-    }
-
-    const cards = normalizeViewSummaryItems(rawViewSummary.cards ?? rawViewSummary.items ?? [])
-    const actions = normalizeViewSummaryItems(rawViewSummary.actions ?? [])
-    const rawSummarySource =
-      rawViewSummary.summary ??
-      rawViewSummary.healthSummary ??
-      rawViewSummary.health_summary ??
-      rawSummary
-    const filteredTotal = rawViewSummary.filteredTotal ?? rawViewSummary.filtered_total ?? total
-    const allTotal = rawViewSummary.allTotal ?? rawViewSummary.all_total ?? summary.value.totalFiles
-    const strongestSeverity =
-      rawViewSummary.strongestSeverity ??
-      rawViewSummary.strongest_severity ??
-      cards[0]?.severity ??
-      'success'
-    const normalizedSummary = normalizeSummary(rawSummarySource, files, total)
-
-    return {
-      total: normalizeCount(rawViewSummary.total ?? total),
-      filteredTotal: normalizeCount(filteredTotal),
-      allTotal: normalizeCount(allTotal),
-      activeFilterCount: normalizeCount(
-        rawViewSummary.activeFilterCount ?? rawViewSummary.active_filter_count
-      ),
-      hasFilters: Boolean(rawViewSummary.hasFilters ?? rawViewSummary.has_filters),
-      strongestSeverity: normalizeInsightSeverity(strongestSeverity),
-      summary: normalizedSummary,
-      cards: cards.length > 0 ? cards : buildFallbackViewSummary(files, total, rawSummary).cards,
-      actions
-    }
   }
 
   const createFileViewItem = (file: FileListItem): AdminFileViewItem => {
@@ -1242,17 +1100,6 @@ export function useAdminFiles() {
       tableData.value = res.detail.data.map(createFileViewItem)
       params.value.total = res.detail.total
       summary.value = normalizeSummary(res.detail.summary, tableData.value, res.detail.total)
-      viewSummary.value = normalizeViewSummary(
-        res.detail.viewSummary ??
-          res.detail.view_summary ??
-          res.detail.currentViewSummary ??
-          res.detail.current_view_summary ??
-          res.detail.actionSummary ??
-          res.detail.action_summary,
-        tableData.value,
-        res.detail.total,
-        res.detail.summary
-      )
       syncSelectedFilesWithCurrentPage()
     } catch (error) {
       hasLoadError.value = true
@@ -1820,7 +1667,6 @@ export function useAdminFiles() {
     selectedViewPresetId,
     storageUsedText,
     summary,
-    viewSummary,
     showBatchEditModal,
     showEditModal,
     showFileDetailModal,

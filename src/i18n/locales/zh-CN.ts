@@ -90,57 +90,6 @@ export default {
       textType: '文本',
       recentActivities: '最近操作',
       recentActivitiesDesc: '记录管理员最近的关键改动，便于回溯处理链路。',
-      operationalInsightsTitle: '运营建议',
-      operationalInsightsDesc: '根据文件健康、上传策略和近期容量自动生成下一步动作。',
-      operationalInsightActionSettings: '调整设置',
-      operationalInsightActionFileQueue: '查看队列',
-      operationalInsightSeverity: {
-        danger: '高风险',
-        warning: '需处理',
-        success: '稳定',
-        neutral: '建议'
-      },
-      maintenanceQueueTitle: '维护队列',
-      maintenanceQueueDesc: '把文件健康、保留策略和上传配置聚合成可处理队列，点击进入对应视图。',
-      maintenanceActionable: '待处理',
-      maintenanceFileQueue: '文件队列',
-      maintenanceSettings: '配置项',
-      maintenanceQueueActionSettings: '调整设置',
-      maintenanceQueueActionFileQueue: '查看队列',
-      maintenanceQueueItems: {
-        storage_issue: {
-          title: '存储异常 {count} 项',
-          description: '优先核对缺少下载元数据的记录，确认存储配置和文件详情。'
-        },
-        expired_cleanup: {
-          title: '已过期 {count} 项',
-          description: '集中检查过期分享，删除无效记录或续期仍需保留的文件。'
-        },
-        expiring_soon: {
-          title: '即将过期 {count} 项',
-          description: '这些分享将在短时间内失效，适合提前续期或通知使用方。'
-        },
-        never_retrieved: {
-          title: '未取件 {count} 项',
-          description: '查看创建后尚未被取件的分享，用于识别无效上传或触达缺口。'
-        },
-        permanent_review: {
-          title: '永久有效 {count} 项',
-          description: '定期复核长期保留的分享，避免历史文件无限增长。'
-        },
-        guest_upload_retention: {
-          title: '游客上传缺少保留上限',
-          description: '游客上传已开启且没有最长保存时间，建议补充默认保留策略。'
-        },
-        chunking_disabled: {
-          title: '大文件体验可优化',
-          description: '今日容量接近单文件上限，开启分片上传可提升上传稳定性。'
-        },
-        healthy: {
-          title: '维护队列稳定',
-          description: '当前未发现需要优先处理的维护事项。'
-        }
-      },
       viewAllActivities: '查看全部',
       activityTimelineTitle: '操作时间线',
       activityTimelineFiltered: '当前结果',
@@ -182,36 +131,6 @@ export default {
         config: '系统配置',
         local_file: '本地文件',
         system: '系统'
-      },
-      operationalInsights: {
-        storage_issue: {
-          title: '修复 {count} 个存储异常',
-          description: '部分记录缺少下载元数据，建议优先核对存储配置和文件详情。'
-        },
-        expired_cleanup: {
-          title: '清理 {count} 个已过期文件',
-          description: '已过期记录会占用管理视野，建议批量删除或续期仍需保留的文件。'
-        },
-        expiring_soon: {
-          title: '{count} 个文件即将过期',
-          description: '这些分享将在短时间内失效，适合提前续期或通知使用方。'
-        },
-        never_retrieved: {
-          title: '{count} 个文件未被取件',
-          description: '创建后长期无人取件的分享可用于判断无效上传或触达效果。'
-        },
-        guest_upload_retention: {
-          title: '游客上传缺少保留上限',
-          description: '游客上传已开启且保存时间不受限，建议设置默认保留期降低存储压力。'
-        },
-        chunking_disabled: {
-          title: '建议开启分片上传',
-          description: '今日新增容量已接近单文件上限，开启分片上传可提升大文件体验。'
-        },
-        healthy: {
-          title: '运行状态稳定',
-          description: '当前未发现优先级较高的运营风险，可继续观察文件健康趋势。'
-        }
       },
       recentFiles: '最近分享',
       recentFilesDesc: '最近创建的分享记录，便于快速核对状态。',
@@ -559,52 +478,6 @@ export default {
     viewPresetDeleteSuccess: '视图已删除',
     viewPresetDeleteFailed: '视图删除失败',
     viewPresetLoadFailed: '视图预设加载失败，已使用内置视图',
-    viewSummary: {
-      title: '当前视图处置摘要',
-      description: '基于当前筛选结果聚合风险和下一步动作，点击可切换到对应队列。',
-      filteredTotal: '当前结果',
-      allTotal: '全部记录',
-      activeFilters: '筛选条件',
-      action: '查看队列',
-      reset: '清空筛选',
-      severity: {
-        success: '稳定',
-        warning: '需处理',
-        danger: '高风险',
-        info: '提示',
-        neutral: '观察'
-      },
-      items: {
-        storage_issue: {
-          title: '存储异常 {count} 项',
-          description: '优先检查缺少下载元数据的记录，确认存储路径、文件名和配置。'
-        },
-        expired: {
-          title: '已过期 {count} 项',
-          description: '集中处理已不可取件的分享，删除无效记录或续期仍需保留的文件。'
-        },
-        expiring_soon: {
-          title: '即将过期 {count} 项',
-          description: '这些分享将在 24 小时内失效，适合提前续期或提醒使用方。'
-        },
-        never_retrieved: {
-          title: '未取件 {count} 项',
-          description: '查看创建后尚未被取件的分享，用于识别无效上传或触达缺口。'
-        },
-        permanent: {
-          title: '永久有效 {count} 项',
-          description: '复核长期保留的分享，避免历史文件无限增长。'
-        },
-        healthy: {
-          title: '当前视图稳定',
-          description: '当前筛选结果未发现需要优先处理的文件。'
-        },
-        empty: {
-          title: '当前视图无结果',
-          description: '调整筛选条件或清空筛选，查看其他文件队列。'
-        }
-      }
-    },
     all: '全部',
     active: '可取件',
     expired: '已过期',
@@ -1015,57 +888,6 @@ export default {
       textType: '文本',
       recentActivities: '最近操作',
       recentActivitiesDesc: '记录管理员最近的关键改动，便于回溯处理链路。',
-      operationalInsightsTitle: '运营建议',
-      operationalInsightsDesc: '根据文件健康、上传策略和近期容量自动生成下一步动作。',
-      operationalInsightActionSettings: '调整设置',
-      operationalInsightActionFileQueue: '查看队列',
-      operationalInsightSeverity: {
-        danger: '高风险',
-        warning: '需处理',
-        success: '稳定',
-        neutral: '建议'
-      },
-      maintenanceQueueTitle: '维护队列',
-      maintenanceQueueDesc: '把文件健康、保留策略和上传配置聚合成可处理队列，点击进入对应视图。',
-      maintenanceActionable: '待处理',
-      maintenanceFileQueue: '文件队列',
-      maintenanceSettings: '配置项',
-      maintenanceQueueActionSettings: '调整设置',
-      maintenanceQueueActionFileQueue: '查看队列',
-      maintenanceQueueItems: {
-        storage_issue: {
-          title: '存储异常 {count} 项',
-          description: '优先核对缺少下载元数据的记录，确认存储配置和文件详情。'
-        },
-        expired_cleanup: {
-          title: '已过期 {count} 项',
-          description: '集中检查过期分享，删除无效记录或续期仍需保留的文件。'
-        },
-        expiring_soon: {
-          title: '即将过期 {count} 项',
-          description: '这些分享将在短时间内失效，适合提前续期或通知使用方。'
-        },
-        never_retrieved: {
-          title: '未取件 {count} 项',
-          description: '查看创建后尚未被取件的分享，用于识别无效上传或触达缺口。'
-        },
-        permanent_review: {
-          title: '永久有效 {count} 项',
-          description: '定期复核长期保留的分享，避免历史文件无限增长。'
-        },
-        guest_upload_retention: {
-          title: '游客上传缺少保留上限',
-          description: '游客上传已开启且没有最长保存时间，建议补充默认保留策略。'
-        },
-        chunking_disabled: {
-          title: '大文件体验可优化',
-          description: '今日容量接近单文件上限，开启分片上传可提升上传稳定性。'
-        },
-        healthy: {
-          title: '维护队列稳定',
-          description: '当前未发现需要优先处理的维护事项。'
-        }
-      },
       viewAllActivities: '查看全部',
       activityTimelineTitle: '操作时间线',
       activityTimelineFiltered: '当前结果',
@@ -1107,36 +929,6 @@ export default {
         config: '系统配置',
         local_file: '本地文件',
         system: '系统'
-      },
-      operationalInsights: {
-        storage_issue: {
-          title: '修复 {count} 个存储异常',
-          description: '部分记录缺少下载元数据，建议优先核对存储配置和文件详情。'
-        },
-        expired_cleanup: {
-          title: '清理 {count} 个已过期文件',
-          description: '已过期记录会占用管理视野，建议批量删除或续期仍需保留的文件。'
-        },
-        expiring_soon: {
-          title: '{count} 个文件即将过期',
-          description: '这些分享将在短时间内失效，适合提前续期或通知使用方。'
-        },
-        never_retrieved: {
-          title: '{count} 个文件未被取件',
-          description: '创建后长期无人取件的分享可用于判断无效上传或触达效果。'
-        },
-        guest_upload_retention: {
-          title: '游客上传缺少保留上限',
-          description: '游客上传已开启且保存时间不受限，建议设置默认保留期降低存储压力。'
-        },
-        chunking_disabled: {
-          title: '建议开启分片上传',
-          description: '今日新增容量已接近单文件上限，开启分片上传可提升大文件体验。'
-        },
-        healthy: {
-          title: '运行状态稳定',
-          description: '当前未发现优先级较高的运营风险，可继续观察文件健康趋势。'
-        }
       },
       recentFiles: '最近分享',
       recentFilesDesc: '最近创建的分享记录，便于快速核对状态。',

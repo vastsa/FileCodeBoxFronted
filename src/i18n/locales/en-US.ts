@@ -90,65 +90,6 @@ export default {
       textType: 'Text',
       recentActivities: 'Recent Activity',
       recentActivitiesDesc: 'Key admin changes for quick operational traceability.',
-      operationalInsightsTitle: 'Operational Insights',
-      operationalInsightsDesc:
-        'Suggested next actions generated from file health, upload policy, and recent capacity.',
-      operationalInsightActionSettings: 'Adjust settings',
-      operationalInsightActionFileQueue: 'View queue',
-      operationalInsightSeverity: {
-        danger: 'High risk',
-        warning: 'Action needed',
-        success: 'Stable',
-        neutral: 'Suggestion'
-      },
-      maintenanceQueueTitle: 'Maintenance Queue',
-      maintenanceQueueDesc:
-        'Groups file health, retention policy, and upload settings into actionable queues. Click an item to open the related view.',
-      maintenanceActionable: 'Actionable',
-      maintenanceFileQueue: 'File queue',
-      maintenanceSettings: 'Settings',
-      maintenanceQueueActionSettings: 'Adjust settings',
-      maintenanceQueueActionFileQueue: 'View queue',
-      maintenanceQueueItems: {
-        storage_issue: {
-          title: '{count} storage issues',
-          description:
-            'Review records missing download metadata and verify storage settings and file details.'
-        },
-        expired_cleanup: {
-          title: '{count} expired items',
-          description:
-            'Review expired shares, delete stale records, or extend files that should stay available.'
-        },
-        expiring_soon: {
-          title: '{count} expiring soon',
-          description: 'These shares will expire soon. Extend them early or notify recipients.'
-        },
-        never_retrieved: {
-          title: '{count} never retrieved',
-          description:
-            'Review shares that have not been retrieved to identify ineffective uploads or follow-up gaps.'
-        },
-        permanent_review: {
-          title: '{count} permanent shares',
-          description:
-            'Periodically review long-retention shares to prevent unbounded historical growth.'
-        },
-        guest_upload_retention: {
-          title: 'Guest uploads lack retention limits',
-          description:
-            'Guest uploads are enabled without a maximum retention period. Add a default retention policy.'
-        },
-        chunking_disabled: {
-          title: 'Large-file experience can improve',
-          description:
-            "Today's capacity is near the single-file limit. Enable chunked upload for better reliability."
-        },
-        healthy: {
-          title: 'Maintenance queue is stable',
-          description: 'No maintenance item needs priority attention right now.'
-        }
-      },
       viewAllActivities: 'View all',
       activityTimelineTitle: 'Activity Timeline',
       activityTimelineFiltered: 'Current Results',
@@ -190,43 +131,6 @@ export default {
         config: 'System settings',
         local_file: 'Local file',
         system: 'System'
-      },
-      operationalInsights: {
-        storage_issue: {
-          title: 'Fix {count} storage issues',
-          description:
-            'Some records are missing download metadata. Review storage settings and file details first.'
-        },
-        expired_cleanup: {
-          title: 'Clean up {count} expired files',
-          description:
-            'Expired records add management noise. Delete them in bulk or extend the files that should remain available.'
-        },
-        expiring_soon: {
-          title: '{count} files expiring soon',
-          description:
-            'These shares will become unavailable soon. Extend them early or notify the recipients.'
-        },
-        never_retrieved: {
-          title: '{count} files never retrieved',
-          description:
-            'Shares that were never retrieved can reveal ineffective uploads or follow-up gaps.'
-        },
-        guest_upload_retention: {
-          title: 'Guest uploads lack retention limits',
-          description:
-            'Guest upload is enabled with unlimited retention. Set a default retention window to reduce storage pressure.'
-        },
-        chunking_disabled: {
-          title: 'Consider enabling chunked upload',
-          description:
-            "Today's added capacity is near the single-file limit. Chunked upload can improve large-file reliability."
-        },
-        healthy: {
-          title: 'Operations look stable',
-          description:
-            'No high-priority operational risk was detected. Keep watching the file health trend.'
-        }
       },
       recentFiles: 'Recent Shares',
       recentFilesDesc: 'Recently created share records for quick status checks.',
@@ -576,57 +480,6 @@ export default {
     viewPresetDeleteSuccess: 'View deleted',
     viewPresetDeleteFailed: 'Failed to delete view',
     viewPresetLoadFailed: 'Failed to load saved views; using built-in views',
-    viewSummary: {
-      title: 'Current View Action Summary',
-      description:
-        'Groups risks and next actions from the current filters. Click an item to open its queue.',
-      filteredTotal: 'Current results',
-      allTotal: 'All records',
-      activeFilters: 'Filters',
-      action: 'View queue',
-      reset: 'Clear filters',
-      severity: {
-        success: 'Stable',
-        warning: 'Action needed',
-        danger: 'High risk',
-        info: 'Info',
-        neutral: 'Watch'
-      },
-      items: {
-        storage_issue: {
-          title: '{count} storage issues',
-          description:
-            'Review records missing download metadata and verify storage paths, file names, and settings.'
-        },
-        expired: {
-          title: '{count} expired items',
-          description:
-            'Handle unavailable shares by deleting stale records or extending files that should remain available.'
-        },
-        expiring_soon: {
-          title: '{count} expiring soon',
-          description:
-            'These shares expire within 24 hours. Extend them early or notify recipients.'
-        },
-        never_retrieved: {
-          title: '{count} never retrieved',
-          description:
-            'Review shares that have not been retrieved to identify ineffective uploads or follow-up gaps.'
-        },
-        permanent: {
-          title: '{count} permanent shares',
-          description: 'Review long-retention shares to prevent unbounded historical growth.'
-        },
-        healthy: {
-          title: 'Current view is stable',
-          description: 'No file in the current filters needs priority handling.'
-        },
-        empty: {
-          title: 'No results in this view',
-          description: 'Adjust or clear filters to inspect other file queues.'
-        }
-      }
-    },
     all: 'All',
     active: 'Available',
     expired: 'Expired',
@@ -1081,65 +934,6 @@ export default {
       textType: 'Text',
       recentActivities: 'Recent Activity',
       recentActivitiesDesc: 'Key admin changes for quick operational traceability.',
-      operationalInsightsTitle: 'Operational Insights',
-      operationalInsightsDesc:
-        'Suggested next actions generated from file health, upload policy, and recent capacity.',
-      operationalInsightActionSettings: 'Adjust settings',
-      operationalInsightActionFileQueue: 'View queue',
-      operationalInsightSeverity: {
-        danger: 'High risk',
-        warning: 'Action needed',
-        success: 'Stable',
-        neutral: 'Suggestion'
-      },
-      maintenanceQueueTitle: 'Maintenance Queue',
-      maintenanceQueueDesc:
-        'Groups file health, retention policy, and upload settings into actionable queues. Click an item to open the related view.',
-      maintenanceActionable: 'Actionable',
-      maintenanceFileQueue: 'File queue',
-      maintenanceSettings: 'Settings',
-      maintenanceQueueActionSettings: 'Adjust settings',
-      maintenanceQueueActionFileQueue: 'View queue',
-      maintenanceQueueItems: {
-        storage_issue: {
-          title: '{count} storage issues',
-          description:
-            'Review records missing download metadata and verify storage settings and file details.'
-        },
-        expired_cleanup: {
-          title: '{count} expired items',
-          description:
-            'Review expired shares, delete stale records, or extend files that should stay available.'
-        },
-        expiring_soon: {
-          title: '{count} expiring soon',
-          description: 'These shares will expire soon. Extend them early or notify recipients.'
-        },
-        never_retrieved: {
-          title: '{count} never retrieved',
-          description:
-            'Review shares that have not been retrieved to identify ineffective uploads or follow-up gaps.'
-        },
-        permanent_review: {
-          title: '{count} permanent shares',
-          description:
-            'Periodically review long-retention shares to prevent unbounded historical growth.'
-        },
-        guest_upload_retention: {
-          title: 'Guest uploads lack retention limits',
-          description:
-            'Guest uploads are enabled without a maximum retention period. Add a default retention policy.'
-        },
-        chunking_disabled: {
-          title: 'Large-file experience can improve',
-          description:
-            "Today's capacity is near the single-file limit. Enable chunked upload for better reliability."
-        },
-        healthy: {
-          title: 'Maintenance queue is stable',
-          description: 'No maintenance item needs priority attention right now.'
-        }
-      },
       viewAllActivities: 'View all',
       activityTimelineTitle: 'Activity Timeline',
       activityTimelineFiltered: 'Current Results',
@@ -1181,43 +975,6 @@ export default {
         config: 'System settings',
         local_file: 'Local file',
         system: 'System'
-      },
-      operationalInsights: {
-        storage_issue: {
-          title: 'Fix {count} storage issues',
-          description:
-            'Some records are missing download metadata. Review storage settings and file details first.'
-        },
-        expired_cleanup: {
-          title: 'Clean up {count} expired files',
-          description:
-            'Expired records add management noise. Delete them in bulk or extend the files that should remain available.'
-        },
-        expiring_soon: {
-          title: '{count} files expiring soon',
-          description:
-            'These shares will become unavailable soon. Extend them early or notify the recipients.'
-        },
-        never_retrieved: {
-          title: '{count} files never retrieved',
-          description:
-            'Shares that were never retrieved can reveal ineffective uploads or follow-up gaps.'
-        },
-        guest_upload_retention: {
-          title: 'Guest uploads lack retention limits',
-          description:
-            'Guest upload is enabled with unlimited retention. Set a default retention window to reduce storage pressure.'
-        },
-        chunking_disabled: {
-          title: 'Consider enabling chunked upload',
-          description:
-            "Today's added capacity is near the single-file limit. Chunked upload can improve large-file reliability."
-        },
-        healthy: {
-          title: 'Operations look stable',
-          description:
-            'No high-priority operational risk was detected. Keep watching the file health trend.'
-        }
       },
       recentFiles: 'Recent Shares',
       recentFilesDesc: 'Recently created share records for quick status checks.',

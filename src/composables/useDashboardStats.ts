@@ -7,13 +7,6 @@ import type {
   DashboardActivityViewItem,
   DashboardData,
   DashboardHealthSummary,
-  DashboardInsightSeverity,
-  DashboardMaintenanceQueue,
-  DashboardMaintenanceQueueItem,
-  DashboardMaintenanceQueueSummary,
-  DashboardMaintenanceQueueViewItem,
-  DashboardOperationalInsight,
-  DashboardOperationalInsightViewItem,
   DashboardViewData
 } from '@/types'
 import { formatFileSize, getErrorMessage } from '@/utils/common'
@@ -25,54 +18,49 @@ type UseDashboardStatsOptions = {
 
 const activityTimelineLimit = 40
 
-function emptyDashboardData(): DashboardViewData {
-  return {
-    hasExtendedStats: false,
-    totalFiles: 0,
-    storageUsed: 0,
-    yesterdayCount: 0,
-    todayCount: 0,
-    yesterdaySize: 0,
-    todaySize: 0,
-    sysUptime: null,
-    activeCount: 0,
-    expiredCount: 0,
-    textCount: 0,
-    fileCount: 0,
-    chunkedCount: 0,
-    usedCount: 0,
-    storageBackend: '-',
-    uploadSizeLimit: 0,
-    openUpload: 0,
-    enableChunk: 0,
-    maxSaveSeconds: 0,
-    healthAttentionCount: 0,
-    healthDangerCount: 0,
-    healthWarningCount: 0,
-    expiringSoonCount: 0,
-    storageIssueCount: 0,
-    neverRetrievedCount: 0,
-    healthyCount: 0,
-    permanentCount: 0,
-    topSuffixes: [],
-    recentFiles: [],
-    recentActivities: [],
-    operationalInsights: [],
-    maintenanceItems: [],
-    maintenanceSummary: emptyMaintenanceSummary(),
-    storageUsedText: '0 Bytes',
-    yesterdaySizeText: '0 Bytes',
-    todaySizeText: '0 Bytes',
-    uploadSizeLimitText: '0 Bytes',
-    sysUptimeText: '-',
-    activeRatio: 0,
-    textRatio: 0,
-    fileRatio: 0,
-    healthyRatio: 0,
-    healthAttentionRatio: 0,
-    todaySizeRatio: 0
-  }
-}
+const emptyDashboardData = (): DashboardViewData => ({
+  hasExtendedStats: false,
+  totalFiles: 0,
+  storageUsed: 0,
+  yesterdayCount: 0,
+  todayCount: 0,
+  yesterdaySize: 0,
+  todaySize: 0,
+  sysUptime: null,
+  activeCount: 0,
+  expiredCount: 0,
+  textCount: 0,
+  fileCount: 0,
+  chunkedCount: 0,
+  usedCount: 0,
+  storageBackend: '-',
+  uploadSizeLimit: 0,
+  openUpload: 0,
+  enableChunk: 0,
+  maxSaveSeconds: 0,
+  healthAttentionCount: 0,
+  healthDangerCount: 0,
+  healthWarningCount: 0,
+  expiringSoonCount: 0,
+  storageIssueCount: 0,
+  neverRetrievedCount: 0,
+  healthyCount: 0,
+  permanentCount: 0,
+  topSuffixes: [],
+  recentFiles: [],
+  recentActivities: [],
+  storageUsedText: '0 Bytes',
+  yesterdaySizeText: '0 Bytes',
+  todaySizeText: '0 Bytes',
+  uploadSizeLimitText: '0 Bytes',
+  sysUptimeText: '-',
+  activeRatio: 0,
+  textRatio: 0,
+  fileRatio: 0,
+  healthyRatio: 0,
+  healthAttentionRatio: 0,
+  todaySizeRatio: 0
+})
 
 const toNumber = (value: number | string | null | undefined) => Number(value || 0)
 
@@ -120,150 +108,6 @@ const normalizeActivityOptions = (
       label: option.label || option.value,
       count: toNumber(option.count)
     }))
-
-const insightSeverities: DashboardInsightSeverity[] = ['danger', 'warning', 'success', 'neutral']
-
-const normalizeInsightSeverity = (severity: string | undefined): DashboardInsightSeverity =>
-  insightSeverities.includes(severity as DashboardInsightSeverity)
-    ? (severity as DashboardInsightSeverity)
-    : 'neutral'
-
-const normalizeOperationalInsights = (
-  insights: DashboardOperationalInsight[] = []
-): DashboardOperationalInsightViewItem[] =>
-  insights
-    .filter((insight) => insight && insight.key)
-    .map((insight) => {
-      const action = insight.action && typeof insight.action === 'object' ? insight.action : {}
-      const actionTypeValue =
-        insight.actionType ??
-        insight.action_type ??
-        action.actionType ??
-        action.action_type ??
-        action.type ??
-        'file_queue'
-      const targetHealthValue =
-        insight.targetHealth ??
-        insight.target_health ??
-        action.targetHealth ??
-        action.target_health ??
-        action.health ??
-        null
-
-      return {
-        ...insight,
-        count: toNumber(insight.count),
-        priority: toNumber(insight.priority),
-        severity: normalizeInsightSeverity(insight.severity),
-        actionTypeValue,
-        targetHealthValue
-      }
-    })
-
-function emptyMaintenanceSummary(): DashboardMaintenanceQueueSummary {
-  return {
-    total: 0,
-    actionableCount: 0,
-    dangerCount: 0,
-    warningCount: 0,
-    successCount: 0,
-    neutralCount: 0,
-    fileQueueCount: 0,
-    settingsCount: 0,
-    strongestSeverity: 'success'
-  }
-}
-
-const normalizeMaintenanceQueueItems = (
-  items: DashboardMaintenanceQueueItem[] = []
-): DashboardMaintenanceQueueViewItem[] =>
-  items
-    .filter((item) => item && item.key)
-    .map((item) => {
-      const action = item.action && typeof item.action === 'object' ? item.action : {}
-      const actionTypeValue =
-        item.actionType ??
-        item.action_type ??
-        action.actionType ??
-        action.action_type ??
-        action.type ??
-        'file_queue'
-      const targetHealthValue =
-        item.targetHealth ??
-        item.target_health ??
-        action.targetHealth ??
-        action.target_health ??
-        action.health ??
-        null
-      const suggestedActionValue =
-        item.suggestedAction ??
-        item.suggested_action ??
-        action.suggestedAction ??
-        action.suggested_action ??
-        'monitor'
-
-      return {
-        ...item,
-        count: toNumber(item.count),
-        priority: toNumber(item.priority),
-        severity: normalizeInsightSeverity(item.severity),
-        actionTypeValue,
-        suggestedActionValue,
-        targetHealthValue
-      }
-    })
-
-const normalizeMaintenanceSummary = (
-  summary: Partial<DashboardMaintenanceQueueSummary> | undefined,
-  items: DashboardMaintenanceQueueViewItem[]
-): DashboardMaintenanceQueueSummary => ({
-  total: toNumber(summary?.total ?? items.length),
-  actionableCount: toNumber(summary?.actionableCount ?? summary?.actionable_count),
-  actionable_count: toNumber(summary?.actionableCount ?? summary?.actionable_count),
-  dangerCount: toNumber(summary?.dangerCount ?? summary?.danger_count),
-  danger_count: toNumber(summary?.dangerCount ?? summary?.danger_count),
-  warningCount: toNumber(summary?.warningCount ?? summary?.warning_count),
-  warning_count: toNumber(summary?.warningCount ?? summary?.warning_count),
-  successCount: toNumber(summary?.successCount ?? summary?.success_count),
-  success_count: toNumber(summary?.successCount ?? summary?.success_count),
-  neutralCount: toNumber(summary?.neutralCount ?? summary?.neutral_count),
-  neutral_count: toNumber(summary?.neutralCount ?? summary?.neutral_count),
-  fileQueueCount: toNumber(summary?.fileQueueCount ?? summary?.file_queue_count),
-  file_queue_count: toNumber(summary?.fileQueueCount ?? summary?.file_queue_count),
-  settingsCount: toNumber(summary?.settingsCount ?? summary?.settings_count),
-  settings_count: toNumber(summary?.settingsCount ?? summary?.settings_count),
-  strongestSeverity: normalizeInsightSeverity(
-    summary?.strongestSeverity ?? summary?.strongest_severity
-  ),
-  strongest_severity: normalizeInsightSeverity(
-    summary?.strongestSeverity ?? summary?.strongest_severity
-  )
-})
-
-const normalizeMaintenanceQueue = (
-  detail: DashboardData | DashboardMaintenanceQueue
-): Pick<DashboardViewData, 'maintenanceItems' | 'maintenanceSummary'> => {
-  const source = detail as DashboardData & DashboardMaintenanceQueue
-  const queue = source.maintenanceQueue ?? source.maintenance_queue ?? source
-  const items = normalizeMaintenanceQueueItems(
-    queue?.items ??
-      queue?.maintenanceItems ??
-      queue?.maintenance_items ??
-      source.maintenanceItems ??
-      source.maintenance_items ??
-      []
-  )
-  const rawSummary =
-    queue?.summary ??
-    queue?.maintenanceSummary ??
-    queue?.maintenance_summary ??
-    source.maintenanceSummary ??
-    source.maintenance_summary
-  return {
-    maintenanceItems: items,
-    maintenanceSummary: normalizeMaintenanceSummary(rawSummary, items)
-  }
-}
 
 const healthSummaryKeys: (keyof DashboardHealthSummary)[] = [
   'healthAttentionCount',
@@ -366,12 +210,6 @@ export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
       dashboardData.recentActivities = normalizeRecentActivities(
         detail.recentActivities ?? detail.recent_activities ?? []
       )
-      dashboardData.operationalInsights = normalizeOperationalInsights(
-        detail.operationalInsights ?? detail.operational_insights ?? detail.insights ?? []
-      )
-      const maintenanceQueue = normalizeMaintenanceQueue(detail)
-      dashboardData.maintenanceItems = maintenanceQueue.maintenanceItems
-      dashboardData.maintenanceSummary = maintenanceQueue.maintenanceSummary
 
       dashboardData.storageUsedText = formatFileSize(dashboardData.storageUsed)
       dashboardData.yesterdaySizeText = formatFileSize(dashboardData.yesterdaySize)
