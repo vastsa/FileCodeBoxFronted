@@ -13,6 +13,13 @@ export function useAppShell() {
   const { isLoading, setupRouteLoading } = useRouteLoading(router)
   const { syncPublicConfig } = usePublicConfigBootstrap()
   const showGlobalControls = computed(() => route.meta.showGlobalControls !== false)
+  const routeTransitionName = computed(() => String(route.meta.routeTransition || 'fade'))
+  const routeTransitionMode = computed(() => (route.meta.routeTransition ? undefined : 'out-in'))
+  const routeViewKey = computed(() =>
+    route.path === ROUTES.ADMIN || route.path.startsWith(`${ROUTES.ADMIN}/`)
+      ? ROUTES.ADMIN
+      : route.fullPath
+  )
 
   let cleanupThemeListener: (() => void) | null = null
 
@@ -47,6 +54,9 @@ export function useAppShell() {
     isDarkMode,
     isLoading,
     route,
+    routeTransitionMode,
+    routeTransitionName,
+    routeViewKey,
     showGlobalControls
   }
 }

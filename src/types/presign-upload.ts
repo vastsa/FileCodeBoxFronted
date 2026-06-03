@@ -22,6 +22,8 @@ export interface PresignInitRequest {
 export interface PresignInitResponse {
   upload_id: string
   upload_url: string
+  proxy_upload_url?: string
+  legacy_proxy_upload_url?: string
   mode: PresignUploadMode
   expires_in: number
 }

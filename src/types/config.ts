@@ -15,6 +15,18 @@ export interface ThemeChoice {
   version: string
 }
 
+export interface PublicConfigMeta {
+  version?: string
+  api?: Record<string, string>
+  features?: Record<string, unknown>
+  limits?: Record<string, unknown>
+}
+
+export interface PublicConfigPayload {
+  config: Partial<ConfigState>
+  meta?: PublicConfigMeta
+}
+
 export interface ConfigState {
   name: string
   description: string

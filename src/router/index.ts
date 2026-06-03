@@ -5,13 +5,14 @@ import { readStoredToken } from '@/utils/auth-storage'
 
 const publicPageMeta = {
   showGlobalControls: true,
-  showRouteLoading: true
+  showRouteLoading: false,
+  routeTransition: 'transfer-fade'
 }
 
 const adminPageMeta = {
   requiresAuth: true,
   showGlobalControls: false,
-  showRouteLoading: true
+  showRouteLoading: false
 }
 
 const routes: RouteRecordRaw[] = [

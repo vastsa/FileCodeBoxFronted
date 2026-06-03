@@ -5,7 +5,14 @@ import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import AlertComponent from '@/components/common/AlertComponent.vue'
 import { useAppShell } from '@/composables'
 
-const { isDarkMode, isLoading, route, showGlobalControls } = useAppShell()
+const {
+  isDarkMode,
+  isLoading,
+  routeTransitionMode,
+  routeTransitionName,
+  routeViewKey,
+  showGlobalControls
+} = useAppShell()
 </script>
 
 <template>
@@ -18,8 +25,8 @@ const { isDarkMode, isLoading, route, showGlobalControls } = useAppShell()
       <div class="loading-spinner"></div>
     </div>
     <RouterView v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
-        <component :is="Component" :key="route.fullPath" />
+      <transition :name="routeTransitionName" :mode="routeTransitionMode">
+        <component :is="Component" :key="routeViewKey" />
       </transition>
     </RouterView>
 
@@ -50,6 +57,30 @@ const { isDarkMode, isLoading, route, showGlobalControls } = useAppShell()
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.transfer-fade-enter-active,
+.transfer-fade-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.transfer-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.transfer-fade-leave-active {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+.transfer-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 .loading-overlay {

@@ -35,7 +35,13 @@ export function useAdminLogin() {
         return false
       }
 
-      adminStore.setToken(response.detail.token)
+      adminStore.login({
+        id: response.detail.id || 'admin',
+        username: response.detail.username || 'admin',
+        token: response.detail.token,
+        token_type: response.detail.token_type,
+        expires_at: response.detail.expires_at
+      })
       return true
     } catch (error: unknown) {
       alertStore.showAlert(getErrorMessage(error, '登录失败'), 'error')

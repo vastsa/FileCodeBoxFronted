@@ -45,7 +45,7 @@
       @close="closeDetails"
       @preview-content="showContentPreview"
     />
-    
+
     <ContentPreviewModal
       :visible="showPreview"
       :rendered-content="renderedContent"

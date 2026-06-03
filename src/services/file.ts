@@ -1,6 +1,20 @@
 import api, { rawApiClient } from './client'
 import { multipartUploadConfig } from './shared'
 import type {
+  AdminBatchDeleteFilesResponse,
+  AdminBatchPolicyActionRequest,
+  AdminBatchPolicyActionResponse,
+  AdminBatchUpdateFilesRequest,
+  AdminBatchUpdateFilesResponse,
+  AdminFilePatchPayload,
+  AdminFileDetailResponse,
+  AdminFileListParams,
+  AdminFileMetadataRequest,
+  AdminFilePolicyActionRequest,
+  AdminFilePreviewResponse,
+  AdminFileViewPreset,
+  AdminFileViewPresetRequest,
+  AdminFileViewPresetsResponse,
   ApiResponse,
   ChunkUploadCompleteRequest,
   ChunkUploadInitRequest,
@@ -10,6 +24,7 @@ import type {
   FileInfo,
   FileListResponse,
   FileUploadResponse,
+  ShareMetadataResponse,
   ShareSelectResponse,
   TextSendResponse,
   UploadProgress
@@ -27,6 +42,11 @@ const toUrlEncodedForm = (data: Record<string, string | number>) => {
     form.append(key, String(value))
   })
   return form
+}
+
+const isMethodFallbackError = (error: unknown) => {
+  const status = (error as { response?: { status?: number } })?.response?.status
+  return status === 404 || status === 405
 }
 
 export class FileService {
@@ -100,6 +120,10 @@ export class FileService {
     return api.post('/share/select/', { code })
   }
 
+  static async inspectFile(code: string): Promise<ApiResponse<ShareMetadataResponse>> {
+    return api.post('/share/metadata/', { code })
+  }
+
   static async getFile(code: string): Promise<ApiResponse<FileInfo>> {
     return api.get(`/file/${code}`)
   }
@@ -111,22 +135,114 @@ export class FileService {
     return response.data
   }
 
-  static async getAdminFileList(params: {
-    page: number
-    size: number
-    keyword?: string
-  }): Promise<ApiResponse<FileListResponse>> {
+  static async getAdminFileList(
+    params: AdminFileListParams
+  ): Promise<ApiResponse<FileListResponse>> {
     return api.get('/admin/file/list', { params })
   }
 
-  static async updateFile(data: FileEditForm): Promise<ApiResponse> {
+  static async getAdminFileDetail(id: number): Promise<ApiResponse<AdminFileDetailResponse>> {
+    return api.get('/admin/file/detail', {
+      params: { id }
+    })
+  }
+
+  static async updateFile(data: FileEditForm | AdminFilePatchPayload): Promise<ApiResponse> {
     return api.patch('/admin/file/update', data)
+  }
+
+  static async applyAdminFilePolicyAction(
+    data: AdminFilePolicyActionRequest
+  ): Promise<ApiResponse<AdminFileDetailResponse>> {
+    try {
+      return await api.patch('/admin/file/policy-action', data)
+    } catch (error: unknown) {
+      if (!isMethodFallbackError(error)) {
+        throw error
+      }
+
+      return api.post('/admin/file/policy-action', data)
+    }
+  }
+
+  static async applyAdminFilesPolicyAction(
+    data: AdminBatchPolicyActionRequest
+  ): Promise<ApiResponse<AdminBatchPolicyActionResponse>> {
+    try {
+      return await api.patch('/admin/file/batch-policy-action', data)
+    } catch (error: unknown) {
+      if (!isMethodFallbackError(error)) {
+        throw error
+      }
+
+      return api.post('/admin/file/batch-policy-action', data)
+    }
+  }
+
+  static async updateAdminFileMetadata(
+    data: AdminFileMetadataRequest
+  ): Promise<ApiResponse<AdminFileDetailResponse>> {
+    try {
+      return await api.patch('/admin/file/metadata', data)
+    } catch (error: unknown) {
+      if (!isMethodFallbackError(error)) {
+        throw error
+      }
+
+      return api.post('/admin/file/metadata', data)
+    }
+  }
+
+  static async getAdminFileViewPresets(): Promise<ApiResponse<AdminFileViewPresetsResponse>> {
+    return api.get('/admin/file/view-presets')
+  }
+
+  static async saveAdminFileViewPreset(
+    data: AdminFileViewPresetRequest
+  ): Promise<ApiResponse<AdminFileViewPreset>> {
+    try {
+      return await api.patch('/admin/file/view-presets', data)
+    } catch (error: unknown) {
+      if (!isMethodFallbackError(error)) {
+        throw error
+      }
+
+      return api.post('/admin/file/view-presets', data)
+    }
+  }
+
+  static async updateAdminFiles(
+    data: AdminBatchUpdateFilesRequest
+  ): Promise<ApiResponse<AdminBatchUpdateFilesResponse>> {
+    return api.patch('/admin/file/batch-update', data)
   }
 
   static async deleteAdminFile(id: number): Promise<ApiResponse> {
     return api.delete('/admin/file/delete', {
       data: { id }
     })
+  }
+
+  static async deleteAdminFiles(
+    ids: number[]
+  ): Promise<ApiResponse<AdminBatchDeleteFilesResponse>> {
+    return api.delete('/admin/file/batch-delete', {
+      data: { ids }
+    })
+  }
+
+  static async deleteAdminFileViewPreset(id: string): Promise<ApiResponse> {
+    try {
+      return await api.delete('/admin/file/view-presets', {
+        data: { id }
+      })
+    } catch (error: unknown) {
+      if (!isMethodFallbackError(error)) {
+        throw error
+      }
+
+      return api.post('/admin/file/view-presets/delete', { id })
+    }
   }
 
   static async downloadAdminFile(
@@ -140,5 +256,17 @@ export class FileService {
       data: response.data,
       headers: response.headers as Record<string, string>
     }
+  }
+
+  static async previewAdminFile(
+    id: number,
+    maxChars = 20000
+  ): Promise<ApiResponse<AdminFilePreviewResponse>> {
+    return api.get('/admin/file/preview', {
+      params: {
+        id,
+        maxChars
+      }
+    })
   }
 }

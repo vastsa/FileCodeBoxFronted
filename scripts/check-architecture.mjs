@@ -110,6 +110,7 @@ const rules = [
       /^src\/utils\/auth-storage\.ts$/,
       /^src\/utils\/config-storage\.ts$/,
       /^src\/utils\/preference-storage\.ts$/,
+      /^src\/utils\/record-storage\.ts$/,
     ],
   },
   {

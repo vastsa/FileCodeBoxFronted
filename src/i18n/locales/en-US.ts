@@ -65,8 +65,14 @@ export default {
       yesterdayShares: 'Yesterday: {count}',
       serverUptime: 'Uptime',
       refresh: 'Refresh',
+      refreshing: 'Refreshing',
+      lastUpdated: 'Last updated: {time}',
+      loadFailed: 'Failed to load dashboard data',
+      footerProduct: 'FileCodeBox Admin Console',
+      runtimeVersion: 'Runtime Version',
+      versionPending: 'Pending sync',
       fileHealth: 'File Health',
-      fileHealthDesc: 'Real file records grouped by availability, expiry, and type.',
+      fileHealthDesc: 'Status insights for available, risky, and pending file queues.',
       activeFileRatio: 'Active Ratio',
       fileShareRatio: 'File Ratio',
       textShareRatio: 'Text Ratio',
@@ -83,16 +89,27 @@ export default {
       maxSaveTime: 'Max Retention',
       noSaveLimit: 'Unlimited',
       todayCapacityReference: 'Today Size / Single File Limit',
-      fileTypeDistribution: 'Type Distribution',
-      textType: 'Text',
-      recentFiles: 'Recent Shares',
-      recentFilesDesc: 'Recently created share records for quick status checks.',
-      available: 'Available',
-      table: {
-        file: 'File',
-        size: 'Size',
-        usage: 'Retrievals',
-        status: 'Status'
+      healthActions: {
+        attention: {
+          title: 'Needs Attention',
+          description: 'Handle issue and warning files together'
+        },
+        storageIssue: {
+          title: 'Storage Issues',
+          description: 'Review files missing download metadata'
+        },
+        expiringSoon: {
+          title: 'Expiring Soon',
+          description: 'Extend shares that should stay available'
+        },
+        neverRetrieved: {
+          title: 'Never Retrieved',
+          description: 'Find shares that have not been retrieved yet'
+        },
+        permanent: {
+          title: 'Permanent',
+          description: 'View long-retention share records'
+        }
       }
     },
     fileManage: {
@@ -202,7 +219,39 @@ export default {
       invalidCodeError: 'Invalid retrieval code',
       retrieveFailure: 'Failed to retrieve file: ',
       networkError: 'Retrieval failed, please try again later: ',
-      unknownError: 'Unknown error'
+      unknownError: 'Unknown error',
+      previewUnavailable: 'Preview is unavailable, you can still retrieve directly'
+    },
+    workspace: {
+      sendFile: 'Send File',
+      inspect: 'Preview',
+      inspecting: 'Previewing',
+      retrieving: 'Retrieving',
+      ready: 'Ready',
+      noPreview: 'Waiting for a code',
+      noPreviewDesc:
+        'Enter a 5-character retrieval code to preview file details before consuming a retrieval.',
+      latestRecord: 'Latest Retrieval',
+      noRecord: 'No retrieval records yet',
+      currentCode: 'Code',
+      fileSize: 'File Size',
+      viewDetail: 'View Detail',
+      historyCount: '{count} records',
+      openRecords: 'Open retrieval records',
+      security: 'Safe Retrieval',
+      securityState:
+        'Previewing does not consume retrieval count. Access is recorded only after confirmation.',
+      noExpiry: 'No limit',
+      unlimited: 'Unlimited',
+      remainingCount: '{count} left',
+      textType: 'Text Content',
+      fileType: 'File Download',
+      expiresAt: 'Expires At',
+      remainingDownloads: 'Remaining',
+      usedCount: 'Retrieved',
+      emptyCode: 'Empty',
+      previewState: 'Preview State',
+      waiting: 'Waiting'
     }
   },
 
@@ -215,13 +264,45 @@ export default {
       clickText: 'click to select files',
       textInput: 'Enter text to send here...',
       placeholder: 'Click or drag files here to upload',
-      description: 'Supports various common formats'
+      description: 'Supports various common formats',
+      descriptionWithLimit: 'Supports common formats, up to {size}',
+      retry: 'Retry',
+      selectedFiles: '{count} files selected',
+      status: {
+        initializing: 'Preparing upload...',
+        uploading: 'Uploading files...',
+        confirming: 'Confirming upload...',
+        success: 'Upload complete!'
+      }
     },
     submit: 'Secure Send',
     submitting: 'Sending...',
     needRetrieveFile: 'Need to retrieve? Click here',
     sendRecords: 'Send Records',
     secureEncryption: 'Secure Encryption',
+    workspace: {
+      uploadLimit: 'Single File Limit',
+      uploadMode: 'Upload Mode',
+      standardMode: 'Standard',
+      chunkMode: 'Chunked',
+      guestPolicy: 'Guest Upload',
+      guestOpen: 'Allowed',
+      guestClosed: 'Disabled',
+      currentTask: 'Current Task',
+      awaitingFile: 'Waiting for files',
+      fileReady: '{count} files ready',
+      textDraft: 'Text draft, {count} chars',
+      payload: 'Payload',
+      expirationPreview: 'Expiration',
+      security: 'Security',
+      latestRecord: 'Latest Send',
+      noRecord: 'No records yet',
+      copyLink: 'Copy Link',
+      viewDetail: 'View Detail',
+      historyTitle: 'Send History',
+      historyCount: '{count} records',
+      openRecords: 'Open send records'
+    },
     fileDetails: 'File Details',
     expirationMethod: 'Expiration Method',
     expiration: {
@@ -311,23 +392,245 @@ export default {
   // File Management
   fileManage: {
     title: 'File Management',
-    searchPlaceholder: 'Search file name, description...',
+    subtitle: '{count} share records. Filter by status, type, and usage.',
+    searchPlaceholder: 'Search code, name, or text...',
     allFiles: 'All Files',
+    detail: 'Details',
+    detailTitle: 'File Details',
+    detailLoading: 'Loading details...',
+    detailFailed: 'Failed to load details',
     editFileInfo: 'Edit File Information',
     saveChanges: 'Save Changes',
+    refresh: 'Refresh List',
+    resetFilters: 'Reset Filters',
+    totalFiles: 'All Records',
+    activeFiles: 'Available',
+    expiredFiles: 'Expired',
+    storageUsed: 'Storage Used',
+    statusLabel: 'Status',
+    typeLabel: 'Type',
+    healthLabel: 'Health',
+    viewPreset: 'View',
+    viewPresetCustom: 'Custom Filters',
+    viewPresetAll: 'All Files',
+    viewPresetAttention: 'Needs Attention',
+    viewPresetExpiringSoon: 'Expiring Soon',
+    viewPresetStorageIssue: 'Storage Issues',
+    viewPresetNeverRetrieved: 'Never Retrieved',
+    viewPresetPermanent: 'Permanent',
+    saveViewPreset: 'Save View',
+    updateViewPreset: 'Update View',
+    deleteViewPreset: 'Delete View',
+    viewPresetNamePrompt: 'Enter a view name',
+    viewPresetSaveSuccess: 'View saved',
+    viewPresetSaveFailed: 'Failed to save view',
+    viewPresetDeleteConfirm: 'Delete view "{name}"?',
+    viewPresetDeleteSuccess: 'View deleted',
+    viewPresetDeleteFailed: 'Failed to delete view',
+    viewPresetLoadFailed: 'Failed to load saved views; using built-in views',
+    all: 'All',
+    active: 'Available',
+    expired: 'Expired',
+    fileType: 'File',
+    textType: 'Text',
+    chunkedType: 'Chunked',
+    healthFilters: {
+      all: 'All',
+      attention: 'Needs Attention',
+      danger: 'Issues',
+      warning: 'Warnings',
+      expiringSoon: 'Expiring Soon',
+      storageIssue: 'Storage Issues',
+      neverRetrieved: 'Never Retrieved',
+      healthy: 'Healthy',
+      permanent: 'Permanent'
+    },
+    sortBy: 'Sort',
+    sortOrder: 'Direction',
+    unlimited: 'Unlimited',
+    remaining: '{count} left',
+    loadError: 'Failed to load file list',
+    noMatches: 'No matching files',
     viewText: 'View',
     textPreview: 'Text Preview',
     copyText: 'Copy Text',
+    copyCode: 'Copy Code',
+    copyLink: 'Copy Link',
     copySuccess: 'Text copied to clipboard',
+    copyCodeSuccess: 'Retrieve code copied to clipboard',
+    copyLinkSuccess: 'Retrieve link copied to clipboard',
     copyFailed: 'Copy failed, please try again',
     charCount: '{count} characters',
+    downloadFile: 'Download File',
+    exportText: 'Export Text',
+    downloadSuccess: 'Downloaded: {name}',
+    exportSuccess: 'Exported: {name}',
+    downloadFailed: 'Download failed',
+    previewFailed: 'Failed to load preview',
+    loadingPreview: 'Loading preview...',
+    previewComplete: 'Loaded full content, {count} characters',
+    previewTruncated: 'Showing {shown} / {total} characters',
+    previewFallback: 'Preview endpoint unavailable; using text from the list',
+    selectCurrentPage: 'Select current page',
+    selectedCount: '{count} selected',
+    selectFile: 'Select {name}',
+    clearSelection: 'Clear Selection',
+    batchDelete: 'Batch Delete',
+    batchDeleteConfirm: 'Delete the selected {count} files? This action cannot be undone.',
+    batchDeleteSuccess: 'Deleted {count} files',
+    batchDeletePartialSuccess: 'Deleted {count} files, {failed} failed',
+    batchDeleteFailed: 'Batch delete failed',
+    batchEdit: 'Batch Edit',
+    batchEditTitle: 'Batch Edit File Policy',
+    batchEditSelected: 'Update the selected {count} files',
+    batchEditMode: 'Update Mode',
+    batchEditExpiresAt: 'Set Expiration Time',
+    batchEditDownloadLimit: 'Set Retrieval Limit',
+    batchEditForever: 'Make Permanent',
+    batchEditForeverHint: 'Clear the expiration time and make retrievals unlimited.',
+    batchUpdateConfirm: 'Update the selected {count} files?',
+    batchUpdateSuccess: 'Updated {count} files',
+    batchUpdatePartialSuccess: 'Updated {count} files, {failed} failed',
+    batchUpdateFailed: 'Batch update failed',
+    batchUpdateNoFields: 'Choose a policy to update',
+    batchPolicyActionConfirm: 'Apply "{action}" to the selected {count} files?',
+    batchPolicyActionSuccess: 'Processed {count} files',
+    batchPolicyActionPartialSuccess: 'Processed {count} files, {failed} failed',
+    batchPolicyActionFailed: 'Batch policy action failed',
+    policyActionSuccess: 'File policy updated',
+    policyActionFailed: 'Failed to apply policy action',
+    metadataInfo: 'Operations Notes',
+    metadataHint:
+      'Visible to admins only. Use it for handling notes, archive tags, and follow-up actions.',
+    metadataNote: 'Note',
+    metadataNotePlaceholder: 'Record context, handling history, or ownership...',
+    metadataTags: 'Tags',
+    metadataTagsPlaceholder: 'Comma-separated, e.g. Client A, Renew, Important',
+    metadataUpdatedAt: 'Last saved: {time}',
+    metadataNeverUpdated: 'No notes saved yet',
+    saveMetadata: 'Save Notes',
+    metadataSaveSuccess: 'Notes and tags saved',
+    metadataSaveFailed: 'Failed to save notes',
+    policyActions: {
+      extend24h: 'Extend 24h',
+      extend7d: 'Extend 7d',
+      makePermanent: 'Make Permanent',
+      resetDownloadLimit: 'Reset to {count}'
+    },
+    policyActionDescriptions: {
+      extend24h: 'Add one day from the active expiration',
+      extend7d: 'Good for a one-week temporary extension',
+      makePermanent: 'Clear expiration time and retrieval limits',
+      resetDownloadLimit: 'Restore retrievals to {count}'
+    },
+    applyBatchEdit: 'Apply Changes',
+    overview: 'Overview',
+    policyInfo: 'Policy',
+    storageInfo: 'Storage',
+    statusInsight: 'Status Insight',
+    nextAction: 'Next Action',
+    lifecycle: 'Lifecycle',
+    permanent: 'Permanent',
+    createdAt: 'Created Time',
+    remainingDownloads: 'Remaining Downloads',
+    textLength: 'Text Length',
+    hasDownloadLimit: 'Has Retrieval Limit',
+    hasExpirationTime: 'Has Expiration',
+    canPreviewText: 'Can Preview Text',
+    canDownload: 'Can Download',
+    storageBackend: 'Storage Backend',
+    fileHash: 'File Hash',
+    isChunked: 'Chunked Upload',
+    filePath: 'Storage Path',
+    uuidFileName: 'Stored File Name',
+    uploadId: 'Upload Session',
+    yes: 'Yes',
+    no: 'No',
+    insightSeverity: {
+      success: 'Healthy',
+      warning: 'Needs Attention',
+      danger: 'Issue',
+      info: 'Info',
+      neutral: 'Watch'
+    },
+    insightStates: {
+      available: 'Available for retrieval',
+      expired: 'Unavailable for retrieval',
+      storage_incomplete: 'Storage metadata incomplete',
+      expiring_soon: 'Expiring soon',
+      permanent: 'Permanent'
+    },
+    insightActions: {
+      monitor: 'Keep monitoring',
+      extend_or_delete: 'Extend retention or clean up',
+      inspect_storage: 'Inspect storage path and file name',
+      extend_expiration: 'Extend expiration if needed'
+    },
+    insightReasons: {
+      expired: 'Past expiration time',
+      download_limit_exhausted: 'Retrieval limit exhausted',
+      expires_soon: 'Expires within 24 hours',
+      never_retrieved: 'Never retrieved',
+      storage_metadata_incomplete: 'Missing downloadable storage metadata',
+      chunked_upload: 'Created by chunked upload'
+    },
+    timeline: {
+      status: {
+        done: 'Done',
+        pending: 'Pending',
+        active: 'Active',
+        expired: 'Expired',
+        exhausted: 'Exhausted',
+        unlimited: 'Unlimited'
+      },
+      created: {
+        title: 'Record Created',
+        description: 'The share record has been created and is currently {status}.'
+      },
+      content_ready: {
+        title: 'Content Ready',
+        description: 'Content type is {detail}; current status is {status}.'
+      },
+      upload_session: {
+        title: 'Upload Session',
+        description: 'Upload session recorded: {detail}.'
+      },
+      expiration_policy: {
+        title: 'Expiration Policy',
+        description: 'Expiration policy is currently {status}.',
+        remaining: '{time} left',
+        overdue: '{time} overdue'
+      },
+      download_limit: {
+        title: 'Retrieval Limit',
+        description: 'Retrieval limit is currently {status}; {value}.'
+      },
+      retrieved: {
+        title: 'Retrieval History',
+        description: 'Retrieved {value}; current status is {status}.'
+      }
+    },
     headers: {
+      select: 'Select',
       code: 'Retrieve Code',
       name: 'Name',
+      type: 'Type',
       size: 'Size',
+      usage: 'Retrievals',
+      status: 'Status',
       description: 'Description',
       expiration: 'Expiration',
       actions: 'Actions'
+    },
+    sort: {
+      createdAt: 'Created Time',
+      expiredAt: 'Expiration',
+      name: 'Name',
+      size: 'Size',
+      usedCount: 'Retrievals',
+      code: 'Retrieve Code',
+      desc: 'Descending',
+      asc: 'Ascending'
     },
     form: {
       code: 'Retrieve Code',
@@ -414,7 +717,13 @@ export default {
         mb: 'MB',
         gb: 'GB'
       },
-      saveChanges: 'Save Settings'
+      saveChanges: 'Save Settings',
+      refreshConfig: 'Refresh Config',
+      refreshing: 'Refreshing',
+      saving: 'Saving',
+      unsavedChanges: 'Unsaved configuration changes',
+      allChangesSaved: 'All configuration changes are saved',
+      refreshBlocked: 'Save current changes before refreshing'
     },
     systemSettings: {
       title: 'System Settings',
@@ -494,7 +803,7 @@ export default {
       serverUptime: 'Uptime',
       refresh: 'Refresh',
       fileHealth: 'File Health',
-      fileHealthDesc: 'Real file records grouped by availability, expiry, and type.',
+      fileHealthDesc: 'Status insights for available, risky, and pending file queues.',
       activeFileRatio: 'Active Ratio',
       fileShareRatio: 'File Ratio',
       textShareRatio: 'Text Ratio',
@@ -510,18 +819,7 @@ export default {
       guestUpload: 'Guest Upload',
       maxSaveTime: 'Max Retention',
       noSaveLimit: 'Unlimited',
-      todayCapacityReference: 'Today Size / Single File Limit',
-      fileTypeDistribution: 'Type Distribution',
-      textType: 'Text',
-      recentFiles: 'Recent Shares',
-      recentFilesDesc: 'Recently created share records for quick status checks.',
-      available: 'Available',
-      table: {
-        file: 'File',
-        size: 'Size',
-        usage: 'Retrievals',
-        status: 'Status'
-      }
+      todayCapacityReference: 'Today Size / Single File Limit'
     },
     fileManage: {
       title: 'File Management',

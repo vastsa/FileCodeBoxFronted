@@ -1,25 +1,41 @@
 <template>
-  <div class="p-6 overflow-y-auto custom-scrollbar">
+  <div class="p-6">
     <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p class="text-sm" :class="[mutedTextClass]">FileCodeBox Admin</p>
         <h2 class="text-2xl font-bold" :class="[primaryTextClass]">
           {{ t('admin.dashboard.title') }}
         </h2>
+        <p class="mt-1 text-xs" :class="[mutedTextClass]">
+          {{ t('admin.dashboard.lastUpdated', { time: lastUpdatedText }) }}
+        </p>
       </div>
       <button
         type="button"
+        :disabled="isLoading"
         @click="fetchDashboardData"
-        class="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+        class="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-70"
         :class="[
           isDarkMode
             ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
             : 'bg-white text-gray-700 shadow-sm hover:bg-gray-50'
         ]"
       >
-        <RefreshCwIcon class="mr-2 h-4 w-4" />
-        {{ t('admin.dashboard.refresh') }}
+        <RefreshCwIcon class="mr-2 h-4 w-4" :class="{ 'animate-spin': isLoading }" />
+        {{ isLoading ? t('admin.dashboard.refreshing') : t('admin.dashboard.refresh') }}
       </button>
+    </div>
+
+    <div
+      v-if="errorMessage"
+      class="mb-6 rounded-lg border px-4 py-3 text-sm"
+      :class="[
+        isDarkMode
+          ? 'border-red-900/50 bg-red-950/30 text-red-200'
+          : 'border-red-200 bg-red-50 text-red-700'
+      ]"
+    >
+      {{ errorMessage }}
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -79,7 +95,10 @@
               {{ t('admin.dashboard.fileHealthDesc') }}
             </p>
           </div>
-          <ActivityIcon class="h-5 w-5" :class="[isDarkMode ? 'text-indigo-300' : 'text-indigo-500']" />
+          <ActivityIcon
+            class="h-5 w-5"
+            :class="[isDarkMode ? 'text-indigo-300' : 'text-indigo-500']"
+          />
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -101,6 +120,31 @@
             :detail="t('admin.dashboard.textShares', { count: dashboardData.textCount })"
             tone="purple"
           />
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <button
+            v-for="action in healthActions"
+            :key="action.key"
+            type="button"
+            class="group flex min-h-28 flex-col justify-between rounded-lg border p-4 text-left transition-colors"
+            :class="getHealthActionClass(action.tone)"
+            @click="openHealthQueue(action.health)"
+          >
+            <span class="flex items-start justify-between gap-3">
+              <span>
+                <span class="block text-2xl font-semibold">{{ action.count }}</span>
+                <span class="mt-1 block text-sm font-medium">{{ action.label }}</span>
+              </span>
+              <component :is="getHealthActionIcon(action.tone)" class="h-5 w-5 shrink-0" />
+            </span>
+            <span class="mt-3 flex items-center justify-between gap-2 text-xs">
+              <span class="line-clamp-2">{{ action.description }}</span>
+              <ArrowRightIcon
+                class="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5"
+              />
+            </span>
+          </button>
         </div>
 
         <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -157,10 +201,7 @@
             :label="t('admin.dashboard.guestUpload')"
             :value="dashboardData.openUpload ? t('common.enabled') : t('common.disabled')"
           />
-          <PolicyRow
-            :label="t('admin.dashboard.maxSaveTime')"
-            :value="maxSaveTimeText"
-          />
+          <PolicyRow :label="t('admin.dashboard.maxSaveTime')" :value="maxSaveTimeText" />
         </div>
 
         <div class="mt-5">
@@ -168,7 +209,10 @@
             <span :class="[mutedTextClass]">{{ t('admin.dashboard.todayCapacityReference') }}</span>
             <span :class="[primaryTextClass]">{{ dashboardData.todaySizeRatio }}%</span>
           </div>
-          <div class="h-2 overflow-hidden rounded-full" :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']">
+          <div
+            class="h-2 overflow-hidden rounded-full"
+            :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']"
+          >
             <div
               class="h-full rounded-full bg-indigo-500"
               :style="{ width: `${dashboardData.todaySizeRatio}%` }"
@@ -178,146 +222,70 @@
       </section>
     </div>
 
-    <div v-if="dashboardData.hasExtendedStats" class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
-      <section class="rounded-lg p-5 shadow-sm" :class="[panelClass]">
-        <h3 class="text-lg font-semibold" :class="[primaryTextClass]">
-          {{ t('admin.dashboard.fileTypeDistribution') }}
-        </h3>
-        <div class="mt-4 space-y-3">
-          <div v-if="dashboardData.topSuffixes.length === 0" class="text-sm" :class="[mutedTextClass]">
-            {{ t('common.noData') }}
-          </div>
-          <div v-for="item in dashboardData.topSuffixes" :key="item.suffix" class="space-y-1">
-            <div class="flex items-center justify-between text-sm">
-              <span :class="[primaryTextClass]">{{ item.suffix || t('admin.dashboard.textType') }}</span>
-              <span :class="[mutedTextClass]">{{ item.count }}</span>
-            </div>
-            <div class="h-2 overflow-hidden rounded-full" :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']">
-              <div
-                class="h-full rounded-full bg-purple-500"
-                :style="{ width: `${getSuffixRatio(item.count)}%` }"
-              ></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="xl:col-span-2 rounded-lg p-5 shadow-sm" :class="[panelClass]">
-        <div class="mb-4 flex items-center justify-between">
-          <div>
-            <h3 class="text-lg font-semibold" :class="[primaryTextClass]">
-              {{ t('admin.dashboard.recentFiles') }}
-            </h3>
-            <p class="text-sm" :class="[mutedTextClass]">
-              {{ t('admin.dashboard.recentFilesDesc') }}
-            </p>
-          </div>
-        </div>
-
-        <div class="overflow-hidden rounded-lg border" :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']">
-          <table class="min-w-full divide-y" :class="[isDarkMode ? 'divide-gray-700' : 'divide-gray-200']">
-            <thead :class="[isDarkMode ? 'bg-gray-900/50' : 'bg-gray-50']">
-              <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" :class="[mutedTextClass]">
-                  {{ t('admin.dashboard.table.file') }}
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" :class="[mutedTextClass]">
-                  {{ t('admin.dashboard.table.size') }}
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" :class="[mutedTextClass]">
-                  {{ t('admin.dashboard.table.usage') }}
-                </th>
-                <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider" :class="[mutedTextClass]">
-                  {{ t('admin.dashboard.table.status') }}
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y" :class="[isDarkMode ? 'divide-gray-700' : 'divide-gray-100']">
-              <tr v-if="dashboardData.recentFiles.length === 0">
-                <td colspan="4" class="px-4 py-6 text-center text-sm" :class="[mutedTextClass]">
-                  {{ t('common.noData') }}
-                </td>
-              </tr>
-              <tr v-for="file in dashboardData.recentFiles" :key="file.id">
-                <td class="px-4 py-3">
-                  <div class="flex items-center gap-3">
-                    <div class="rounded-lg p-2" :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']">
-                      <FileTextIcon v-if="file.text" class="h-4 w-4" :class="[mutedTextClass]" />
-                      <FileIcon v-else class="h-4 w-4" :class="[mutedTextClass]" />
-                    </div>
-                    <div class="min-w-0">
-                      <p class="truncate text-sm font-medium" :class="[primaryTextClass]">
-                        {{ file.name || file.code }}
-                      </p>
-                      <p class="text-xs" :class="[mutedTextClass]">
-                        {{ file.code }} · {{ formatCreatedAt(file.createdAt) }}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-                <td class="px-4 py-3 text-sm" :class="[primaryTextClass]">
-                  {{ formatFileSize(file.size) }}
-                </td>
-                <td class="px-4 py-3 text-sm" :class="[primaryTextClass]">
-                  {{ file.usedCount }} {{ t('common.times') }}
-                </td>
-                <td class="px-4 py-3">
-                  <span
-                    class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium"
-                    :class="[
-                      file.isExpired
-                        ? isDarkMode
-                          ? 'bg-red-900/40 text-red-300'
-                          : 'bg-red-100 text-red-700'
-                        : isDarkMode
-                          ? 'bg-green-900/40 text-green-300'
-                          : 'bg-green-100 text-green-700'
-                    ]"
-                  >
-                    {{ file.isExpired ? t('common.expiredFile') : t('admin.dashboard.available') }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
+    <footer
+      class="mt-6 flex flex-col gap-2 border-t pt-4 text-xs sm:flex-row sm:items-center sm:justify-between"
+      :class="[isDarkMode ? 'border-gray-800 text-gray-500' : 'border-gray-200 text-gray-500']"
+    >
+      <span>{{ t('admin.dashboard.footerProduct') }}</span>
+      <span class="inline-flex items-center gap-2">
+        <span>{{ t('admin.dashboard.runtimeVersion') }}</span>
+        <span
+          class="rounded-md border px-2 py-0.5 font-medium"
+          :class="[
+            isDarkMode
+              ? 'border-gray-700 bg-gray-800/70 text-gray-300'
+              : 'border-gray-200 bg-white text-gray-700'
+          ]"
+        >
+          {{ versionText }}
+        </span>
+      </span>
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, defineComponent, h, onMounted } from 'vue'
-import type { PropType } from 'vue'
+import type { Component, PropType } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
 import {
   ActivityIcon,
+  AlertTriangleIcon,
+  ArrowRightIcon,
+  CheckCircleIcon,
   DownloadCloudIcon,
-  FileIcon,
   FilesIcon,
-  FileTextIcon,
   HardDriveIcon,
   RefreshCwIcon,
+  ShieldCheckIcon,
   UploadCloudIcon
 } from 'lucide-vue-next'
 import StatCard from '@/components/common/StatCard.vue'
 import { useDashboardStats, useInjectedDarkMode } from '@/composables'
 import { useI18n } from 'vue-i18n'
-import { formatFileSize, formatTimestamp } from '@/utils/common'
+import { ROUTES } from '@/constants'
+import { useConfigStore } from '@/stores/configStore'
+import type { DashboardHealthAction } from '@/types'
 
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()
-const { dashboardData, fetchDashboardData } = useDashboardStats()
+const router = useRouter()
+const configStore = useConfigStore()
+const { appVersion } = storeToRefs(configStore)
+const { dashboardData, errorMessage, fetchDashboardData, isLoading, lastUpdatedText } =
+  useDashboardStats({
+    loadFailedMessage: t('admin.dashboard.loadFailed')
+  })
 
 const primaryTextClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-gray-900'))
 const mutedTextClass = computed(() => (isDarkMode.value ? 'text-gray-400' : 'text-gray-500'))
+const versionText = computed(() => appVersion.value || t('admin.dashboard.versionPending'))
 const panelClass = computed(() =>
   isDarkMode.value ? 'bg-gray-800/80 border border-gray-700' : 'bg-white border border-gray-100'
 )
 const subtlePanelClass = computed(() =>
   isDarkMode.value ? 'border-gray-700 bg-gray-900/30' : 'border-gray-100 bg-gray-50'
-)
-const maxSuffixCount = computed(() =>
-  Math.max(...dashboardData.topSuffixes.map((item) => item.count), 1)
 )
 const maxSaveTimeText = computed(() => {
   if (!dashboardData.maxSaveSeconds) return t('admin.dashboard.noSaveLimit')
@@ -328,11 +296,80 @@ const maxSaveTimeText = computed(() => {
   return `${Math.floor(dashboardData.maxSaveSeconds / 60)}${t('common.minute')}`
 })
 
-const getSuffixRatio = (count: number) => Math.round((count / maxSuffixCount.value) * 100)
+const healthActions = computed<DashboardHealthAction[]>(() => [
+  {
+    key: 'attention',
+    label: t('admin.dashboard.healthActions.attention.title'),
+    description: t('admin.dashboard.healthActions.attention.description'),
+    count: dashboardData.healthAttentionCount,
+    health: 'attention',
+    tone: dashboardData.healthAttentionCount > 0 ? 'danger' : 'success'
+  },
+  {
+    key: 'storageIssue',
+    label: t('admin.dashboard.healthActions.storageIssue.title'),
+    description: t('admin.dashboard.healthActions.storageIssue.description'),
+    count: dashboardData.storageIssueCount,
+    health: 'storage_issue',
+    tone: dashboardData.storageIssueCount > 0 ? 'danger' : 'success'
+  },
+  {
+    key: 'expiringSoon',
+    label: t('admin.dashboard.healthActions.expiringSoon.title'),
+    description: t('admin.dashboard.healthActions.expiringSoon.description'),
+    count: dashboardData.expiringSoonCount,
+    health: 'expiring_soon',
+    tone: dashboardData.expiringSoonCount > 0 ? 'warning' : 'success'
+  },
+  {
+    key: 'neverRetrieved',
+    label: t('admin.dashboard.healthActions.neverRetrieved.title'),
+    description: t('admin.dashboard.healthActions.neverRetrieved.description'),
+    count: dashboardData.neverRetrievedCount,
+    health: 'never_retrieved',
+    tone: dashboardData.neverRetrievedCount > 0 ? 'neutral' : 'success'
+  },
+  {
+    key: 'permanent',
+    label: t('admin.dashboard.healthActions.permanent.title'),
+    description: t('admin.dashboard.healthActions.permanent.description'),
+    count: dashboardData.permanentCount,
+    health: 'permanent',
+    tone: 'success'
+  }
+])
 
-const formatCreatedAt = (value: string | null) => {
-  if (!value) return '-'
-  return formatTimestamp(value, 'datetime')
+const healthActionIconMap: Record<DashboardHealthAction['tone'], Component> = {
+  danger: AlertTriangleIcon,
+  warning: AlertTriangleIcon,
+  success: CheckCircleIcon,
+  neutral: ShieldCheckIcon
+}
+
+const getHealthActionIcon = (tone: DashboardHealthAction['tone']) => healthActionIconMap[tone]
+
+const getHealthActionClass = (tone: DashboardHealthAction['tone']) => {
+  const darkClasses: Record<DashboardHealthAction['tone'], string> = {
+    danger: 'border-red-500/20 bg-red-500/10 text-red-200 hover:border-red-400/40',
+    warning: 'border-amber-500/20 bg-amber-500/10 text-amber-200 hover:border-amber-400/40',
+    success: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-200 hover:border-emerald-400/40',
+    neutral: 'border-gray-700 bg-gray-900/30 text-gray-300 hover:border-gray-600'
+  }
+  const lightClasses: Record<DashboardHealthAction['tone'], string> = {
+    danger: 'border-red-100 bg-red-50 text-red-700 hover:border-red-200',
+    warning: 'border-amber-100 bg-amber-50 text-amber-700 hover:border-amber-200',
+    success: 'border-emerald-100 bg-emerald-50 text-emerald-700 hover:border-emerald-200',
+    neutral: 'border-gray-100 bg-gray-50 text-gray-700 hover:border-gray-200'
+  }
+
+  return isDarkMode.value ? darkClasses[tone] : lightClasses[tone]
+}
+
+const openHealthQueue = (health: DashboardHealthAction['health']) => {
+  void router.push({
+    path: ROUTES.FILE_MANAGE,
+    query: { health }
+  })
 }
 
 const MetricProgress = defineComponent({
@@ -381,10 +418,17 @@ const PolicyRow = defineComponent({
   },
   setup(props) {
     return () =>
-      h('div', { class: 'flex items-center justify-between gap-4 border-b border-gray-200/60 pb-3 last:border-b-0 dark:border-gray-700' }, [
-        h('span', { class: 'text-sm text-gray-500 dark:text-gray-400' }, props.label),
-        h('span', { class: 'text-sm font-medium text-gray-900 dark:text-white' }, props.value)
-      ])
+      h(
+        'div',
+        {
+          class:
+            'flex items-center justify-between gap-4 border-b border-gray-200/60 pb-3 last:border-b-0 dark:border-gray-700'
+        },
+        [
+          h('span', { class: 'text-sm text-gray-500 dark:text-gray-400' }, props.label),
+          h('span', { class: 'text-sm font-medium text-gray-900 dark:text-white' }, props.value)
+        ]
+      )
   }
 })
 

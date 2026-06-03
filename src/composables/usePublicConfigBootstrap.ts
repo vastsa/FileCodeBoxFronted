@@ -13,7 +13,8 @@ export function usePublicConfigBootstrap() {
       return
     }
 
-    const notifyMessage = configStore.applyRemoteConfig(res.detail)
+    configStore.applyPublicMeta(res.detail.meta)
+    const notifyMessage = configStore.applyRemoteConfig(res.detail.config)
     if (notifyMessage) {
       alertStore.showAlert(notifyMessage, 'success')
     }
