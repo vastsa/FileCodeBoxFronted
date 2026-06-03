@@ -632,13 +632,13 @@ export function useAdminFiles() {
     const storage = detail.storage
     const expiredAt = policy?.expiredAt ?? policy?.expired_at ?? file.expired_at ?? null
     const expiredCount = policy?.expiredCount ?? policy?.expired_count ?? file.expired_count ?? null
+    const prefixedName = `${file.prefix || ''}${file.suffix || ''}`
     const displayName =
       detail.displayName ??
       detail.display_name ??
       detail.filename ??
       file.name ??
-      `${file.prefix}${file.suffix}` ??
-      file.code
+      (prefixedName || file.code)
     const normalizedFile: FileListItem = {
       ...file,
       name: displayName,

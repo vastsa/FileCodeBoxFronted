@@ -2,6 +2,11 @@ import { saveAs } from 'file-saver'
 import type { AdminFileViewItem, ApiResponse, ReceivedFileRecord } from '@/types'
 import { buildDownloadUrl } from '@/utils/share-url'
 
+const unsafeFilenamePattern = new RegExp(
+  `[\\\\/:*?"<>|${String.fromCharCode(0)}-${String.fromCharCode(31)}]`,
+  'g'
+)
+
 export function downloadReceivedRecord(record: ReceivedFileRecord): void {
   if (record.downloadUrl) {
     window.open(buildDownloadUrl(record.downloadUrl), '_blank')
@@ -16,7 +21,7 @@ export function downloadReceivedRecord(record: ReceivedFileRecord): void {
 
 export const getSafeFilename = (name: string) =>
   name
-    .replace(/[\\/:*?"<>|\x00-\x1F]/g, '_')
+    .replace(unsafeFilenamePattern, '_')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 180) || 'download'
