@@ -39,85 +39,6 @@ export interface DashboardData {
   healthyCount?: number
   permanentCount?: number
   healthSummary?: Partial<DashboardHealthSummary>
-  topSuffixes?: DashboardSuffixStat[]
-  recentFiles?: DashboardRecentFile[]
-  recentActivities?: DashboardActivity[]
-  recent_activities?: DashboardActivity[]
-}
-
-export interface DashboardSuffixStat {
-  suffix: string
-  count: number
-}
-
-export interface DashboardRecentFile {
-  id: number
-  code: string
-  name: string
-  suffix: string
-  size: number
-  text: boolean
-  expiredAt: string | null
-  expiredCount: number
-  usedCount: number
-  createdAt: string | null
-  isExpired: boolean
-}
-
-export interface DashboardActivity {
-  id: string
-  action: string
-  targetType?: string
-  target_type?: string
-  targetId?: string | number | null
-  target_id?: string | number | null
-  targetName?: string
-  target_name?: string
-  count: number
-  meta?: Record<string, unknown>
-  createdAt?: string | null
-  created_at?: string | null
-}
-
-export interface DashboardActivityViewItem extends DashboardActivity {
-  targetTypeValue: string
-  targetNameValue: string
-  createdAtValue: string | null
-}
-
-export interface DashboardActivityOption {
-  value: string
-  label?: string
-  count: number
-}
-
-export interface DashboardActivityFilters {
-  action?: string
-  targetType?: string
-  target_type?: string
-  keyword?: string
-}
-
-export interface DashboardActivitiesParams {
-  limit?: number
-  action?: string
-  targetType?: string
-  target_type?: string
-  keyword?: string
-}
-
-export interface DashboardActivitiesResponse {
-  activities?: DashboardActivity[]
-  items?: DashboardActivity[]
-  total?: number
-  storedTotal?: number
-  stored_total?: number
-  limit?: number
-  filters?: DashboardActivityFilters
-  actionOptions?: DashboardActivityOption[]
-  action_options?: DashboardActivityOption[]
-  targetTypeOptions?: DashboardActivityOption[]
-  target_type_options?: DashboardActivityOption[]
 }
 
 export type DashboardViewData = Omit<
@@ -134,10 +55,6 @@ export type DashboardViewData = Omit<
   | 'openUpload'
   | 'enableChunk'
   | 'maxSaveSeconds'
-  | 'topSuffixes'
-  | 'recentFiles'
-  | 'recentActivities'
-  | 'recent_activities'
   | 'storageUsed'
   | 'yesterdaySize'
   | 'todaySize'
@@ -155,9 +72,6 @@ export type DashboardViewData = Omit<
     openUpload: number
     enableChunk: number
     maxSaveSeconds: number
-    topSuffixes: DashboardSuffixStat[]
-    recentFiles: DashboardRecentFile[]
-    recentActivities: DashboardActivityViewItem[]
     storageUsed: number
     yesterdaySize: number
     todaySize: number

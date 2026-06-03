@@ -1,22 +1,11 @@
 import { computed, ref, reactive } from 'vue'
 import { StatsService } from '@/services'
-import type {
-  DashboardActivitiesParams,
-  DashboardActivityOption,
-  DashboardActivity,
-  DashboardActivityViewItem,
-  DashboardData,
-  DashboardHealthSummary,
-  DashboardViewData
-} from '@/types'
+import type { DashboardData, DashboardHealthSummary, DashboardViewData } from '@/types'
 import { formatFileSize, getErrorMessage } from '@/utils/common'
 
 type UseDashboardStatsOptions = {
   loadFailedMessage?: string
-  activityLoadFailedMessage?: string
 }
-
-const activityTimelineLimit = 40
 
 const emptyDashboardData = (): DashboardViewData => ({
   hasExtendedStats: false,
@@ -46,9 +35,6 @@ const emptyDashboardData = (): DashboardViewData => ({
   neverRetrievedCount: 0,
   healthyCount: 0,
   permanentCount: 0,
-  topSuffixes: [],
-  recentFiles: [],
-  recentActivities: [],
   storageUsedText: '0 Bytes',
   yesterdaySizeText: '0 Bytes',
   todaySizeText: '0 Bytes',
@@ -75,39 +61,6 @@ const formatDuration = (startTimestamp: number | null) => {
   const hours = Math.floor((uptime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000))
   return `${days}天${hours}小时`
 }
-
-const normalizeRecentFiles = (recentFiles: DashboardViewData['recentFiles']) =>
-  recentFiles.map((file) => ({
-    ...file,
-    size: toNumber(file.size),
-    expiredCount: toNumber(file.expiredCount),
-    usedCount: toNumber(file.usedCount)
-  }))
-
-const normalizeRecentActivities = (
-  activities: DashboardActivity[] = []
-): DashboardActivityViewItem[] =>
-  activities
-    .filter((activity) => activity && activity.id && activity.action)
-    .map((activity) => ({
-      ...activity,
-      count: toNumber(activity.count) || 1,
-      targetTypeValue: activity.targetType ?? activity.target_type ?? 'system',
-      targetNameValue: activity.targetName ?? activity.target_name ?? '',
-      createdAtValue: activity.createdAt ?? activity.created_at ?? null,
-      meta: activity.meta && typeof activity.meta === 'object' ? activity.meta : {}
-    }))
-
-const normalizeActivityOptions = (
-  options: DashboardActivityOption[] = []
-): DashboardActivityOption[] =>
-  options
-    .filter((option) => option && option.value)
-    .map((option) => ({
-      value: option.value,
-      label: option.label || option.value,
-      count: toNumber(option.count)
-    }))
 
 const healthSummaryKeys: (keyof DashboardHealthSummary)[] = [
   'healthAttentionCount',
@@ -142,32 +95,9 @@ export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
   const isLoading = ref(false)
   const errorMessage = ref('')
   const lastUpdatedAt = ref<Date | null>(null)
-  const isActivityTimelineOpen = ref(false)
-  const isActivityTimelineLoading = ref(false)
-  const activityTimelineError = ref('')
-  const activityTimeline = ref<DashboardActivityViewItem[]>([])
-  const activityTimelineTotal = ref(0)
-  const activityTimelineStoredTotal = ref(0)
-  const activityActionOptions = ref<DashboardActivityOption[]>([])
-  const activityTargetTypeOptions = ref<DashboardActivityOption[]>([])
-  const activityFilters = reactive({
-    action: '',
-    targetType: '',
-    keyword: ''
-  })
   const lastUpdatedText = computed(() =>
     lastUpdatedAt.value ? lastUpdatedAt.value.toLocaleString() : '-'
   )
-  const hasActivityFilters = computed(() =>
-    Boolean(activityFilters.action || activityFilters.targetType || activityFilters.keyword)
-  )
-
-  const buildActivityRequestParams = (): DashboardActivitiesParams => ({
-    limit: activityTimelineLimit,
-    action: activityFilters.action || undefined,
-    targetType: activityFilters.targetType || undefined,
-    keyword: activityFilters.keyword.trim() || undefined
-  })
 
   const fetchDashboardData = async () => {
     isLoading.value = true
@@ -205,11 +135,6 @@ export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
       healthSummaryKeys.forEach((key) => {
         dashboardData[key] = healthSummary[key]
       })
-      dashboardData.topSuffixes = detail.topSuffixes || []
-      dashboardData.recentFiles = normalizeRecentFiles(detail.recentFiles || [])
-      dashboardData.recentActivities = normalizeRecentActivities(
-        detail.recentActivities ?? detail.recent_activities ?? []
-      )
 
       dashboardData.storageUsedText = formatFileSize(dashboardData.storageUsed)
       dashboardData.yesterdaySizeText = formatFileSize(dashboardData.yesterdaySize)
@@ -245,93 +170,11 @@ export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
     }
   }
 
-  const fetchActivityTimeline = async () => {
-    isActivityTimelineLoading.value = true
-    activityTimelineError.value = ''
-
-    try {
-      const response = await StatsService.getActivities(buildActivityRequestParams())
-      if (!response.detail) {
-        throw new Error('No activity data')
-      }
-
-      const detail = response.detail
-      activityTimeline.value = normalizeRecentActivities(detail.activities ?? detail.items ?? [])
-      activityTimelineTotal.value = toNumber(detail.total)
-      activityTimelineStoredTotal.value = toNumber(detail.storedTotal ?? detail.stored_total)
-      activityActionOptions.value = normalizeActivityOptions(
-        detail.actionOptions ?? detail.action_options ?? []
-      )
-      activityTargetTypeOptions.value = normalizeActivityOptions(
-        detail.targetTypeOptions ?? detail.target_type_options ?? []
-      )
-    } catch (error) {
-      activityTimelineError.value = getErrorMessage(
-        error,
-        options.activityLoadFailedMessage || 'Failed to load activity timeline'
-      )
-    } finally {
-      isActivityTimelineLoading.value = false
-    }
-  }
-
-  const openActivityTimeline = async () => {
-    isActivityTimelineOpen.value = true
-    await fetchActivityTimeline()
-  }
-
-  const closeActivityTimeline = () => {
-    isActivityTimelineOpen.value = false
-  }
-
-  const setActivityActionFilter = async (action: string) => {
-    activityFilters.action = action
-    await fetchActivityTimeline()
-  }
-
-  const setActivityTargetTypeFilter = async (targetType: string) => {
-    activityFilters.targetType = targetType
-    await fetchActivityTimeline()
-  }
-
-  const setActivityKeywordFilter = (keyword: string) => {
-    activityFilters.keyword = keyword
-  }
-
-  const applyActivityFilters = async () => {
-    await fetchActivityTimeline()
-  }
-
-  const resetActivityFilters = async () => {
-    activityFilters.action = ''
-    activityFilters.targetType = ''
-    activityFilters.keyword = ''
-    await fetchActivityTimeline()
-  }
-
   return {
-    activityActionOptions,
-    activityFilters,
-    activityTargetTypeOptions,
-    activityTimeline,
-    activityTimelineError,
-    activityTimelineStoredTotal,
-    activityTimelineTotal,
-    applyActivityFilters,
-    closeActivityTimeline,
     dashboardData,
     errorMessage,
     fetchDashboardData,
-    fetchActivityTimeline,
-    hasActivityFilters,
-    isActivityTimelineLoading,
-    isActivityTimelineOpen,
     isLoading,
-    lastUpdatedText,
-    openActivityTimeline,
-    resetActivityFilters,
-    setActivityActionFilter,
-    setActivityKeywordFilter,
-    setActivityTargetTypeFilter
+    lastUpdatedText
   }
 }

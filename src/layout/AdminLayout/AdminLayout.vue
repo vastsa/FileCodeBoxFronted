@@ -5,10 +5,13 @@
   >
     <!-- Sidebar -->
     <aside
-      class="fixed inset-y-0 border-transparent left-0 z-50 w-64 transform transition-all duration-300 ease-in-out lg:relative lg:translate-x-0 border-r flex flex-col h-full lg:h-screen"
+      class="fixed inset-y-0 left-0 z-50 flex h-full w-64 shrink-0 transform flex-col border-r lg:relative lg:h-screen lg:translate-x-0"
       :class="[
-        isDarkMode ? 'bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-xl ' : 'bg-white ',
-        { '-translate-x-full': !isSidebarOpen }
+        isDarkMode
+          ? 'border-gray-700 bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-xl'
+          : 'border-gray-200 bg-white',
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
+        'transition-transform duration-300 ease-in-out lg:transition-none'
       ]"
     >
       <!-- Logo区域 -->
@@ -46,18 +49,18 @@
           <li v-for="item in menuItems" :key="item.id">
             <RouterLink
               :to="item.redirect"
-              class="flex items-center p-2 rounded-lg transition-colors duration-200"
+              class="flex h-10 w-full items-center rounded-lg border-l-4 px-3 text-sm font-medium"
               :class="[
                 route.name === item.id
                   ? isDarkMode
-                    ? 'bg-indigo-900 text-indigo-400'
-                    : 'bg-indigo-100 text-indigo-600'
+                    ? 'border-indigo-400 bg-gray-700/70 text-indigo-200'
+                    : 'border-indigo-500 bg-gray-100 text-indigo-700'
                   : isDarkMode
-                    ? 'text-gray-400 hover:bg-gray-700'
-                    : 'text-gray-600 hover:bg-gray-100'
+                    ? 'border-transparent text-gray-400 hover:bg-gray-700'
+                    : 'border-transparent text-gray-600 hover:bg-gray-100'
               ]"
             >
-              <component :is="item.icon" class="w-5 h-5 mr-3" />
+              <component :is="item.icon" class="mr-3 h-5 w-5 shrink-0" />
               {{ item.name }}
             </RouterLink>
           </li>
@@ -82,7 +85,7 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="flex h-full min-h-0 flex-1 flex-col">
+    <div class="flex h-full min-h-0 min-w-0 flex-1 flex-col">
       <!-- Header -->
       <header
         class="shadow-md border-b transition-colors duration-300 h-16"

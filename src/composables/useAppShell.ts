@@ -13,6 +13,11 @@ export function useAppShell() {
   const { isLoading, setupRouteLoading } = useRouteLoading(router)
   const { syncPublicConfig } = usePublicConfigBootstrap()
   const showGlobalControls = computed(() => route.meta.showGlobalControls !== false)
+  const routeViewKey = computed(() =>
+    route.path === ROUTES.ADMIN || route.path.startsWith(`${ROUTES.ADMIN}/`)
+      ? ROUTES.ADMIN
+      : route.fullPath
+  )
 
   let cleanupThemeListener: (() => void) | null = null
 
@@ -47,6 +52,7 @@ export function useAppShell() {
     isDarkMode,
     isLoading,
     route,
+    routeViewKey,
     showGlobalControls
   }
 }

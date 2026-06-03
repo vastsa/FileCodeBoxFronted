@@ -5,7 +5,7 @@ import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import AlertComponent from '@/components/common/AlertComponent.vue'
 import { useAppShell } from '@/composables'
 
-const { isDarkMode, isLoading, route, showGlobalControls } = useAppShell()
+const { isDarkMode, isLoading, routeViewKey, showGlobalControls } = useAppShell()
 </script>
 
 <template>
@@ -19,7 +19,7 @@ const { isDarkMode, isLoading, route, showGlobalControls } = useAppShell()
     </div>
     <RouterView v-slot="{ Component }">
       <transition name="fade" mode="out-in">
-        <component :is="Component" :key="route.fullPath" />
+        <component :is="Component" :key="routeViewKey" />
       </transition>
     </RouterView>
 

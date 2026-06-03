@@ -52,26 +52,29 @@
     </div>
 
     <section class="mb-6 rounded-lg border p-4" :class="[panelClass]">
-      <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div class="flex min-w-0 flex-1 flex-col gap-3 md:flex-row">
-          <div class="relative min-w-[220px] flex-1">
-            <input
-              v-model="params.keyword"
-              type="text"
-              :placeholder="t('fileManage.searchPlaceholder')"
-              class="w-full rounded-lg border py-2.5 pl-10 pr-4 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-              :class="[
-                isDarkMode
-                  ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
-                  : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
-              ]"
-              @keyup.enter="handleSearch"
-            />
-            <SearchIcon
-              class="absolute left-3 top-3 h-4 w-4"
-              :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
-            />
-          </div>
+      <div class="grid gap-4">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+          <label class="min-w-0 flex-1">
+            <span class="sr-only">{{ t('fileManage.searchPlaceholder') }}</span>
+            <span class="relative block">
+              <SearchIcon
+                class="absolute left-3 top-3 h-4 w-4"
+                :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+              />
+              <input
+                v-model="params.keyword"
+                type="text"
+                :placeholder="t('fileManage.searchPlaceholder')"
+                class="w-full rounded-lg border py-2.5 pl-10 pr-4 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+                :class="[
+                  isDarkMode
+                    ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
+                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                ]"
+                @keyup.enter="handleSearch"
+              />
+            </span>
+          </label>
           <BaseButton :loading="isLoading" @click="handleSearch">
             <template #icon>
               <SearchIcon class="mr-2 h-4 w-4" />
@@ -80,142 +83,159 @@
           </BaseButton>
         </div>
 
-        <div class="flex flex-col gap-3 xl:items-end">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center text-xs font-medium" :class="[mutedTextClass]">
+        <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+          <label class="space-y-1">
+            <span class="flex items-center text-xs font-medium" :class="[mutedTextClass]">
               <FilterIcon class="mr-1 h-3.5 w-3.5" />
               {{ t('fileManage.statusLabel') }}
             </span>
-            <button
-              v-for="option in statusFilterOptions"
-              :key="option.value"
-              type="button"
-              class="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
-              :class="getStatusFilterClass(option.value)"
-              @click="setStatusFilter(option.value)"
+            <select
+              :value="params.status"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              :class="[fieldClass]"
+              @change="handleStatusFilterChange"
             >
-              {{ option.label }}
-            </button>
-          </div>
+              <option
+                v-for="option in statusFilterOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </option>
+            </select>
+          </label>
 
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center text-xs font-medium" :class="[mutedTextClass]">
+          <label class="space-y-1">
+            <span class="flex items-center text-xs font-medium" :class="[mutedTextClass]">
               <ActivityIcon class="mr-1 h-3.5 w-3.5" />
               {{ t('fileManage.healthLabel') }}
             </span>
-            <button
-              v-for="option in healthFilterOptions"
-              :key="option.value"
-              type="button"
-              class="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
-              :class="getHealthFilterClass(option.value)"
-              @click="handleHealthFilterChange(option.value)"
+            <select
+              :value="params.health"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              :class="[fieldClass]"
+              @change="handleHealthFilterSelect"
             >
-              <span>{{ option.label }}</span>
-              <span v-if="typeof option.count === 'number'">({{ option.count }})</span>
-            </button>
-          </div>
+              <option
+                v-for="option in healthFilterOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ formatFilterOptionLabel(option) }}
+              </option>
+            </select>
+          </label>
 
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center text-xs font-medium" :class="[mutedTextClass]">
+          <label class="space-y-1">
+            <span class="flex items-center text-xs font-medium" :class="[mutedTextClass]">
               <ArchiveIcon class="mr-1 h-3.5 w-3.5" />
               {{ t('fileManage.typeLabel') }}
             </span>
-            <button
-              v-for="option in typeFilterOptions"
-              :key="option.value"
-              type="button"
-              class="rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
-              :class="getTypeFilterClass(option.value)"
-              @click="setTypeFilter(option.value)"
+            <select
+              :value="params.type"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              :class="[fieldClass]"
+              @change="handleTypeFilterChange"
             >
-              {{ option.label }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <label class="text-sm" :class="[mutedTextClass]">
-          {{ t('fileManage.sortBy') }}
-        </label>
-        <select
-          v-model="params.sortBy"
-          class="rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-          :class="[fieldClass]"
-          @change="handleSearch"
-        >
-          <option v-for="option in sortOptions" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
-        <select
-          v-model="params.sortOrder"
-          class="rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-          :class="[fieldClass]"
-          @change="handleSearch"
-        >
-          <option v-for="option in sortOrderOptions" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
-        <div class="flex flex-col gap-2 sm:ml-auto sm:flex-row sm:items-center">
-          <label class="inline-flex items-center text-sm" :class="[mutedTextClass]">
-            <FilterIcon class="mr-1 h-3.5 w-3.5" />
-            {{ t('fileManage.viewPreset') }}
+              <option v-for="option in typeFilterOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
           </label>
-          <select
-            :value="selectedViewPresetId"
-            class="min-w-[160px] rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
-            :class="[fieldClass]"
-            :disabled="isViewPresetLoading"
-            @change="handleViewPresetChange"
+
+          <label class="space-y-1">
+            <span class="flex items-center text-xs font-medium" :class="[mutedTextClass]">
+              <ClockIcon class="mr-1 h-3.5 w-3.5" />
+              {{ t('fileManage.sortBy') }}
+            </span>
+            <select
+              v-model="params.sortBy"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              :class="[fieldClass]"
+              @change="handleSearch"
+            >
+              <option v-for="option in sortOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </label>
+
+          <label class="space-y-1">
+            <span class="flex items-center text-xs font-medium" :class="[mutedTextClass]">
+              <ArrowDownUpIcon class="mr-1 h-3.5 w-3.5" />
+              {{ t('fileManage.sortOrder') }}
+            </span>
+            <select
+              v-model="params.sortOrder"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              :class="[fieldClass]"
+              @change="handleSearch"
+            >
+              <option v-for="option in sortOrderOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </label>
+
+          <label class="space-y-1">
+            <span class="flex items-center text-xs font-medium" :class="[mutedTextClass]">
+              <FilterIcon class="mr-1 h-3.5 w-3.5" />
+              {{ t('fileManage.viewPreset') }}
+            </span>
+            <select
+              :value="selectedViewPresetId"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              :class="[fieldClass]"
+              :disabled="isViewPresetLoading"
+              @change="handleViewPresetChange"
+            >
+              <option value="">{{ t('fileManage.viewPresetCustom') }}</option>
+              <option v-for="preset in viewPresets" :key="preset.id" :value="preset.id">
+                {{ preset.name }}
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-2">
+          <BaseButton
+            size="sm"
+            variant="secondary"
+            :title="t('fileManage.saveViewPreset')"
+            :loading="isViewPresetSaving"
+            @click="handleSaveViewPreset"
           >
-            <option value="">{{ t('fileManage.viewPresetCustom') }}</option>
-            <option v-for="preset in viewPresets" :key="preset.id" :value="preset.id">
-              {{ preset.name }}
-            </option>
-          </select>
-          <div class="flex flex-wrap items-center gap-2">
-            <BaseButton
-              size="sm"
-              variant="secondary"
-              :title="t('fileManage.saveViewPreset')"
-              :loading="isViewPresetSaving"
-              @click="handleSaveViewPreset"
-            >
-              <template #icon>
-                <CheckIcon class="mr-2 h-4 w-4" />
-              </template>
-              {{ t('fileManage.saveViewPreset') }}
-            </BaseButton>
-            <BaseButton
-              size="sm"
-              variant="outline"
-              :title="t('fileManage.updateViewPreset')"
-              :disabled="!canModifySelectedViewPreset"
-              :loading="isViewPresetSaving"
-              @click="updateSelectedViewPreset"
-            >
-              <template #icon>
-                <PencilIcon class="mr-2 h-4 w-4" />
-              </template>
-              {{ t('fileManage.updateViewPreset') }}
-            </BaseButton>
-            <BaseButton
-              size="sm"
-              variant="danger"
-              :title="t('fileManage.deleteViewPreset')"
-              :disabled="!canModifySelectedViewPreset"
-              :loading="isViewPresetDeleting"
-              @click="deleteSelectedViewPreset"
-            >
-              <template #icon>
-                <TrashIcon class="mr-2 h-4 w-4" />
-              </template>
-              {{ t('fileManage.deleteViewPreset') }}
-            </BaseButton>
-          </div>
+            <template #icon>
+              <CheckIcon class="mr-2 h-4 w-4" />
+            </template>
+            {{ t('fileManage.saveViewPreset') }}
+          </BaseButton>
+          <BaseButton
+            size="sm"
+            variant="outline"
+            :title="t('fileManage.updateViewPreset')"
+            :disabled="!canModifySelectedViewPreset"
+            :loading="isViewPresetSaving"
+            @click="updateSelectedViewPreset"
+          >
+            <template #icon>
+              <PencilIcon class="mr-2 h-4 w-4" />
+            </template>
+            {{ t('fileManage.updateViewPreset') }}
+          </BaseButton>
+          <BaseButton
+            size="sm"
+            variant="danger"
+            :title="t('fileManage.deleteViewPreset')"
+            :disabled="!canModifySelectedViewPreset"
+            :loading="isViewPresetDeleting"
+            @click="deleteSelectedViewPreset"
+          >
+            <template #icon>
+              <TrashIcon class="mr-2 h-4 w-4" />
+            </template>
+            {{ t('fileManage.deleteViewPreset') }}
+          </BaseButton>
         </div>
       </div>
     </section>
@@ -1178,6 +1198,7 @@ import type {
 import {
   ActivityIcon,
   ArchiveIcon,
+  ArrowDownUpIcon,
   CheckIcon,
   ClockIcon,
   CopyIcon,
@@ -1547,6 +1568,21 @@ const handleHealthFilterChange = async (health: AdminFileHealthFilter) => {
   await syncHealthFilterQuery(health)
 }
 
+const handleStatusFilterChange = async (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  await setStatusFilter(target.value as AdminFileStatusFilter)
+}
+
+const handleTypeFilterChange = async (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  await setTypeFilter(target.value as AdminFileTypeFilter)
+}
+
+const handleHealthFilterSelect = async (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  await handleHealthFilterChange(target.value as AdminFileHealthFilter)
+}
+
 const handleResetFilters = async () => {
   await resetFilters()
   await syncHealthFilterQuery('all')
@@ -1600,20 +1636,10 @@ const detailPolicyActionIconMap: Record<AdminFilePolicyAction, Component> = {
 const getDetailPolicyActionIcon = (action: AdminFilePolicyAction) =>
   detailPolicyActionIconMap[action]
 
-const getPillClass = (active: boolean) => {
-  if (active) return 'bg-indigo-600 text-white'
-  return isDarkMode.value
-    ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+const formatFilterOptionLabel = (option: { label: string; count?: number }) => {
+  if (typeof option.count !== 'number') return option.label
+  return `${option.label} (${option.count})`
 }
-
-const getStatusFilterClass = (value: AdminFileStatusFilter) =>
-  getPillClass(params.value.status === value)
-
-const getTypeFilterClass = (value: AdminFileTypeFilter) => getPillClass(params.value.type === value)
-
-const getHealthFilterClass = (value: AdminFileHealthFilter) =>
-  getPillClass(params.value.health === value)
 
 const getBatchEditModeClass = (value: AdminBatchEditMode) => {
   if (batchEditForm.value.mode === value) {

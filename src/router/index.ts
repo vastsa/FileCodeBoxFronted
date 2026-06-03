@@ -11,7 +11,7 @@ const publicPageMeta = {
 const adminPageMeta = {
   requiresAuth: true,
   showGlobalControls: false,
-  showRouteLoading: true
+  showRouteLoading: false
 }
 
 const routes: RouteRecordRaw[] = [
