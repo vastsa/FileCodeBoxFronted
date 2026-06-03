@@ -1,5 +1,5 @@
 import api from './client'
-import type { ApiResponse, ConfigState } from '@/types'
+import type { ApiResponse, ConfigDiagnosticsResponse, ConfigState } from '@/types'
 
 type PublicConfigEnvelope = {
   config?: Partial<ConfigState>
@@ -15,6 +15,10 @@ const isPublicConfigEnvelope = (
 export class ConfigService {
   static async getConfig(): Promise<ApiResponse<ConfigState>> {
     return api.get('/admin/config/get')
+  }
+
+  static async getDiagnostics(): Promise<ApiResponse<ConfigDiagnosticsResponse>> {
+    return api.get('/admin/config/diagnostics')
   }
 
   static async getUserConfig(): Promise<ApiResponse<ConfigState>> {
