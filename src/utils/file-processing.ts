@@ -1,7 +1,20 @@
-import JSZip from 'jszip'
-
 const SMALL_FILE_HASH_LIMIT = 10 * 1024 * 1024
 const LARGE_FILE_HASH_CHUNK_SIZE = 5 * 1024 * 1024
+
+type JSZipConstructor = typeof import('jszip')
+type JSZipModule = JSZipConstructor & {
+  default?: JSZipConstructor
+}
+
+let jsZipLoader: Promise<JSZipConstructor> | null = null
+
+const loadJSZip = async () => {
+  jsZipLoader ??= import('jszip').then((module) => {
+    const normalizedModule = module as unknown as JSZipModule
+    return normalizedModule.default ?? normalizedModule
+  })
+  return jsZipLoader
+}
 
 const generateFallbackHash = (file: File): string => {
   const fileInfo = `${file.name}-${file.size}-${file.lastModified}`
@@ -47,6 +60,7 @@ export const calculateFileHash = async (file: File): Promise<string> => {
 }
 
 export const packFilesAsZip = async (files: File[]): Promise<File> => {
+  const JSZip = await loadJSZip()
   const zip = new JSZip()
   for (const file of files) {
     zip.file(file.name, file)

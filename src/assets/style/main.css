@@ -5,8 +5,9 @@
 @font-face {
   font-family: 'DingTalk';
   src: url('@/assets/font/DingTalk.ttf') format('truetype');
+  font-display: swap;
 }
 
-* {
-  font-family: 'DingTalk', sans-serif !important;
+body {
+  font-family: 'DingTalk', sans-serif;
 }

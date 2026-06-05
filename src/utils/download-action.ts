@@ -1,4 +1,3 @@
-import { saveAs } from 'file-saver'
 import type { AdminFileViewItem, ApiResponse, ReceivedFileRecord } from '@/types'
 import { buildDownloadUrl } from '@/utils/share-url'
 
@@ -7,7 +6,21 @@ const unsafeFilenamePattern = new RegExp(
   'g'
 )
 
-export function downloadReceivedRecord(record: ReceivedFileRecord): void {
+type SaveAs = typeof import('file-saver')
+type FileSaverModule = {
+  default: SaveAs
+  saveAs: SaveAs
+}
+
+let fileSaverLoader: Promise<FileSaverModule> | null = null
+
+const saveBlobAsFile = async (blob: Blob, filename: string) => {
+  fileSaverLoader ??= import('file-saver')
+  const { saveAs } = await fileSaverLoader
+  saveAs(blob, filename)
+}
+
+export async function downloadReceivedRecord(record: ReceivedFileRecord): Promise<void> {
   if (record.downloadUrl) {
     window.open(buildDownloadUrl(record.downloadUrl), '_blank')
     return
@@ -15,7 +28,7 @@ export function downloadReceivedRecord(record: ReceivedFileRecord): void {
 
   if (record.content) {
     const blob = new Blob([record.content], { type: 'text/plain;charset=utf-8' })
-    saveAs(blob, `${record.filename}.txt`)
+    await saveBlobAsFile(blob, `${record.filename}.txt`)
   }
 }
 
@@ -50,10 +63,13 @@ const readBlobAsText = (blob: Blob): Promise<string> =>
     reader.readAsText(blob)
   })
 
-export function exportAdminTextFile(file: AdminFileViewItem, content: string): void {
+export async function exportAdminTextFile(
+  file: AdminFileViewItem,
+  content: string
+): Promise<void> {
   const filename = getSafeFilename(file.displayName || file.code)
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
-  saveAs(blob, `${filename}.txt`)
+  await saveBlobAsFile(blob, `${filename}.txt`)
 }
 
 export async function downloadAdminManagedFile(
@@ -71,7 +87,7 @@ export async function downloadAdminManagedFile(
       content = text
     }
 
-    exportAdminTextFile(file, content)
+    await exportAdminTextFile(file, content)
     return
   }
 
@@ -80,5 +96,5 @@ export async function downloadAdminManagedFile(
   const filename = getSafeFilename(
     getFilenameFromDisposition(disposition) || file.displayName || file.code
   )
-  saveAs(response.data, filename)
+  await saveBlobAsFile(response.data, filename)
 }

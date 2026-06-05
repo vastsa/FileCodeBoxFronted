@@ -1607,9 +1607,14 @@ export function useAdminFiles() {
     })
   }
 
-  const exportPreviewText = () => {
+  const exportPreviewText = async () => {
     if (!previewFile.value || !previewText.value) return
-    exportAdminTextFile(previewFile.value, previewText.value)
+
+    try {
+      await exportAdminTextFile(previewFile.value, previewText.value)
+    } catch (error: unknown) {
+      alertStore.showAlert(getErrorMessage(error, t('fileManage.downloadFailed')), 'error')
+    }
   }
 
   const downloadFile = async (file: AdminFileViewItem) => {

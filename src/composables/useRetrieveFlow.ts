@@ -186,8 +186,12 @@ export function useRetrieveFlow() {
     showDrawer.value = !showDrawer.value
   }
 
-  const downloadRecord = (record: ReceivedFileRecord) => {
-    downloadReceivedRecord(record)
+  const downloadRecord = async (record: ReceivedFileRecord) => {
+    try {
+      await downloadReceivedRecord(record)
+    } catch (err: unknown) {
+      alertStore.showAlert(getErrorMessage(err, t('common.downloadFailed')), 'error')
+    }
   }
 
   const showContentPreview = () => {
