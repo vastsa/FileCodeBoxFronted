@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterLink, RouterView } from 'vue-router'
+import { ShieldCheckIcon } from 'lucide-vue-next'
 import ThemeToggle from './components/common/ThemeToggle.vue'
 import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import AlertComponent from '@/components/common/AlertComponent.vue'
 import { useAppShell } from '@/composables'
+import { ROUTES } from '@/constants'
 
 const {
   isDarkMode,
@@ -17,7 +19,23 @@ const {
 
 <template>
   <div :class="['app-container', isDarkMode ? 'dark' : 'light']">
-    <div v-if="showGlobalControls" class="fixed top-4 right-4 z-50 flex items-center space-x-3">
+    <div
+      v-if="showGlobalControls"
+      class="fixed top-4 right-4 z-50 flex items-center gap-2 sm:top-6 sm:right-6 sm:gap-3"
+    >
+      <RouterLink
+        :to="ROUTES.ADMIN"
+        class="rounded-full border p-2.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:scale-105 active:scale-95 sm:p-3"
+        :class="
+          isDarkMode
+            ? 'border-white/10 bg-zinc-800/80 text-zinc-100 hover:bg-zinc-700'
+            : 'border-slate-200/50 bg-white/80 text-slate-500 hover:text-slate-700'
+        "
+        aria-label="进入管理员页面"
+        title="进入管理员页面"
+      >
+        <ShieldCheckIcon class="h-5 w-5" />
+      </RouterLink>
       <LanguageSwitcher />
       <ThemeToggle v-model="isDarkMode" />
     </div>
@@ -42,11 +60,11 @@ const {
 }
 
 .light {
-  @apply bg-gradient-to-br from-blue-50 via-indigo-50 to-white;
+  @apply bg-[#f5f5f7] text-zinc-900;
 }
 
 .dark {
-  @apply bg-gradient-to-br from-gray-900 via-indigo-900 to-black;
+  @apply bg-zinc-950 text-zinc-100;
 }
 
 .fade-enter-active,
@@ -100,7 +118,7 @@ const {
   width: 50px;
   height: 50px;
   border: 3px solid #fff;
-  border-top: 3px solid #3498db;
+  border-top: 3px solid #27272a;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

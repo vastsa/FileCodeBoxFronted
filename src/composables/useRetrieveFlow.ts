@@ -31,8 +31,10 @@ export function useRetrieveFlow() {
   })
   const error = ref('')
   const selectedRecord = ref<ReceivedFileRecord | null>(null)
+  const previewMediaRecord = ref<ReceivedFileRecord | null>(null)
   const showDrawer = ref(false)
   const showPreview = ref(false)
+  const showMediaPreview = ref(false)
   const renderedContent = ref('')
   const normalizedCode = computed(() => code.value.trim())
   const isWorking = computed(() => isInspecting.value || isRetrieving.value)
@@ -196,6 +198,17 @@ export function useRetrieveFlow() {
     showPreview.value = false
   }
 
+  const showFilePreview = () => {
+    if (!selectedRecord.value) return
+    previewMediaRecord.value = selectedRecord.value
+    showMediaPreview.value = true
+  }
+
+  const closeFilePreview = () => {
+    showMediaPreview.value = false
+    previewMediaRecord.value = null
+  }
+
   watch(
     () => selectedRecord.value?.content,
     async (content) => {
@@ -229,9 +242,12 @@ export function useRetrieveFlow() {
     error,
     records,
     selectedRecord,
+    previewMediaRecord,
     showDrawer,
     showPreview,
+    showMediaPreview,
     renderedContent,
+    closeFilePreview,
     closeContentPreview,
     closeDetails,
     copyContent,
@@ -240,6 +256,7 @@ export function useRetrieveFlow() {
     handleSubmit,
     inspectCode,
     resetInspection,
+    showFilePreview,
     showContentPreview,
     toggleDrawer,
     viewDetails

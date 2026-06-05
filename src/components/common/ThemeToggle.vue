@@ -13,10 +13,15 @@ const toggleColorMode = () => {
 <template>
   <button
     @click="toggleColorMode"
-    class="p-2 rounded-full transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform hover:rotate-180"
-    :class="isDarkMode ? 'bg-gray-800 text-yellow-300' : 'bg-white text-gray-800'"
+    class="rounded-full border p-2.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:scale-105 active:scale-95 sm:p-3"
+    :class="
+      isDarkMode
+        ? 'border-white/10 bg-zinc-800/80 text-zinc-100 hover:bg-zinc-700'
+        : 'border-slate-200/50 bg-white/80 text-slate-500 hover:text-slate-700'
+    "
+    aria-label="切换主题"
   >
-    <SunIcon v-if="!isDarkMode" class="w-6 h-6" />
-    <MoonIcon v-else class="w-6 h-6" />
+    <SunIcon v-if="isDarkMode" class="h-5 w-5" />
+    <MoonIcon v-else class="h-5 w-5" />
   </button>
 </template>

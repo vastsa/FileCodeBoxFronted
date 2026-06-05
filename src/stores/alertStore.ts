@@ -3,6 +3,8 @@ import type { Alert, AlertType } from '@/types'
 import { TIME_CONSTANTS } from '@/constants'
 
 let progressTimer: ReturnType<typeof setInterval> | null = null
+let alertIdSeed = 0
+const alertRemoveTimers = new Map<number, ReturnType<typeof setTimeout>>()
 
 export const useAlertStore = defineStore('alert', {
   state: () => ({
@@ -14,15 +16,27 @@ export const useAlertStore = defineStore('alert', {
       type: AlertType = 'info',
       duration = TIME_CONSTANTS.ALERT_DURATION
     ) {
-      const id = Date.now()
+      const id = Date.now() + alertIdSeed
+      alertIdSeed = (alertIdSeed + 1) % 1000
       const startTime = Date.now()
       this.alerts.push({ id, message, type, progress: 100, duration, startTime })
-      setTimeout(() => this.removeAlert(id), duration)
+      alertRemoveTimers.set(id, setTimeout(() => this.removeAlert(id), duration))
+      this.startProgressTimer()
     },
     removeAlert(id: number) {
+      const removeTimer = alertRemoveTimers.get(id)
+      if (removeTimer) {
+        clearTimeout(removeTimer)
+        alertRemoveTimers.delete(id)
+      }
+
       const index = this.alerts.findIndex((alert) => alert.id === id)
       if (index > -1) {
         this.alerts.splice(index, 1)
+      }
+
+      if (this.alerts.length === 0) {
+        this.stopProgressTimer()
       }
     },
     updateAlertProgress(id: number) {
@@ -37,7 +51,7 @@ export const useAlertStore = defineStore('alert', {
       }
     },
     startProgressTimer() {
-      if (progressTimer) {
+      if (progressTimer || this.alerts.length === 0) {
         return
       }
 

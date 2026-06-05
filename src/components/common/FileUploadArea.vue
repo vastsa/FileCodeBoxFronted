@@ -1,14 +1,14 @@
 <template>
   <div
-    class="rounded-2xl p-8 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 group cursor-pointer relative min-h-72 overflow-hidden"
+    class="group relative flex min-h-[10rem] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed p-6 transition-all duration-300 sm:min-h-[12rem] sm:p-8"
     :class="[
       isDarkMode
-        ? 'bg-gray-800/60 border-gray-600 hover:border-indigo-400'
-        : 'bg-white/80 border-gray-300 hover:border-indigo-500',
+        ? 'bg-zinc-950/50 border-zinc-800 hover:border-zinc-600'
+        : 'bg-white border-slate-200 hover:border-zinc-400',
       isDragActive
         ? isDarkMode
-          ? 'border-indigo-400 bg-indigo-500/10 shadow-lg shadow-indigo-900/30'
-          : 'border-indigo-500 bg-indigo-50 shadow-lg shadow-indigo-100'
+          ? 'border-zinc-500 bg-white/5 shadow-lg shadow-white/5'
+          : 'border-zinc-400 bg-zinc-100/80 shadow-lg shadow-zinc-200'
         : '',
       statusClass
     ]"
@@ -38,9 +38,7 @@
     >
       <div
         class="absolute inset-3 rounded-2xl border"
-        :class="[
-          isDarkMode ? 'border-indigo-300/30 bg-indigo-400/5' : 'border-indigo-300 bg-indigo-50/80'
-        ]"
+        :class="[isDarkMode ? 'border-white/15 bg-white/5' : 'border-zinc-300 bg-zinc-100/80']"
       ></div>
     </div>
 
@@ -51,16 +49,19 @@
     <!-- 上传状态图标 -->
     <component
       :is="statusIcon"
-      :class="['relative z-10 w-16 h-16 transition-colors duration-300', statusIconClass]"
+      :class="[
+        'relative z-10 h-14 w-14 transition-colors duration-300 sm:h-16 sm:w-16',
+        statusIconClass
+      ]"
     />
 
     <!-- 文件名或占位文本 -->
     <p
       :class="[
-        'relative z-10 mt-4 text-sm transition-colors duration-300 w-full text-center',
+        'relative z-10 mt-3 w-full text-center text-sm transition-colors duration-300 sm:mt-4',
         isDarkMode
-          ? 'text-gray-400 group-hover:text-indigo-400'
-          : 'text-gray-600 group-hover:text-indigo-600'
+          ? 'text-zinc-400 group-hover:text-zinc-100'
+          : 'text-slate-600 group-hover:text-zinc-950'
       ]"
     >
       <span v-if="selectedFiles && selectedFiles.length > 1" class="block">
@@ -84,26 +85,30 @@
         v-for="file in selectedFiles.slice(0, 3)"
         :key="`${file.name}-${file.size}`"
         class="max-w-40 truncate rounded-full px-3 py-1 text-xs"
-        :class="[isDarkMode ? 'bg-gray-700/80 text-gray-200' : 'bg-gray-100 text-gray-700']"
+        :class="[isDarkMode ? 'bg-zinc-800/80 text-zinc-200' : 'bg-slate-100 text-slate-700']"
       >
         {{ file.name }}
       </span>
       <span
         v-if="selectedFiles.length > 3"
         class="rounded-full px-3 py-1 text-xs"
-        :class="[isDarkMode ? 'bg-indigo-500/20 text-indigo-200' : 'bg-indigo-100 text-indigo-700']"
+        :class="[isDarkMode ? 'bg-white/10 text-zinc-100' : 'bg-zinc-100 text-zinc-700']"
       >
         +{{ selectedFiles.length - 3 }}
       </span>
     </div>
 
     <!-- 进度详情（上传中显示） -->
-    <div v-if="isUploading && showProgressDetails" class="relative z-10 mt-3 w-full">
+    <div
+      v-if="isUploading && showProgressDetails && totalBytes > 0"
+      class="relative z-10 mt-3 w-full"
+    >
       <div
         class="flex justify-between text-xs mb-1"
-        :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+        :class="[isDarkMode ? 'text-zinc-400' : 'text-slate-500']"
       >
         <span>{{ formatBytes(uploadedBytes) }} / {{ formatBytes(totalBytes) }}</span>
+        <span v-if="uploadSpeed > 0">{{ formatBytes(uploadSpeed) }}/s</span>
         <span>{{ progress }}%</span>
       </div>
     </div>
@@ -115,8 +120,8 @@
       class="mt-3 px-4 py-2 text-sm rounded-lg transition-colors duration-200"
       :class="[
         isDarkMode
-          ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
-          : 'bg-indigo-500 hover:bg-indigo-600 text-white'
+          ? 'bg-zinc-200 text-zinc-950 hover:bg-zinc-100'
+          : 'bg-zinc-800 text-white hover:bg-zinc-900'
       ]"
     >
       {{ retryLabel }}
@@ -148,6 +153,8 @@ interface Props {
   uploadedBytes?: number
   /** 总字节数 */
   totalBytes?: number
+  /** 上传速度，单位 bytes/s */
+  uploadSpeed?: number
   /** 错误消息 */
   errorMessage?: string
   /** 是否允许重试 */
@@ -175,6 +182,7 @@ const props = withDefaults(defineProps<Props>(), {
   uploadStatus: 'idle',
   uploadedBytes: 0,
   totalBytes: 0,
+  uploadSpeed: 0,
   errorMessage: '',
   allowRetry: true,
   retryText: '',
@@ -222,17 +230,17 @@ const statusIcon = computed(() => {
 
 const statusIconClass = computed(() => {
   if (isUploading.value) {
-    return isDarkMode.value ? 'text-indigo-400 animate-spin' : 'text-indigo-600 animate-spin'
+    return isDarkMode.value ? 'text-zinc-100 animate-spin' : 'text-zinc-900 animate-spin'
   }
   if (isSuccess.value) {
-    return isDarkMode.value ? 'text-green-400' : 'text-green-600'
+    return isDarkMode.value ? 'text-zinc-100' : 'text-zinc-900'
   }
   if (hasError.value) {
     return isDarkMode.value ? 'text-red-400' : 'text-red-600'
   }
   return isDarkMode.value
-    ? 'text-gray-400 group-hover:text-indigo-400'
-    : 'text-gray-600 group-hover:text-indigo-600'
+    ? 'text-zinc-400 group-hover:text-zinc-100'
+    : 'text-slate-600 group-hover:text-zinc-950'
 })
 
 const statusClass = computed(() => {
@@ -240,7 +248,7 @@ const statusClass = computed(() => {
     return isDarkMode.value ? 'border-red-500/50' : 'border-red-300'
   }
   if (isSuccess.value) {
-    return isDarkMode.value ? 'border-green-500/50' : 'border-green-300'
+    return isDarkMode.value ? 'border-zinc-500/70' : 'border-zinc-300'
   }
   return ''
 })
@@ -269,9 +277,9 @@ const statusDescriptionClass = computed(() => {
     return isDarkMode.value ? 'text-red-400' : 'text-red-500'
   }
   if (isSuccess.value) {
-    return isDarkMode.value ? 'text-green-400' : 'text-green-500'
+    return isDarkMode.value ? 'text-zinc-200' : 'text-zinc-700'
   }
-  return isDarkMode.value ? 'text-gray-500' : 'text-gray-400'
+  return isDarkMode.value ? 'text-zinc-500' : 'text-slate-400'
 })
 
 const formatBytes = (bytes: number): string => {

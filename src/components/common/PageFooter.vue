@@ -1,56 +1,40 @@
 <template>
-  <div>
-    <div class="mb-6 text-center" v-if="linkText && linkTo">
-      <router-link
-        :to="linkTo"
-        class="text-indigo-400 hover:text-indigo-300 transition duration-300"
-      >
-        {{ linkText }}
-      </router-link>
-    </div>
-
-    <div
-      class="px-8 py-4 bg-opacity-50 flex justify-between items-center"
-      :class="[isDarkMode ? 'bg-gray-800' : 'bg-gray-100']"
+  <div
+    class="flex items-center justify-between border-t px-5 py-4 transition-colors sm:px-8 sm:py-6"
+    :class="isDarkMode ? 'border-zinc-800/60 bg-zinc-900/40' : 'border-slate-100 bg-slate-50/50'"
+  >
+    <router-link
+      v-if="linkText && linkTo"
+      :to="linkTo"
+      class="group flex items-center gap-1.5 text-xs font-medium transition-colors sm:gap-2 sm:text-sm"
+      :class="
+        isDarkMode ? 'text-zinc-400 hover:text-zinc-100' : 'text-slate-500 hover:text-zinc-950'
+      "
     >
-      <span
-        class="text-sm flex items-center"
-        :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
-      >
-        <ShieldCheckIcon class="w-4 h-4 mr-1 text-green-400" />
-        {{ t('send.secureEncryption') }}
-      </span>
-      <div class="flex items-center space-x-4">
-        <router-link
-          to="/login"
-          class="text-sm hover:text-indigo-300 transition duration-300 flex items-center"
-          :class="[
-            isDarkMode
-              ? 'text-gray-400 hover:text-indigo-400'
-              : 'text-gray-500 hover:text-indigo-600'
-          ]"
-        >
-          <UserIcon class="w-4 h-4" />
-        </router-link>
-        <button
-          @click="$emit('toggle-drawer')"
-          class="text-sm hover:text-indigo-300 transition duration-300 flex items-center"
-          :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
-        >
-          {{ drawerText }}
-          <ClipboardListIcon class="w-4 h-4 ml-1" />
-        </button>
-      </div>
-    </div>
+      <SendIcon
+        class="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4"
+      />
+      {{ linkText }}
+    </router-link>
+    <span v-else></span>
+
+    <button
+      type="button"
+      @click="$emit('toggle-drawer')"
+      class="group flex items-center gap-1.5 text-xs font-medium transition-colors sm:gap-2 sm:text-sm"
+      :class="
+        isDarkMode ? 'text-zinc-400 hover:text-zinc-100' : 'text-slate-500 hover:text-zinc-950'
+      "
+    >
+      <HistoryIcon class="h-3.5 w-3.5 transition-transform group-hover:-rotate-12 sm:h-4 sm:w-4" />
+      {{ drawerText }}
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { inject } from 'vue'
-import { ShieldCheckIcon, ClipboardListIcon, UserIcon } from 'lucide-vue-next'
-import { useI18n } from 'vue-i18n'
-
-const { t } = useI18n()
+import { HistoryIcon, SendIcon } from 'lucide-vue-next'
 
 interface Props {
   linkText?: string

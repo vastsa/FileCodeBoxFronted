@@ -1,15 +1,16 @@
 <template>
   <div class="flex flex-col">
     <textarea
+      id="text-content"
       :value="modelValue"
       @input="updateValue"
       :rows="rows"
       :placeholder="placeholderText"
       :class="[
-        'flex-grow px-4 py-3 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 resize-none custom-scrollbar',
+        'flex-grow resize-none rounded-2xl border px-4 py-3 placeholder-slate-400 outline-none transition duration-300 custom-scrollbar focus:ring-2',
         isDarkMode
-          ? 'bg-gray-800 bg-opacity-50 text-white'
-          : 'bg-white text-gray-900 border border-gray-300'
+          ? 'border-zinc-800 bg-zinc-950/50 text-zinc-100 focus:border-zinc-500 focus:ring-white/10'
+          : 'border-slate-200 bg-white text-slate-900 focus:border-zinc-400 focus:ring-zinc-950/10'
       ]"
     ></textarea>
   </div>

@@ -2,38 +2,41 @@
   <transition name="fade">
     <div
       v-if="visible"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
       @click.self="$emit('close')"
     >
       <div
-        class="p-6 rounded-2xl max-w-3xl w-full mx-4 shadow-2xl transform transition-all duration-300 ease-out backdrop-filter backdrop-blur-lg bg-opacity-70 max-h-[85vh] overflow-hidden flex flex-col"
-        :class="[isDarkMode ? 'bg-gray-800' : 'bg-white']"
+        class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border p-5 shadow-2xl backdrop-blur-xl transition-all duration-300 ease-out sm:p-6"
+        :class="isDarkMode ? 'border-zinc-800 bg-zinc-950/95' : 'border-white/50 bg-white/95'"
       >
         <div class="flex justify-between items-center mb-4 flex-shrink-0">
-          <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
+          <h3
+            class="text-xl font-semibold tracking-tight sm:text-2xl"
+            :class="isDarkMode ? 'text-zinc-100' : 'text-slate-800'"
+          >
             {{ t('contentPreview.title') }}
           </h3>
           <div class="flex items-center gap-3">
             <button
               @click="$emit('copy-content')"
-              class="px-4 py-1.5 rounded-lg transition duration-300 flex items-center gap-2 text-sm font-medium"
-              :class="[
+              class="flex items-center gap-2 rounded-xl px-4 py-1.5 text-sm font-medium transition duration-300"
+              :class="
                 isDarkMode
-                  ? 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white'
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900'
-              ]"
+                  ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900'
+              "
             >
               <CopyIcon class="w-4 h-4" />
               {{ t('common.copy') }}
             </button>
             <button
               @click="$emit('close')"
-              class="p-1.5 rounded-lg transition duration-300 hover:bg-opacity-10"
-              :class="[
+              class="rounded-xl p-1.5 transition duration-300"
+              :class="
                 isDarkMode
-                  ? 'text-gray-400 hover:text-white hover:bg-white'
-                  : 'text-gray-500 hover:text-gray-900 hover:bg-black'
-              ]"
+                  ? 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+              "
             >
               <XIcon class="w-5 h-5" />
             </button>
@@ -42,7 +45,7 @@
         <div class="flex-1 overflow-y-auto custom-scrollbar">
           <div
             class="prose max-w-none p-6 rounded-xl break-words overflow-wrap-anywhere"
-            :class="[isDarkMode ? 'prose-invert bg-gray-900 bg-opacity-50' : 'bg-gray-50']"
+            :class="isDarkMode ? 'prose-invert bg-zinc-900/60' : 'bg-slate-50'"
             v-html="renderedContent"
           ></div>
         </div>
@@ -156,8 +159,7 @@ const isDarkMode = inject('isDarkMode')
 :deep(.prose h4),
 :deep(.prose h5),
 :deep(.prose h6) {
-  color: rgb(79, 70, 229);
-  /* text-indigo-600 */
+  color: rgb(39, 39, 42);
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -181,15 +183,12 @@ const isDarkMode = inject('isDarkMode')
   white-space: pre-wrap;
 }
 
-@media (prefers-color-scheme: dark) {
-  :deep(.prose h1),
-  :deep(.prose h2),
-  :deep(.prose h3),
-  :deep(.prose h4),
-  :deep(.prose h5),
-  :deep(.prose h6) {
-    color: rgb(129, 140, 248);
-    /* text-indigo-400 */
-  }
+:deep(.prose-invert h1),
+:deep(.prose-invert h2),
+:deep(.prose-invert h3),
+:deep(.prose-invert h4),
+:deep(.prose-invert h5),
+:deep(.prose-invert h6) {
+  color: rgb(244, 244, 245);
 }
 </style>

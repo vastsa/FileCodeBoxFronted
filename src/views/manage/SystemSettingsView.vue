@@ -23,6 +23,14 @@ const {
   toggleConfigFlag
 } = useSystemConfig()
 
+const updateAllowedFileTypes = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  config.value.allowed_file_types = target.value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
 onMounted(() => {
   void refreshConfig()
 })
@@ -32,16 +40,16 @@ onMounted(() => {
   <div class="p-6">
     <div
       class="sticky top-0 z-20 -mx-6 -mt-6 mb-6 border-b px-6 py-4 backdrop-blur"
-      :class="[isDarkMode ? 'border-gray-700 bg-gray-900/85' : 'border-gray-200 bg-gray-50/90']"
+      :class="[isDarkMode ? 'border-white/10 bg-[#101012]/85' : 'border-white/80 bg-white/70']"
     >
       <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
+          <h2 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-zinc-800']">
             {{ t('admin.settings.title') }}
           </h2>
           <p
             class="mt-1 text-sm"
-            :class="[isDirty ? 'text-amber-500' : isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+            :class="[isDirty ? 'text-amber-500' : isDarkMode ? 'text-zinc-400' : 'text-zinc-500']"
           >
             {{
               isDirty ? t('manage.settings.unsavedChanges') : t('manage.settings.allChangesSaved')
@@ -82,12 +90,12 @@ onMounted(() => {
     </div>
 
     <div
-      class="space-y-6 rounded-lg shadow-md p-6"
-      :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']"
+      class="space-y-6 rounded-2xl border p-6 shadow-sm backdrop-blur-xl"
+      :class="[isDarkMode ? 'border-white/10 bg-white/[0.06]' : 'border-white/80 bg-white/70']"
     >
       <!-- 基本设置 -->
       <section class="space-y-4">
-        <h3 class="text-lg font-medium mb-4" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
+        <h3 class="text-lg font-medium mb-4" :class="[isDarkMode ? 'text-white' : 'text-zinc-800']">
           {{ t('admin.settings.basicSettings') }}
         </h3>
 
@@ -96,18 +104,18 @@ onMounted(() => {
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"
-              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+              :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
             >
               {{ t('admin.settings.siteName') }}
             </label>
             <input
               type="text"
               v-model="config.name"
-              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
               :class="[
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                  : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                  ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                  : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
               ]"
             />
           </div>
@@ -115,18 +123,18 @@ onMounted(() => {
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"
-              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+              :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
             >
               {{ t('admin.settings.websiteDescription') }}
             </label>
             <input
               type="text"
               v-model="config.description"
-              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
               :class="[
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                  : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                  ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                  : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
               ]"
             />
           </div>
@@ -134,7 +142,7 @@ onMounted(() => {
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"
-              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+              :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
             >
               {{ t('admin.settings.adminPassword') }}
             </label>
@@ -144,16 +152,16 @@ onMounted(() => {
                 minlength="6"
                 v-model="config.admin_token"
                 :placeholder="t('admin.settings.passwordPlaceholder')"
-                class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                 :class="[
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                    : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                    ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                    : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                 ]"
               />
               <div
-                class="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-gray-400"
-                :class="[isDarkMode ? 'text-gray-500' : 'text-gray-400']"
+                class="absolute inset-y-0 right-0 flex items-center pr-3 text-sm text-zinc-400"
+                :class="[isDarkMode ? 'text-zinc-500' : 'text-zinc-400']"
               >
                 <span class="text-xs">{{ t('admin.settings.passwordNote') }}</span>
               </div>
@@ -163,18 +171,18 @@ onMounted(() => {
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"
-              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+              :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
             >
               {{ t('admin.settings.keywords') }}
             </label>
             <input
               type="text"
               v-model="config.keywords"
-              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
               :class="[
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                  : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                  ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                  : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
               ]"
             />
           </div>
@@ -183,17 +191,17 @@ onMounted(() => {
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"
-              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+              :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
             >
               {{ t('manage.settings.themeSelection') }}
             </label>
             <select
               v-model="config.themesSelect"
-              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border appearance-none bg-no-repeat bg-right focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border appearance-none bg-no-repeat bg-right focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none cursor-pointer"
               :class="[
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white hover:border-gray-500'
-                  : 'border-gray-300 hover:border-gray-400'
+                  ? 'border-white/10 bg-zinc-950/45 text-white hover:border-white/20'
+                  : 'border-zinc-200/80 bg-white/80 text-zinc-950 hover:border-zinc-300'
               ]"
               style="
                 background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%208l3%203%203-3%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E');
@@ -207,18 +215,18 @@ onMounted(() => {
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"
-              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+              :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
             >
               {{ t('manage.settings.robotsFile') }}
             </label>
             <textarea
               v-model="config.robotsText"
               rows="3"
-              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border resize-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border resize-none focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
               :class="[
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                  : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                  ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                  : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
               ]"
             ></textarea>
           </div>
@@ -229,18 +237,18 @@ onMounted(() => {
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"
-              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+              :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
             >
               {{ t('manage.settings.notificationTitle') }}
             </label>
             <input
               type="text"
               v-model="config.notify_title"
-              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
               :class="[
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                  : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                  ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                  : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
               ]"
             />
           </div>
@@ -248,18 +256,18 @@ onMounted(() => {
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"
-              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+              :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
             >
               {{ t('manage.settings.notificationContent') }}
             </label>
             <textarea
               v-model="config.notify_content"
               rows="3"
-              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border resize-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border resize-none focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
               :class="[
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                  : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                  ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                  : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
               ]"
             ></textarea>
           </div>
@@ -269,7 +277,7 @@ onMounted(() => {
         <div class="space-y-4">
           <h3
             class="text-lg font-medium mb-4"
-            :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
+            :class="[isDarkMode ? 'text-white' : 'text-zinc-800']"
           >
             {{ t('manage.settings.storageSettings') }}
           </h3>
@@ -277,7 +285,7 @@ onMounted(() => {
           <div class="space-y-2">
             <label
               class="block text-sm font-medium"
-              :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+              :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
             >
               {{ t('manage.settings.storagePath') }}
             </label>
@@ -285,11 +293,11 @@ onMounted(() => {
               type="text"
               :placeholder="t('manage.settings.storagePathPlaceholder')"
               v-model="config.storage_path"
-              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
               :class="[
                 isDarkMode
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                  : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                  ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                  : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
               ]"
             />
           </div>
@@ -298,17 +306,17 @@ onMounted(() => {
             <div class="space-y-2">
               <label
                 class="block text-sm font-medium"
-                :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
               >
                 {{ t('manage.settings.storageMethod') }}
               </label>
               <select
                 v-model="config.file_storage"
-                class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border appearance-none bg-no-repeat bg-right focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer"
+                class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border appearance-none bg-no-repeat bg-right focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none cursor-pointer"
                 :class="[
                   isDarkMode
-                    ? 'bg-gray-700 border-gray-600 text-white hover:border-gray-500'
-                    : 'border-gray-300 hover:border-gray-400'
+                    ? 'border-white/10 bg-zinc-950/45 text-white hover:border-white/20'
+                    : 'border-zinc-200/80 bg-white/80 text-zinc-950 hover:border-zinc-300'
                 ]"
                 style="
                   background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%208l3%203%203-3%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E');
@@ -332,7 +340,7 @@ onMounted(() => {
               <div class="space-y-2">
                 <label
                   class="block text-sm font-medium"
-                  :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                  :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
                 >
                   Webdav URL
                 </label>
@@ -340,11 +348,11 @@ onMounted(() => {
                   type="text"
                   :placeholder="t('manage.settings.webdavUrlPlaceholder')"
                   v-model="config.webdav_url"
-                  class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                   :class="[
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                      ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                      : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                   ]"
                 />
               </div>
@@ -352,7 +360,7 @@ onMounted(() => {
                 <div class="space-y-2">
                   <label
                     class="block text-sm font-medium"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                    :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
                   >
                     Webdav Username
                   </label>
@@ -360,11 +368,11 @@ onMounted(() => {
                     type="text"
                     :placeholder="t('manage.settings.webdavUsernamePlaceholder')"
                     v-model="config.webdav_username"
-                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                     :class="[
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                        ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                        : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                     ]"
                   />
                 </div>
@@ -372,7 +380,7 @@ onMounted(() => {
                 <div class="space-y-2">
                   <label
                     class="block text-sm font-medium"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                    :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
                   >
                     Webdav Password
                   </label>
@@ -380,11 +388,11 @@ onMounted(() => {
                     type="password"
                     :placeholder="t('manage.settings.webdavPasswordPlaceholder')"
                     v-model="config.webdav_password"
-                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                     :class="[
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                        ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                        : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                     ]"
                   />
                 </div>
@@ -396,18 +404,18 @@ onMounted(() => {
                 <div class="space-y-2">
                   <label
                     class="block text-sm font-medium"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                    :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
                   >
                     {{ t('manage.settings.s3AccessKeyId') }}
                   </label>
                   <input
                     type="text"
                     v-model="config.s3_access_key_id"
-                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                     :class="[
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                        ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                        : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                     ]"
                   />
                 </div>
@@ -415,18 +423,18 @@ onMounted(() => {
                 <div class="space-y-2">
                   <label
                     class="block text-sm font-medium"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                    :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
                   >
                     {{ t('manage.settings.s3SecretAccessKey') }}
                   </label>
                   <input
                     type="password"
                     v-model="config.s3_secret_access_key"
-                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                     :class="[
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                        ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                        : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                     ]"
                   />
                 </div>
@@ -434,18 +442,18 @@ onMounted(() => {
                 <div class="space-y-2">
                   <label
                     class="block text-sm font-medium"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                    :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
                   >
                     {{ t('manage.settings.s3BucketName') }}
                   </label>
                   <input
                     type="text"
                     v-model="config.s3_bucket_name"
-                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                     :class="[
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                        ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                        : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                     ]"
                   />
                 </div>
@@ -453,18 +461,18 @@ onMounted(() => {
                 <div class="space-y-2">
                   <label
                     class="block text-sm font-medium"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                    :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
                   >
                     {{ t('manage.settings.s3EndpointUrl') }}
                   </label>
                   <input
                     type="text"
                     v-model="config.s3_endpoint_url"
-                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                     :class="[
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                        ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                        : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                     ]"
                   />
                 </div>
@@ -472,7 +480,7 @@ onMounted(() => {
                 <div class="space-y-2">
                   <label
                     class="block text-sm font-medium"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                    :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
                   >
                     {{ t('manage.settings.s3RegionName') }}
                   </label>
@@ -480,11 +488,11 @@ onMounted(() => {
                     type="text"
                     v-model="config.s3_region_name"
                     :placeholder="t('manage.settings.autoPlaceholder')"
-                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                     :class="[
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                        ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                        : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                     ]"
                   />
                 </div>
@@ -492,17 +500,17 @@ onMounted(() => {
                 <div class="space-y-2">
                   <label
                     class="block text-sm font-medium"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                    :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
                   >
                     {{ t('manage.settings.s3SignatureVersion') }}
                   </label>
                   <select
                     v-model="config.s3_signature_version"
-                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                     :class="[
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white hover:border-gray-500'
-                        : 'border-gray-300 hover:border-gray-400'
+                        ? 'border-white/10 bg-zinc-950/45 text-white hover:border-white/20'
+                        : 'border-zinc-200/80 bg-white/80 text-zinc-950 hover:border-zinc-300'
                     ]"
                   >
                     <option value="s3v2">{{ t('manage.settings.s3v2') }}</option>
@@ -513,18 +521,40 @@ onMounted(() => {
                 <div class="space-y-2">
                   <label
                     class="block text-sm font-medium"
-                    :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                    :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
+                  >
+                    {{ t('manage.settings.s3AddressingStyle') }}
+                  </label>
+                  <select
+                    v-model="config.s3_addressing_style"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
+                    :class="[
+                      isDarkMode
+                        ? 'border-white/10 bg-zinc-950/45 text-white hover:border-white/20'
+                        : 'border-zinc-200/80 bg-white/80 text-zinc-950 hover:border-zinc-300'
+                    ]"
+                  >
+                    <option value="auto">{{ t('manage.settings.s3AddressingAuto') }}</option>
+                    <option value="path">{{ t('manage.settings.s3AddressingPath') }}</option>
+                    <option value="virtual">{{ t('manage.settings.s3AddressingVirtual') }}</option>
+                  </select>
+                </div>
+
+                <div class="space-y-2">
+                  <label
+                    class="block text-sm font-medium"
+                    :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
                   >
                     {{ t('manage.settings.s3Hostname') }}
                   </label>
                   <input
                     type="text"
                     v-model="config.s3_hostname"
-                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                    class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                     :class="[
                       isDarkMode
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                        : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                        ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                        : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                     ]"
                   />
                 </div>
@@ -553,7 +583,7 @@ onMounted(() => {
         <div class="mt-8">
           <h3
             class="text-lg font-medium mb-4"
-            :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
+            :class="[isDarkMode ? 'text-white' : 'text-zinc-800']"
           >
             {{ t('manage.settings.uploadLimits') }}
           </h3>
@@ -574,7 +604,7 @@ onMounted(() => {
             <div class="space-y-2">
               <label
                 class="block text-sm font-medium"
-                :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
               >
                 {{ t('manage.settings.fileSizeLimit') }}
               </label>
@@ -582,20 +612,20 @@ onMounted(() => {
                 <input
                   type="number"
                   v-model="fileSize"
-                  class="w-24 rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  class="w-24 rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                   :class="[
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                      ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                      : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                   ]"
                 />
                 <select
                   v-model="sizeUnit"
-                  class="rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  class="rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                   :class="[
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400'
+                      ? 'border-white/10 bg-zinc-950/45 text-white hover:border-white/20'
+                      : 'border-zinc-200/80 bg-white/80 text-zinc-950 hover:border-zinc-300'
                   ]"
                 >
                   <option value="KB">{{ t('manage.settings.fileSizeUnits.kb') }}</option>
@@ -605,10 +635,34 @@ onMounted(() => {
               </div>
             </div>
 
+            <div class="space-y-2 md:col-span-2">
+              <label
+                class="block text-sm font-medium"
+                :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
+              >
+                {{ t('manage.settings.allowedFileTypes') }}
+              </label>
+              <input
+                type="text"
+                :value="config.allowed_file_types.join(', ')"
+                @input="updateAllowedFileTypes"
+                class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
+                :class="[
+                  isDarkMode
+                    ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                    : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
+                ]"
+                :placeholder="t('manage.settings.allowedFileTypesPlaceholder')"
+              />
+              <p class="text-xs" :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-500']">
+                {{ t('manage.settings.allowedFileTypesHelp') }}
+              </p>
+            </div>
+
             <div class="space-y-2">
               <label
                 class="block text-sm font-medium mb-2"
-                :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
               >
                 {{ t('manage.settings.expirationType') }}
               </label>
@@ -629,11 +683,11 @@ onMounted(() => {
                     :class="[
                       config.expireStyle.includes(style)
                         ? isDarkMode
-                          ? 'bg-indigo-600 border-indigo-600 text-white'
-                          : 'bg-indigo-600 border-indigo-600 text-white'
+                          ? 'bg-zinc-600 border-zinc-600 text-white'
+                          : 'bg-zinc-600 border-zinc-600 text-white'
                         : isDarkMode
-                          ? 'bg-gray-700 border-gray-600 text-gray-300 hover:border-indigo-500'
-                          : 'bg-white border-gray-300 text-gray-700 hover:border-indigo-500'
+                          ? 'bg-white/[0.06] border-white/10 text-zinc-300 hover:border-white/20 hover:bg-white/10'
+                          : 'bg-white/70 border-zinc-200/80 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50'
                     ]"
                   >
                     {{ t(`manage.settings.expiration.${style}`) }}
@@ -645,7 +699,7 @@ onMounted(() => {
             <div class="space-y-2">
               <label
                 class="block text-sm font-medium"
-                :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']"
+                :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
               >
                 {{ t('manage.settings.maxSaveTime') }}
               </label>
@@ -653,20 +707,20 @@ onMounted(() => {
                 <input
                   type="number"
                   v-model="saveTime"
-                  class="w-24 rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  class="w-24 rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                   :class="[
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+                      ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                      : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
                   ]"
                 />
                 <select
                   v-model="saveTimeUnit"
-                  class="rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  class="rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
                   :class="[
                     isDarkMode
-                      ? 'bg-gray-700 border-gray-600 text-white hover:border-gray-500'
-                      : 'border-gray-300 hover:border-gray-400'
+                      ? 'border-white/10 bg-zinc-950/45 text-white hover:border-white/20'
+                      : 'border-zinc-200/80 bg-white/80 text-zinc-950 hover:border-zinc-300'
                   ]"
                 >
                   <option value="秒">{{ t('common.second') }}</option>
@@ -691,7 +745,7 @@ onMounted(() => {
         <div class="mt-8">
           <h3
             class="text-lg font-medium mb-4"
-            :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
+            :class="[isDarkMode ? 'text-white' : 'text-zinc-800']"
           >
             {{ t('manage.settings.errorLimits') }}
           </h3>

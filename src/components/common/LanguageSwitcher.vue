@@ -3,22 +3,19 @@
     <button
       @click="toggleDropdown"
       :class="[
-        'flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200',
+        'flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-sm backdrop-blur-xl transition-all duration-300 hover:scale-105 active:scale-95',
         isDarkMode
-          ? 'bg-gray-800/60 hover:bg-gray-700/80 text-gray-300 hover:text-white'
-          : 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900'
+          ? 'border-zinc-700 bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100'
+          : 'border-slate-200/50 bg-white/80 text-slate-500 hover:text-slate-700'
       ]"
     >
       <GlobeIcon class="w-4 h-4" />
       <span class="text-sm font-medium">{{ currentLanguage.name }}</span>
-      <ChevronDownIcon 
-        :class="[
-          'w-4 h-4 transition-transform duration-200',
-          { 'rotate-180': isDropdownOpen }
-        ]" 
+      <ChevronDownIcon
+        :class="['w-4 h-4 transition-transform duration-200', { 'rotate-180': isDropdownOpen }]"
       />
     </button>
-    
+
     <transition
       enter-active-class="transition ease-out duration-200"
       enter-from-class="opacity-0 scale-95"
@@ -30,10 +27,10 @@
       <div
         v-if="isDropdownOpen"
         :class="[
-          'absolute right-0 mt-2 w-32 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 z-50',
+          'absolute right-0 z-50 mt-2 w-32 overflow-hidden rounded-xl border shadow-lg',
           isDarkMode
-            ? 'bg-gray-800 border border-gray-700'
-            : 'bg-white border border-gray-200'
+            ? 'border-zinc-800 bg-zinc-900 text-zinc-100'
+            : 'border-slate-100 bg-white text-slate-700'
         ]"
       >
         <div class="py-1">
@@ -45,11 +42,11 @@
               'w-full text-left px-4 py-2 text-sm transition-colors duration-150',
               currentLocale === language.code
                 ? isDarkMode
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-indigo-50 text-indigo-600'
+                  ? 'bg-white/10 text-zinc-100'
+                  : 'bg-zinc-100 text-zinc-900'
                 : isDarkMode
-                  ? 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100'
+                  : 'text-slate-600 hover:bg-slate-50'
             ]"
           >
             {{ language.name }}
@@ -73,7 +70,11 @@ const switcherRef = ref<HTMLElement | null>(null)
 
 const currentLocale = computed(() => locale.value)
 const currentLanguage = computed(() => {
-  return availableLocales.find((lang: { code: string; name: string }) => lang.code === currentLocale.value) || availableLocales[0]
+  return (
+    availableLocales.find(
+      (lang: { code: string; name: string }) => lang.code === currentLocale.value
+    ) || availableLocales[0]
+  )
 })
 
 const toggleDropdown = () => {

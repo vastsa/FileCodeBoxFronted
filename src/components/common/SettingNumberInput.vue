@@ -1,21 +1,24 @@
 <template>
   <div class="space-y-2">
-    <label class="block text-sm font-medium" :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+    <label
+      class="block text-sm font-medium"
+      :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
+    >
       {{ label }}
     </label>
     <div class="flex items-center space-x-2">
       <input
         type="number"
         :value="modelValue"
-        class="w-24 rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+        class="w-24 rounded-xl border px-4 py-2.5 shadow-sm outline-none transition-all duration-200 ease-in-out focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500"
         :class="[
           isDarkMode
-            ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
-            : 'border-gray-300 hover:border-gray-400 placeholder-gray-500'
+            ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+            : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
         ]"
         @input="handleInput"
       />
-      <span :class="[isDarkMode ? 'text-gray-300' : 'text-gray-700']">{{ suffix }}</span>
+      <span :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']">{{ suffix }}</span>
     </div>
   </div>
 </template>

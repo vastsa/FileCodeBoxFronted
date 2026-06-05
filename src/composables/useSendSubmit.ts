@@ -12,7 +12,7 @@ type UseSendSubmitOptions = {
   getMaxFileSize: () => number
   notify: (message: string, type: AlertType) => void
   translate: Translate
-  onProgress: (progress: number) => void
+  onProgress: (progress: UploadProgress) => void
   onHashCalculated: (hash: string) => void
 }
 
@@ -47,7 +47,7 @@ export function useSendSubmit(options: UseSendSubmitOptions) {
       expireStyle,
       onHashCalculated: options.onHashCalculated,
       onProgress: (progress: UploadProgress) => {
-        options.onProgress(progress.percentage)
+        options.onProgress(progress)
       },
       messages: {
         initFailed: options.translate('send.messages.initChunkUploadFailed'),
@@ -66,7 +66,7 @@ export function useSendSubmit(options: UseSendSubmitOptions) {
       expireValue,
       expireStyle: expireStyle as ExpireStyle,
       onProgress: (progress) => {
-        options.onProgress(progress.percentage)
+        options.onProgress(progress)
       }
     })
 

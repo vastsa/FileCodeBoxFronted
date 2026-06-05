@@ -59,17 +59,17 @@
             <span class="relative block">
               <SearchIcon
                 class="absolute left-3 top-3 h-4 w-4"
-                :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500']"
+                :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-500']"
               />
               <input
                 v-model="params.keyword"
                 type="text"
                 :placeholder="t('fileManage.searchPlaceholder')"
-                class="w-full rounded-lg border py-2.5 pl-10 pr-4 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+                class="w-full rounded-lg border py-2.5 pl-10 pr-4 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
                 :class="[
                   isDarkMode
                     ? 'border-gray-600 bg-gray-700 text-white placeholder-gray-400'
-                    : 'border-gray-300 bg-white text-gray-900 placeholder-gray-400'
+                    : 'border-gray-300 bg-white text-zinc-950 placeholder-gray-400'
                 ]"
                 @keyup.enter="handleSearch"
               />
@@ -91,7 +91,7 @@
             </span>
             <select
               :value="params.status"
-              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
               :class="[fieldClass]"
               @change="handleStatusFilterChange"
             >
@@ -112,7 +112,7 @@
             </span>
             <select
               :value="params.health"
-              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
               :class="[fieldClass]"
               @change="handleHealthFilterSelect"
             >
@@ -133,7 +133,7 @@
             </span>
             <select
               :value="params.type"
-              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
               :class="[fieldClass]"
               @change="handleTypeFilterChange"
             >
@@ -150,7 +150,7 @@
             </span>
             <select
               v-model="params.sortBy"
-              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
               :class="[fieldClass]"
               @change="handleSearch"
             >
@@ -167,7 +167,7 @@
             </span>
             <select
               v-model="params.sortOrder"
-              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
               :class="[fieldClass]"
               @change="handleSearch"
             >
@@ -184,7 +184,7 @@
             </span>
             <select
               :value="selectedViewPresetId"
-              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+              class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
               :class="[fieldClass]"
               :disabled="isViewPresetLoading"
               @change="handleViewPresetChange"
@@ -248,7 +248,7 @@
       <label class="inline-flex items-center gap-2 text-sm" :class="[primaryTextClass]">
         <input
           type="checkbox"
-          class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+          class="h-4 w-4 rounded border-gray-300 text-zinc-600 focus:ring-zinc-500"
           :checked="isAllCurrentPageSelected"
           :disabled="isBatchActionRunning"
           :indeterminate="isCurrentPagePartiallySelected"
@@ -372,18 +372,14 @@
             :key="file.id"
             class="transition-colors duration-200"
             :class="[
-              selectedFileIds.has(file.id)
-                ? isDarkMode
-                  ? 'bg-indigo-950/30'
-                  : 'bg-indigo-50/70'
-                : '',
+              selectedFileIds.has(file.id) ? (isDarkMode ? 'bg-zinc-950/30' : 'bg-zinc-50/70') : '',
               isDarkMode ? 'hover:bg-gray-700/70' : 'hover:bg-gray-50'
             ]"
           >
             <td class="px-6 py-4 whitespace-nowrap">
               <input
                 type="checkbox"
-                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                class="h-4 w-4 rounded border-gray-300 text-zinc-600 focus:ring-zinc-500"
                 :checked="selectedFileIds.has(file.id)"
                 :disabled="isBatchActionRunning"
                 :aria-label="t('fileManage.selectFile', { name: file.displayName })"
@@ -438,7 +434,7 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <span
                 class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
-                :class="[isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-800']"
+                :class="[isDarkMode ? 'bg-gray-700 text-zinc-300' : 'bg-gray-100 text-zinc-800']"
               >
                 {{ file.displaySize }}
               </span>
@@ -474,8 +470,8 @@
                   class="inline-flex items-center rounded-md px-3 py-1.5 transition-colors duration-200"
                   :class="[
                     isDarkMode
-                      ? 'bg-indigo-900/20 text-indigo-300 hover:bg-indigo-900/30'
-                      : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
+                      ? 'bg-zinc-900/20 text-zinc-300 hover:bg-zinc-900/30'
+                      : 'bg-zinc-50 text-zinc-700 hover:bg-zinc-100'
                   ]"
                   @click="openFileDetail(file)"
                 >
@@ -489,8 +485,8 @@
                   class="inline-flex items-center rounded-md px-3 py-1.5 transition-colors duration-200"
                   :class="[
                     isDarkMode
-                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-gray-700 text-zinc-300 hover:bg-gray-600'
+                      : 'bg-gray-100 text-zinc-700 hover:bg-gray-200'
                   ]"
                   @click="openTextPreview(file)"
                 >
@@ -506,8 +502,8 @@
                   class="inline-flex items-center rounded-md px-3 py-1.5 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60"
                   :class="[
                     isDarkMode
-                      ? 'bg-emerald-900/20 text-emerald-300 hover:bg-emerald-900/30'
-                      : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                      ? 'bg-zinc-900/20 text-zinc-300 hover:bg-zinc-900/30'
+                      : 'bg-zinc-50 text-zinc-700 hover:bg-zinc-100'
                   ]"
                   @click="downloadFile(file)"
                 >
@@ -523,8 +519,8 @@
                   class="inline-flex items-center rounded-md px-3 py-1.5 transition-colors duration-200"
                   :class="[
                     isDarkMode
-                      ? 'bg-blue-900/20 text-blue-300 hover:bg-blue-900/30'
-                      : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                      ? 'bg-zinc-900/20 text-zinc-300 hover:bg-zinc-900/30'
+                      : 'bg-zinc-50 text-zinc-600 hover:bg-zinc-100'
                   ]"
                   @click="openEditModal(file)"
                 >
@@ -563,16 +559,16 @@
     <BaseModal :show="showFileDetailModal" size="xl" @close="closeFileDetail">
       <template #header>
         <div class="flex min-w-0 items-center space-x-3">
-          <div class="rounded-lg p-2" :class="[isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50']">
+          <div class="rounded-lg p-2" :class="[isDarkMode ? 'bg-zinc-500/10' : 'bg-zinc-50']">
             <FileTextIcon
               class="h-5 w-5"
-              :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+              :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-600']"
             />
           </div>
           <div class="min-w-0">
             <h3
               class="truncate text-xl font-semibold leading-6"
-              :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+              :class="[isDarkMode ? 'text-white' : 'text-zinc-950']"
             >
               {{ t('fileManage.detailTitle') }}
             </h3>
@@ -588,7 +584,7 @@
           <div class="flex min-w-0 items-start gap-3">
             <div
               class="rounded-lg p-3"
-              :class="[isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700']"
+              :class="[isDarkMode ? 'bg-gray-700 text-zinc-300' : 'bg-gray-100 text-zinc-700']"
             >
               <FileTextIcon v-if="selectedFileDetail.isTextFile" class="h-5 w-5" />
               <FileIcon v-else class="h-5 w-5" />
@@ -617,11 +613,7 @@
                 <span
                   v-if="selectedFileDetail.isPermanentFile"
                   class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
-                  :class="
-                    isDarkMode
-                      ? 'bg-emerald-900/30 text-emerald-300'
-                      : 'bg-emerald-100 text-emerald-700'
-                  "
+                  :class="isDarkMode ? 'bg-zinc-700 text-zinc-200' : 'bg-slate-100 text-slate-700'"
                 >
                   {{ t('fileManage.permanent') }}
                 </span>
@@ -641,7 +633,7 @@
 
         <div
           class="rounded-lg border px-4 py-3"
-          :class="[isDarkMode ? 'border-gray-700 bg-gray-700/30' : 'border-gray-200 bg-gray-50']"
+          :class="[isDarkMode ? 'border-white/10 bg-white/[0.04]' : 'border-gray-200 bg-gray-50']"
         >
           <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div class="min-w-0">
@@ -744,7 +736,7 @@
                 v-model="detailMetadataForm.note"
                 rows="4"
                 maxlength="2000"
-                class="w-full resize-y rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+                class="w-full resize-y rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
                 :class="[fieldClass]"
                 :placeholder="t('fileManage.metadataNotePlaceholder')"
               ></textarea>
@@ -756,7 +748,7 @@
               <input
                 v-model="detailMetadataForm.tagsText"
                 type="text"
-                class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-indigo-500"
+                class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
                 :class="[fieldClass]"
                 :placeholder="t('fileManage.metadataTagsPlaceholder')"
               />
@@ -803,7 +795,7 @@
               v-for="reason in detailInsightReasonLabels"
               :key="reason"
               class="rounded-full px-2.5 py-1 text-xs font-medium"
-              :class="isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-white text-gray-600 shadow-sm'"
+              :class="isDarkMode ? 'bg-gray-700 text-zinc-300' : 'bg-white text-zinc-600 shadow-sm'"
             >
               {{ reason }}
             </span>
@@ -848,7 +840,9 @@
               v-for="item in detailOverviewItems"
               :key="item.label"
               class="rounded-lg border px-4 py-3"
-              :class="[isDarkMode ? 'border-gray-700 bg-gray-700/30' : 'border-gray-200 bg-white']"
+              :class="[
+                isDarkMode ? 'border-white/10 bg-white/[0.04]' : 'border-zinc-200/70 bg-white/60'
+              ]"
             >
               <p class="text-xs" :class="[mutedTextClass]">{{ item.label }}</p>
               <p class="mt-1 break-words text-sm font-medium" :class="[primaryTextClass]">
@@ -867,7 +861,9 @@
               v-for="item in detailPolicyItems"
               :key="item.label"
               class="rounded-lg border px-4 py-3"
-              :class="[isDarkMode ? 'border-gray-700 bg-gray-700/30' : 'border-gray-200 bg-white']"
+              :class="[
+                isDarkMode ? 'border-white/10 bg-white/[0.04]' : 'border-zinc-200/70 bg-white/60'
+              ]"
             >
               <p class="text-xs" :class="[mutedTextClass]">{{ item.label }}</p>
               <p class="mt-1 break-words text-sm font-medium" :class="[primaryTextClass]">
@@ -883,7 +879,9 @@
           </h4>
           <div
             class="rounded-lg border px-4 py-4"
-            :class="[isDarkMode ? 'border-gray-700 bg-gray-700/30' : 'border-gray-200 bg-white']"
+            :class="[
+              isDarkMode ? 'border-white/10 bg-white/[0.04]' : 'border-zinc-200/70 bg-white/60'
+            ]"
           >
             <div
               v-for="(item, index) in selectedFileDetail.detailTimeline"
@@ -932,7 +930,9 @@
               v-for="item in detailStorageItems"
               :key="item.label"
               class="grid gap-1 rounded-lg border px-4 py-3 sm:grid-cols-[160px_minmax(0,1fr)] sm:items-center"
-              :class="[isDarkMode ? 'border-gray-700 bg-gray-700/30' : 'border-gray-200 bg-white']"
+              :class="[
+                isDarkMode ? 'border-white/10 bg-white/[0.04]' : 'border-zinc-200/70 bg-white/60'
+              ]"
             >
               <p class="text-xs" :class="[mutedTextClass]">{{ item.label }}</p>
               <p
@@ -964,15 +964,12 @@
     <BaseModal :show="showEditModal" size="lg" @close="closeEditModal">
       <template #header>
         <div class="flex items-center space-x-3">
-          <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50']">
-            <PencilIcon
-              class="w-5 h-5"
-              :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
-            />
+          <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-zinc-500/10' : 'bg-zinc-50']">
+            <PencilIcon class="w-5 h-5" :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-600']" />
           </div>
           <h3
             class="text-xl font-semibold leading-6"
-            :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+            :class="[isDarkMode ? 'text-white' : 'text-zinc-950']"
           >
             {{ t('fileManage.editFileInfo') }}
           </h3>
@@ -1024,15 +1021,12 @@
     <BaseModal :show="showBatchEditModal" size="lg" @close="closeBatchEditModal()">
       <template #header>
         <div class="flex items-center space-x-3">
-          <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50']">
-            <ClockIcon
-              class="w-5 h-5"
-              :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
-            />
+          <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-zinc-500/10' : 'bg-zinc-50']">
+            <ClockIcon class="w-5 h-5" :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-600']" />
           </div>
           <h3
             class="text-xl font-semibold leading-6"
-            :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+            :class="[isDarkMode ? 'text-white' : 'text-zinc-950']"
           >
             {{ t('fileManage.batchEditTitle') }}
           </h3>
@@ -1044,8 +1038,8 @@
           class="rounded-lg border px-4 py-3 text-sm"
           :class="[
             isDarkMode
-              ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-200'
-              : 'border-indigo-100 bg-indigo-50 text-indigo-700'
+              ? 'border-zinc-500/20 bg-zinc-500/10 text-zinc-200'
+              : 'border-zinc-100 bg-zinc-50 text-zinc-700'
           ]"
         >
           {{ t('fileManage.batchEditSelected', { count: selectedCount }) }}
@@ -1089,8 +1083,8 @@
           class="rounded-lg border px-4 py-3 text-sm"
           :class="[
             isDarkMode
-              ? 'border-gray-700 bg-gray-700/50 text-gray-300'
-              : 'border-gray-200 bg-gray-50 text-gray-600'
+              ? 'border-gray-700 bg-gray-700/50 text-zinc-300'
+              : 'border-gray-200 bg-gray-50 text-zinc-600'
           ]"
         >
           {{ t('fileManage.batchEditForeverHint') }}
@@ -1113,15 +1107,15 @@
     <BaseModal :show="showTextPreview" size="lg" @close="closeTextPreview">
       <template #header>
         <div class="flex items-center space-x-3">
-          <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-indigo-500/10' : 'bg-indigo-50']">
+          <div class="p-2 rounded-lg" :class="[isDarkMode ? 'bg-zinc-500/10' : 'bg-zinc-50']">
             <FileTextIcon
               class="w-5 h-5"
-              :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']"
+              :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-600']"
             />
           </div>
           <h3
             class="text-xl font-semibold leading-6"
-            :class="[isDarkMode ? 'text-white' : 'text-gray-900']"
+            :class="[isDarkMode ? 'text-white' : 'text-zinc-950']"
           >
             {{ previewFile?.displayName || t('fileManage.textPreview') }}
           </h3>
@@ -1143,11 +1137,11 @@
         <pre
           v-else
           class="whitespace-pre-wrap break-words text-sm font-mono"
-          :class="[isDarkMode ? 'text-gray-200' : 'text-gray-700']"
+          :class="[isDarkMode ? 'text-gray-200' : 'text-zinc-700']"
           >{{ previewText }}</pre
         >
       </div>
-      <div class="mt-2 text-xs" :class="[isDarkMode ? 'text-gray-500' : 'text-gray-400']">
+      <div class="mt-2 text-xs" :class="[isDarkMode ? 'text-zinc-500' : 'text-zinc-400']">
         {{ previewMetaText || t('fileManage.charCount', { count: previewText.length }) }}
       </div>
 
@@ -1321,28 +1315,30 @@ const {
   toggleFileSelection
 } = useAdminFiles()
 
-const primaryTextClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-gray-900'))
-const mutedTextClass = computed(() => (isDarkMode.value ? 'text-gray-400' : 'text-gray-500'))
+const primaryTextClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-zinc-950'))
+const mutedTextClass = computed(() => (isDarkMode.value ? 'text-zinc-400' : 'text-zinc-500'))
 const panelClass = computed(() =>
-  isDarkMode.value ? 'border-gray-700 bg-gray-800/80' : 'border-gray-100 bg-white'
+  isDarkMode.value
+    ? 'border-white/10 bg-white/[0.06] shadow-[0_22px_54px_-36px_rgba(255,255,255,0.22)] backdrop-blur-xl'
+    : 'border-white/80 bg-white/70 shadow-[0_22px_54px_-36px_rgba(24,24,27,0.28)] backdrop-blur-xl'
 )
 const fieldClass = computed(() =>
   isDarkMode.value
-    ? 'border-gray-600 bg-gray-700 text-white'
-    : 'border-gray-300 bg-white text-gray-900'
+    ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500'
+    : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400'
 )
 const detailActionClass = computed(() =>
   isDarkMode.value
-    ? 'border-gray-700 bg-gray-700/50 text-gray-300 hover:border-gray-600 hover:bg-gray-700'
-    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+    ? 'border-white/10 bg-white/[0.06] text-zinc-300 hover:border-white/15 hover:bg-white/10'
+    : 'border-zinc-200/80 bg-white/70 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50'
 )
 const detailPolicyActionClass = computed(() =>
   isDarkMode.value
-    ? 'border-gray-700 bg-gray-800/70 text-gray-200 hover:border-blue-500/40 hover:bg-blue-500/10'
-    : 'border-gray-200 bg-white text-gray-700 hover:border-blue-200 hover:bg-blue-50'
+    ? 'border-white/10 bg-white/[0.06] text-zinc-200 hover:border-white/15 hover:bg-white/10'
+    : 'border-zinc-200/80 bg-white/70 text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50'
 )
 const subtleSectionClass = computed(() =>
-  isDarkMode.value ? 'border-gray-700 bg-gray-900/30' : 'border-gray-200 bg-gray-50'
+  isDarkMode.value ? 'border-white/10 bg-white/[0.04]' : 'border-zinc-200/70 bg-zinc-50/70'
 )
 
 type DetailInfoItem = {
@@ -1479,15 +1475,13 @@ const summaryCards = computed(() => [
     label: t('fileManage.totalFiles'),
     value: summary.value.totalFiles,
     icon: ArchiveIcon,
-    iconClass: isDarkMode.value
-      ? 'bg-indigo-900/30 text-indigo-300'
-      : 'bg-indigo-50 text-indigo-600'
+    iconClass: isDarkMode.value ? 'bg-zinc-900/30 text-zinc-300' : 'bg-zinc-50 text-zinc-600'
   },
   {
     label: t('fileManage.activeFiles'),
     value: summary.value.activeCount,
     icon: ActivityIcon,
-    iconClass: isDarkMode.value ? 'bg-green-900/30 text-green-300' : 'bg-green-50 text-green-600'
+    iconClass: isDarkMode.value ? 'bg-zinc-700 text-zinc-200' : 'bg-slate-100 text-slate-700'
   },
   {
     label: t('fileManage.expiredFiles'),
@@ -1499,9 +1493,7 @@ const summaryCards = computed(() => [
     label: t('fileManage.storageUsed'),
     value: storageUsedText.value,
     icon: HardDriveIcon,
-    iconClass: isDarkMode.value
-      ? 'bg-purple-900/30 text-purple-300'
-      : 'bg-purple-50 text-purple-600'
+    iconClass: isDarkMode.value ? 'bg-zinc-900/30 text-zinc-300' : 'bg-zinc-50 text-zinc-600'
   }
 ])
 
@@ -1644,13 +1636,13 @@ const formatFilterOptionLabel = (option: { label: string; count?: number }) => {
 const getBatchEditModeClass = (value: AdminBatchEditMode) => {
   if (batchEditForm.value.mode === value) {
     return isDarkMode.value
-      ? 'border-indigo-500 bg-indigo-500/20 text-indigo-200'
-      : 'border-indigo-500 bg-indigo-50 text-indigo-700'
+      ? 'border-zinc-500 bg-zinc-500/20 text-zinc-200'
+      : 'border-zinc-500 bg-zinc-50 text-zinc-700'
   }
 
   return isDarkMode.value
-    ? 'border-gray-700 bg-gray-700/50 text-gray-300 hover:border-gray-600 hover:bg-gray-700'
-    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+    ? 'border-gray-700 bg-gray-700/50 text-zinc-300 hover:border-gray-600 hover:bg-gray-700'
+    : 'border-zinc-200/70 bg-white/60 text-zinc-700 hover:border-gray-300 hover:bg-gray-50'
 }
 
 const getTypeLabel = (file: AdminFileViewItem) => {
@@ -1660,19 +1652,19 @@ const getTypeLabel = (file: AdminFileViewItem) => {
 
 const getTypeBadgeClass = (file: AdminFileViewItem) => {
   if (file.isChunkedFile) {
-    return isDarkMode.value ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-700'
+    return isDarkMode.value ? 'bg-zinc-900/30 text-zinc-300' : 'bg-zinc-100 text-zinc-700'
   }
   if (file.isTextFile) {
-    return isDarkMode.value ? 'bg-purple-900/30 text-purple-300' : 'bg-purple-100 text-purple-700'
+    return isDarkMode.value ? 'bg-zinc-900/30 text-zinc-300' : 'bg-zinc-100 text-zinc-700'
   }
-  return isDarkMode.value ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'
+  return isDarkMode.value ? 'bg-gray-700 text-zinc-300' : 'bg-gray-100 text-zinc-700'
 }
 
 const getStatusBadgeClass = (file: AdminFileViewItem) => {
   if (file.isExpiredFile) {
     return isDarkMode.value ? 'bg-red-900/30 text-red-300' : 'bg-red-100 text-red-700'
   }
-  return isDarkMode.value ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-700'
+  return isDarkMode.value ? 'bg-zinc-700 text-zinc-200' : 'bg-slate-100 text-slate-700'
 }
 
 const getInsightSeverityLabel = (severity: AdminFileInsightSeverity) =>
@@ -1684,17 +1676,17 @@ const getInsightActionLabel = (action: string) => t(`fileManage.insightActions.$
 
 const getInsightPanelClass = (severity: AdminFileInsightSeverity) => {
   const darkClasses: Record<AdminFileInsightSeverity, string> = {
-    success: 'border-emerald-500/20 bg-emerald-500/10',
+    success: 'border-zinc-500/20 bg-white/5',
     warning: 'border-amber-500/20 bg-amber-500/10',
     danger: 'border-red-500/20 bg-red-500/10',
-    info: 'border-blue-500/20 bg-blue-500/10',
-    neutral: 'border-gray-700 bg-gray-700/30'
+    info: 'border-zinc-500/20 bg-zinc-500/10',
+    neutral: 'border-white/10 bg-white/[0.04]'
   }
   const lightClasses: Record<AdminFileInsightSeverity, string> = {
-    success: 'border-emerald-100 bg-emerald-50',
+    success: 'border-slate-200 bg-slate-50',
     warning: 'border-amber-100 bg-amber-50',
     danger: 'border-red-100 bg-red-50',
-    info: 'border-blue-100 bg-blue-50',
+    info: 'border-zinc-100 bg-zinc-50',
     neutral: 'border-gray-200 bg-gray-50'
   }
 
@@ -1703,18 +1695,18 @@ const getInsightPanelClass = (severity: AdminFileInsightSeverity) => {
 
 const getInsightBadgeClass = (severity: AdminFileInsightSeverity) => {
   const darkClasses: Record<AdminFileInsightSeverity, string> = {
-    success: 'bg-emerald-900/40 text-emerald-200',
+    success: 'bg-zinc-700 text-zinc-200',
     warning: 'bg-amber-900/40 text-amber-200',
     danger: 'bg-red-900/40 text-red-200',
-    info: 'bg-blue-900/40 text-blue-200',
-    neutral: 'bg-gray-700 text-gray-300'
+    info: 'bg-zinc-900/40 text-zinc-200',
+    neutral: 'bg-gray-700 text-zinc-300'
   }
   const lightClasses: Record<AdminFileInsightSeverity, string> = {
-    success: 'bg-emerald-100 text-emerald-700',
+    success: 'bg-slate-100 text-slate-700',
     warning: 'bg-amber-100 text-amber-700',
     danger: 'bg-red-100 text-red-700',
-    info: 'bg-blue-100 text-blue-700',
-    neutral: 'bg-gray-100 text-gray-700'
+    info: 'bg-zinc-100 text-zinc-700',
+    neutral: 'bg-gray-100 text-zinc-700'
   }
 
   return isDarkMode.value ? darkClasses[severity] : lightClasses[severity]
@@ -1722,10 +1714,10 @@ const getInsightBadgeClass = (severity: AdminFileInsightSeverity) => {
 
 const getTimelineDotClass = (severity: AdminFileInsightSeverity) => {
   const classes: Record<AdminFileInsightSeverity, string> = {
-    success: 'bg-emerald-500',
+    success: 'bg-zinc-500',
     warning: 'bg-amber-500',
     danger: 'bg-red-500',
-    info: 'bg-blue-500',
+    info: 'bg-zinc-500',
     neutral: isDarkMode.value ? 'bg-gray-500' : 'bg-gray-300'
   }
 

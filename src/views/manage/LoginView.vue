@@ -16,18 +16,20 @@
       <div>
         <div class="mx-auto h-16 w-16 relative">
           <div
-            class="absolute inset-0 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full animate-spin-slow"
+            class="absolute inset-0 rounded-2xl"
+            :class="isDarkMode ? 'bg-white/10' : 'bg-zinc-950'"
           ></div>
           <div
-            class="absolute -inset-2 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full opacity-50 blur-md animate-pulse"
+            class="absolute -inset-2 rounded-[1.35rem] opacity-40 blur-md"
+            :class="isDarkMode ? 'bg-white/10' : 'bg-zinc-300'"
           ></div>
           <div
             :class="[
-              'absolute inset-1 rounded-full flex items-center justify-center',
-              isDarkMode ? 'bg-gray-800' : 'bg-white'
+              'absolute inset-1 rounded-[1rem] flex items-center justify-center',
+              isDarkMode ? 'bg-zinc-900' : 'bg-white'
             ]"
           >
-            <BoxIcon :class="['h-8 w-8', isDarkMode ? 'text-cyan-400' : 'text-cyan-600']" />
+            <BoxIcon :class="['h-8 w-8', isDarkMode ? 'text-zinc-100' : 'text-zinc-600']" />
           </div>
         </div>
         <h2
@@ -63,9 +65,9 @@
               required
               v-model="password"
               :class="[
-                'appearance-none rounded-t-md relative block w-full px-4 py-3 border transition-all duration-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:z-10 sm:text-sm backdrop-blur-sm',
+                'appearance-none rounded-t-md relative block w-full px-4 py-3 border transition-all duration-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 focus:z-10 sm:text-sm backdrop-blur-sm',
                 isDarkMode
-                  ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500'
+                  ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 hover:border-gray-500 focus:ring-zinc-500 focus:border-zinc-500'
                   : 'bg-white/50 border-gray-300 text-gray-900 hover:border-gray-400'
               ]"
               placeholder="密码"
@@ -76,10 +78,10 @@
           <button
             type="submit"
             :class="[
-              'group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 shadow-lg hover:shadow-cyan-500/50',
+              'group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-lg',
               isDarkMode
-                ? 'bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600'
-                : 'bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-700 hover:to-purple-700',
+                ? 'bg-zinc-200 text-zinc-950 hover:bg-zinc-100 focus:ring-zinc-500 hover:shadow-white/20'
+                : 'bg-zinc-800 text-white hover:bg-zinc-900 focus:ring-zinc-500 hover:shadow-zinc-500/30',
               isLoading ? 'opacity-75 cursor-not-allowed' : ''
             ]"
             :disabled="isLoading"
@@ -147,7 +149,7 @@ const submitLogin = async () => {
 }
 
 input:focus {
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 15px rgba(39, 39, 42, 0.18);
 }
 
 button:active:not(:disabled) {
@@ -156,8 +158,8 @@ button:active:not(:disabled) {
 
 .cyber-grid {
   background-image:
-    linear-gradient(transparent 95%, rgba(99, 102, 241, 0.1) 50%),
-    linear-gradient(90deg, transparent 95%, rgba(99, 102, 241, 0.1) 50%);
+    linear-gradient(transparent 95%, rgba(39, 39, 42, 0.08) 50%),
+    linear-gradient(90deg, transparent 95%, rgba(39, 39, 42, 0.08) 50%);
   background-size: 30px 30px;
   width: 100%;
   height: 100%;
@@ -179,7 +181,7 @@ button:active:not(:disabled) {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-image: radial-gradient(circle at center, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+  background-image: radial-gradient(circle at center, rgba(39, 39, 42, 0.08) 0%, transparent 50%);
   animation: float 20s infinite linear;
 }
 
@@ -203,7 +205,7 @@ button:active:not(:disabled) {
 }
 
 button:hover:not(:disabled) {
-  box-shadow: 0 0 25px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 25px rgba(39, 39, 42, 0.22);
 }
 
 .fade-enter-active,

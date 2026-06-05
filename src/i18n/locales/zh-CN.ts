@@ -145,6 +145,10 @@ export default {
       s3EndpointUrl: '服务端点 URL',
       s3RegionName: '区域名称',
       s3SignatureVersion: '签名版本',
+      s3AddressingStyle: 'S3 地址风格',
+      s3AddressingAuto: '自动',
+      s3AddressingPath: 'Path-style',
+      s3AddressingVirtual: 'Virtual-host',
       s3Hostname: '自定义域名',
       s3v2: 'S3v2',
       s3v4: 'S3v4',
@@ -165,6 +169,9 @@ export default {
       uploadCountLimit: '允许上传文件数（限流窗口内最多上传几个文件）',
       files: '个文件',
       fileSizeLimit: '单文件大小上限',
+      allowedFileTypes: '允许上传类型',
+      allowedFileTypesPlaceholder: '* 或 .rar, .zip, image/*',
+      allowedFileTypesHelp: '多个类型用英文逗号分隔，* 表示不限制；支持扩展名和 MIME 通配。',
       expirationMethod: '过期方式',
       expirationType: '过期方式',
       expiration: {
@@ -205,13 +212,13 @@ export default {
 
   // 取件页面
   retrieve: {
-    title: '文件取件',
+    title: '提取文件',
     codeInput: {
-      placeholder: '请输入5位取件码',
+      placeholder: '请输入您的 5 位数提取码',
       label: '取件码'
     },
-    submit: '取件',
-    needSendFile: '需要发送文件？点击这里',
+    submit: '立即提取',
+    needSendFile: '需要发送文件？',
     recordsDrawer: '取件记录',
     messages: {
       invalidCode: '请输入5位取件码',
@@ -277,7 +284,7 @@ export default {
     },
     submit: '安全寄送',
     submitting: '发送中...',
-    needRetrieveFile: '需要取件？点击这里',
+    needRetrieveFile: '需要取件？',
     sendRecords: '发件记录',
     secureEncryption: '安全加密',
     workspace: {
@@ -376,6 +383,7 @@ export default {
       uploadFailed: '上传失败,请稍后重试',
       guestUploadDisabled: '游客上传功能已关闭',
       fileSizeExceeded: '文件大小超过限制 ({size})',
+      fileTypeNotAllowed: '不允许上传该类型文件，允许类型：{types}',
       serverError: '服务器响应异常',
       sendFailed: '发送失败,请稍后重试',
       expiresAfterCount: '{count}次后过期',
@@ -713,6 +721,9 @@ export default {
       uploadPerMinute: '限流时间窗口（在此时间内限制上传次数）',
       uploadCountLimit: '允许上传文件数（限流窗口内最多上传几个文件）',
       fileSizeLimit: '单文件大小上限',
+      allowedFileTypes: '允许上传类型',
+      allowedFileTypesPlaceholder: '* 或 .rar, .zip, image/*',
+      allowedFileTypesHelp: '多个类型用英文逗号分隔，* 表示不限制；支持扩展名和 MIME 通配。',
       expiration: {
         day: '按天数',
         hour: '按小时',
@@ -727,6 +738,10 @@ export default {
       s3EndpointUrl: '服务端点 URL',
       s3RegionName: '区域名称',
       s3SignatureVersion: '签名版本',
+      s3AddressingStyle: 'S3 地址风格',
+      s3AddressingAuto: '自动',
+      s3AddressingPath: 'Path-style',
+      s3AddressingVirtual: 'Virtual-host',
       s3Hostname: '自定义域名',
       s3v2: 'S3v2',
       s3v4: 'S3v4',

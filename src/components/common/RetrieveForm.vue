@@ -1,67 +1,47 @@
 <template>
-  <form @submit.prevent="$emit('submit')">
-    <div class="mb-6 relative">
-      <label
-        for="code"
-        class="block text-sm font-medium mb-2"
-        :class="[isDarkMode ? 'text-gray-300' : 'text-gray-800']"
-        >{{ t('retrieve.codeInput.label') }}</label
-      >
-      <div class="relative">
-        <input
-          id="code"
-          v-model="code"
-          type="text"
-          ref="codeInput"
-          class="w-full px-4 py-3 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300 pr-10"
-          :class="[
-            isDarkMode ? 'bg-gray-700 bg-opacity-50' : 'bg-gray-100',
-            { 'ring-2 ring-red-500': error },
-            isDarkMode ? 'text-gray-300' : 'text-gray-800'
-          ]"
-          :placeholder="t('retrieve.codeInput.placeholder')"
-          required
-          :readonly="inputStatus.readonly"
-          maxlength="5"
-          @focus="isInputFocused = true"
-          @blur="isInputFocused = false"
-        />
-        <div
-          v-if="inputStatus.loading"
-          class="absolute inset-y-0 right-0 flex items-center pr-3"
-        >
-          <span
-            class="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-500"
-          ></span>
-        </div>
-      </div>
-      <div
-        class="absolute -bottom-0.5 left-2 h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-300 ease-in-out"
-        :class="{ 'w-97-100': isInputFocused, 'w-0': !isInputFocused }"
-      ></div>
+  <form class="space-y-6 sm:space-y-8" @submit.prevent="$emit('submit')">
+    <div class="flex justify-between gap-2 px-1 sm:gap-4 sm:px-2">
+      <input
+        v-for="(_, index) in codeSlots"
+        :key="index"
+        :ref="(el) => setInputRef(el, index)"
+        :value="codeSlots[index]"
+        type="text"
+        inputmode="text"
+        maxlength="1"
+        autocomplete="one-time-code"
+        :readonly="inputStatus.readonly"
+        :aria-label="`${t('retrieve.codeInput.label')} ${index + 1}`"
+        class="h-14 w-12 rounded-xl border text-center text-2xl font-semibold outline-none transition-all duration-300 sm:h-20 sm:w-16 sm:rounded-2xl sm:text-3xl"
+        :class="inputClass"
+        @input="handleInput($event, index)"
+        @keydown="handleKeyDown($event, index)"
+        @paste="handlePaste($event, index)"
+      />
     </div>
+
     <button
       type="submit"
-      class="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold py-3 px-4 rounded-lg hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition duration-300 transform hover:scale-105 hover:shadow-lg relative overflow-hidden group"
-      :disabled="inputStatus.loading"
+      :disabled="isSubmitDisabled"
+      class="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold tracking-wide transition-all duration-300 sm:rounded-2xl sm:py-4 sm:text-base"
+      :class="submitClass"
     >
-      <span class="flex items-center justify-center relative z-10">
-        <span>{{ inputStatus.loading ? t('common.loading') : t('retrieve.submit') }}</span>
-        <ArrowRightIcon
-          class="w-5 h-5 ml-2 transition-transform duration-300 transform group-hover:translate-x-1"
-        />
-      </span>
-      <span
-        class="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-      ></span>
+      <LoaderCircleIcon
+        v-if="inputStatus.loading"
+        class="h-4 w-4 animate-spin sm:h-5 sm:w-5"
+        :stroke-width="2"
+      />
+      <CloudDownloadIcon v-else class="h-4 w-4 sm:h-5 sm:w-5" :stroke-width="2" />
+      {{ inputStatus.loading ? t('common.loading') : t('retrieve.submit') }}
     </button>
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref, inject, computed } from 'vue'
-import { ArrowRightIcon } from 'lucide-vue-next'
+import { computed, nextTick, ref, watch } from 'vue'
+import { CloudDownloadIcon, LoaderCircleIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
+import { useInjectedDarkMode } from '@/composables'
 
 const { t } = useI18n()
 
@@ -84,21 +64,119 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const isDarkMode = inject('isDarkMode')
-const code = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+const isDarkMode = useInjectedDarkMode()
+const codeSlots = ref<string[]>(Array(5).fill(''))
+const inputRefs = ref<HTMLInputElement[]>([])
+
+const joinedCode = computed(() => codeSlots.value.join(''))
+const isComplete = computed(() => codeSlots.value.every(Boolean))
+const inputStatusLocked = computed(() => props.inputStatus.loading || props.inputStatus.readonly)
+const isSubmitDisabled = computed(() => inputStatusLocked.value || !isComplete.value)
+
+const inputClass = computed(() => {
+  if (isDarkMode.value) {
+    return [
+      props.error
+        ? 'border-red-500/60 focus:border-red-400 focus:ring-red-500/10'
+        : 'border-zinc-800 focus:border-zinc-500 focus:ring-white/10',
+      'bg-zinc-950/50 text-white focus:bg-zinc-900 focus:ring-2 sm:focus:ring-4 focus:shadow-[0_0_18px_rgba(255,255,255,0.1)]'
+    ]
+  }
+
+  return [
+    props.error
+      ? 'border-red-300 focus:border-red-400 focus:ring-red-500/10'
+      : 'border-slate-200 focus:border-zinc-400 focus:ring-zinc-950/10',
+    'bg-white text-slate-900 shadow-[inset_0_2px_4px_rgba(15,23,42,0.02)] focus:bg-white focus:ring-2 sm:focus:ring-4 focus:shadow-[0_10px_22px_-12px_rgba(24,24,27,0.2)]'
+  ]
 })
-const isInputFocused = ref(false)
-const codeInput = ref<HTMLInputElement>()
+
+const submitClass = computed(() => {
+  if (isComplete.value && !inputStatusLocked.value) {
+    return isDarkMode.value
+      ? 'bg-zinc-200 text-zinc-950 shadow-[0_10px_28px_-12px_rgba(255,255,255,0.45)] hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_16px_34px_-14px_rgba(255,255,255,0.5)]'
+      : 'bg-zinc-800 text-white shadow-[0_10px_28px_-12px_rgba(24,24,27,0.35)] hover:-translate-y-0.5 hover:bg-zinc-900 hover:shadow-[0_16px_34px_-14px_rgba(24,24,27,0.42)]'
+  }
+
+  return isDarkMode.value
+    ? 'cursor-not-allowed border border-zinc-700/30 bg-zinc-800/50 text-zinc-500'
+    : 'cursor-not-allowed border border-slate-200/50 bg-slate-100 text-slate-400'
+})
+
+const syncFromModel = (value: string) => {
+  const chars = value.slice(0, 5).split('')
+  codeSlots.value = Array.from({ length: 5 }, (_, index) => chars[index] ?? '')
+}
+
+const emitCode = () => {
+  emit('update:modelValue', joinedCode.value)
+}
+
+const focusInput = async (index: number) => {
+  await nextTick()
+  inputRefs.value[Math.max(0, Math.min(index, 4))]?.focus()
+}
+
+const setInputRef = (el: unknown, index: number) => {
+  if (el instanceof HTMLInputElement) {
+    inputRefs.value[index] = el
+  }
+}
+
+const fillFrom = (value: string, startIndex: number) => {
+  const chars = value
+    .replace(/\s/g, '')
+    .slice(0, 5 - startIndex)
+    .split('')
+  if (chars.length === 0) return
+
+  chars.forEach((char, offset) => {
+    codeSlots.value[startIndex + offset] = char
+  })
+  emitCode()
+  void focusInput(Math.min(startIndex + chars.length, 4))
+}
+
+const handleInput = (event: Event, index: number) => {
+  const target = event.target as HTMLInputElement
+  const value = target.value
+
+  if (value.length > 1) {
+    fillFrom(value, index)
+    return
+  }
+
+  codeSlots.value[index] = value.slice(-1)
+  emitCode()
+
+  if (value && index < 4) {
+    void focusInput(index + 1)
+  }
+}
+
+const handleKeyDown = (event: KeyboardEvent, index: number) => {
+  if (event.key === 'Backspace' && !codeSlots.value[index] && index > 0) {
+    event.preventDefault()
+    void focusInput(index - 1)
+  }
+}
+
+const handlePaste = (event: ClipboardEvent, index: number) => {
+  event.preventDefault()
+  fillFrom(event.clipboardData?.getData('text') ?? '', index)
+}
+
+watch(
+  () => props.modelValue,
+  (value) => {
+    if (value !== joinedCode.value) {
+      syncFromModel(value)
+    }
+  },
+  { immediate: true }
+)
 
 defineExpose({
-  focus: () => codeInput.value?.focus()
+  focus: () => inputRefs.value[0]?.focus()
 })
 </script>
-
-<style scoped>
-.w-97-100 {
-  width: calc(100% - 1rem);
-}
-</style>

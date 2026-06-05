@@ -3,6 +3,7 @@ import type { ConfigState, SystemConfig } from '@/types'
 
 export type PublicConfig = SystemConfig & {
   uploadSize: number
+  allowed_file_types?: string[]
   expireStyle: string[]
   openUpload: number
   max_save_seconds: number
@@ -19,6 +20,8 @@ export type PublicConfig = SystemConfig & {
 export const DEFAULT_PUBLIC_CONFIG: PublicConfig = {
   ...DEFAULT_CONFIG,
   uploadSize: FILE_SIZE_LIMITS.MAX_FILE_SIZE,
+  allowedFileTypes: ['*'],
+  allowed_file_types: ['*'],
   expireStyle: ['day'],
   openUpload: 1,
   max_save_seconds: 0,
@@ -38,6 +41,8 @@ export const DEFAULT_CONFIG_STATE: ConfigState = {
   notify_content: '',
   openUpload: DEFAULT_PUBLIC_CONFIG.openUpload,
   uploadSize: DEFAULT_PUBLIC_CONFIG.uploadSize,
+  allowed_file_types: DEFAULT_PUBLIC_CONFIG.allowedFileTypes,
+  allowedFileTypes: DEFAULT_PUBLIC_CONFIG.allowedFileTypes,
   storage_path: '',
   uploadMinute: 1,
   max_save_seconds: DEFAULT_PUBLIC_CONFIG.max_save_seconds,
@@ -50,6 +55,7 @@ export const DEFAULT_CONFIG_STATE: ConfigState = {
   s3_secret_access_key: '',
   aws_session_token: '',
   s3_signature_version: '',
+  s3_addressing_style: 'auto',
   s3_region_name: '',
   s3_bucket_name: '',
   s3_endpoint_url: '',
@@ -64,6 +70,17 @@ export const DEFAULT_CONFIG_STATE: ConfigState = {
   webdav_password: ''
 }
 
+function normalizeFileTypes(value: unknown): string[] {
+  const rawTypes =
+    typeof value === 'string'
+      ? value.split(',')
+      : Array.isArray(value)
+        ? value
+        : DEFAULT_PUBLIC_CONFIG.allowedFileTypes
+  const normalized = rawTypes.map((item) => String(item).trim()).filter(Boolean)
+  return normalized.length > 0 ? normalized : ['*']
+}
+
 export function readStoredConfig<T extends object = Partial<ConfigState>>(): T | null {
   try {
     const rawConfig = localStorage.getItem(STORAGE_KEYS.CONFIG)
@@ -76,10 +93,14 @@ export function readStoredConfig<T extends object = Partial<ConfigState>>(): T |
 export function toPublicConfig(config: Partial<ConfigState> | null | undefined): Partial<PublicConfig> {
   if (!config) return {}
 
+  const allowedFileTypes = normalizeFileTypes(config.allowedFileTypes ?? config.allowed_file_types)
+
   return {
     name: config.name,
     description: config.description,
     uploadSize: config.uploadSize,
+    allowedFileTypes,
+    allowed_file_types: allowedFileTypes,
     expireStyle: config.expireStyle,
     openUpload: config.openUpload,
     max_save_seconds: config.max_save_seconds,

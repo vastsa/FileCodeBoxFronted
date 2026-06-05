@@ -47,11 +47,31 @@ export function useSystemConfig() {
 
   const snapshotPayload = (payload: Partial<ConfigState>) => JSON.stringify(payload)
 
-  const normalizeEditableConfig = (nextConfig: Partial<ConfigState>): ConfigState => ({
-    ...DEFAULT_CONFIG_STATE,
-    ...nextConfig,
-    admin_token: ''
-  })
+  const normalizeAllowedFileTypes = (value: unknown): string[] => {
+    const rawTypes =
+      typeof value === 'string'
+        ? value.split(',')
+        : Array.isArray(value)
+          ? value
+          : DEFAULT_CONFIG_STATE.allowed_file_types
+
+    const normalized = rawTypes.map((item) => String(item).trim()).filter(Boolean)
+    return normalized.length > 0 ? normalized : ['*']
+  }
+
+  const normalizeEditableConfig = (nextConfig: Partial<ConfigState>): ConfigState => {
+    const allowedFileTypes = normalizeAllowedFileTypes(
+      nextConfig.allowed_file_types ?? nextConfig.allowedFileTypes
+    )
+
+    return {
+      ...DEFAULT_CONFIG_STATE,
+      ...nextConfig,
+      allowed_file_types: allowedFileTypes,
+      allowedFileTypes,
+      admin_token: ''
+    }
+  }
 
   const markConfigSaved = () => {
     savedPayloadSnapshot.value = snapshotPayload(buildSubmitPayload())

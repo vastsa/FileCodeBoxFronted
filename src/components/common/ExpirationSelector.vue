@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col space-y-3">
-    <label :class="['text-sm font-medium', isDarkMode ? 'text-gray-300' : 'text-gray-700']">
+    <label :class="['text-sm font-medium', isDarkMode ? 'text-zinc-300' : 'text-slate-700']">
       {{ t('send.expiration.label') }}
     </label>
     <div class="relative flex-grow group">
@@ -8,8 +8,8 @@
         :class="[
           'relative h-12 rounded-2xl border transition-all duration-300 shadow-sm',
           isDarkMode
-            ? 'bg-gray-800/60 border-gray-700/60 group-hover:border-gray-600/80 group-hover:shadow-lg group-hover:shadow-gray-900/20'
-            : 'bg-white border-gray-200 group-hover:border-gray-300 group-hover:shadow-md group-hover:shadow-gray-200/50'
+            ? 'bg-zinc-950/50 border-zinc-800 group-hover:border-zinc-700 group-hover:shadow-lg group-hover:shadow-zinc-950/20'
+            : 'bg-white border-slate-200/80 group-hover:border-slate-300 group-hover:shadow-md group-hover:shadow-slate-200/50'
         ]"
       >
         <template v-if="expirationMethod !== 'forever'">
@@ -25,13 +25,13 @@
               '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
               'bg-transparent',
               isDarkMode
-                ? 'text-gray-100 focus:ring-indigo-500/80 placeholder-gray-500'
-                : 'text-gray-900 focus:ring-indigo-500/60 placeholder-gray-400'
+                ? 'text-zinc-100 focus:ring-white/10 placeholder-zinc-500'
+                : 'text-slate-900 focus:ring-zinc-950/10 placeholder-slate-400'
             ]"
           />
           <div
             class="absolute right-28 top-0 h-full flex flex-col border-l"
-            :class="[isDarkMode ? 'border-gray-700/60' : 'border-gray-200']"
+            :class="[isDarkMode ? 'border-zinc-800' : 'border-slate-200']"
           >
             <button
               type="button"
@@ -39,8 +39,8 @@
               class="flex-1 px-2 flex items-center justify-center transition-all duration-200"
               :class="[
                 isDarkMode
-                  ? 'hover:bg-gray-700/60 text-gray-400 hover:text-gray-200'
-                  : 'hover:bg-gray-50 text-gray-500 hover:text-gray-700'
+                  ? 'hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  : 'hover:bg-slate-50 text-slate-500 hover:text-slate-700'
               ]"
             >
               <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -58,8 +58,8 @@
               class="flex-1 px-2 flex items-center justify-center transition-all duration-200"
               :class="[
                 isDarkMode
-                  ? 'hover:bg-gray-700/60 text-gray-400 hover:text-gray-200'
-                  : 'hover:bg-gray-50 text-gray-500 hover:text-gray-700'
+                  ? 'hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200'
+                  : 'hover:bg-slate-50 text-slate-500 hover:text-slate-700'
               ]"
             >
               <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -83,22 +83,22 @@
               ? 'w-full px-5 rounded-2xl'
               : 'w-28 pl-4 pr-9 border-l rounded-r-2xl',
             isDarkMode
-              ? 'text-gray-100 border-gray-700/60 focus:ring-indigo-500/80 bg-gray-800/60'
-              : 'text-gray-900 border-gray-200 focus:ring-indigo-500/60 bg-white'
+              ? 'text-zinc-100 border-zinc-800 focus:ring-white/10 bg-zinc-950/50'
+              : 'text-slate-900 border-slate-200 focus:ring-zinc-950/10 bg-white'
           ]"
           :style="{
-            color: isDarkMode ? '#f3f4f6' : '#111827',
-            backgroundColor: isDarkMode ? 'rgba(31, 41, 55, 0.5)' : '#ffffff'
+            color: isDarkMode ? '#f4f4f5' : '#0f172a',
+            backgroundColor: isDarkMode ? 'rgba(9, 9, 11, 0.5)' : '#ffffff'
           }"
         >
           <option
             v-for="option in options"
             :key="option.value"
             :value="option.value"
-            :class="[isDarkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900']"
+            :class="[isDarkMode ? 'bg-zinc-900 text-zinc-100' : 'bg-white text-slate-900']"
             :style="{
-              color: isDarkMode ? '#f3f4f6' : '#111827',
-              backgroundColor: isDarkMode ? '#1f2937' : '#ffffff'
+              color: isDarkMode ? '#f4f4f5' : '#0f172a',
+              backgroundColor: isDarkMode ? '#18181b' : '#ffffff'
             }"
           >
             {{ option.label }}
@@ -109,7 +109,7 @@
           :class="[
             expirationMethod === 'forever' ? 'right-3' : 'right-2',
             'top-1/2 -translate-y-1/2',
-            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+            isDarkMode ? 'text-zinc-400' : 'text-slate-500'
           ]"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

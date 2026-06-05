@@ -4,8 +4,8 @@
       class="text-sm font-medium flex items-center space-x-2 transition-colors duration-200"
       :class="[
         isDarkMode
-          ? 'text-gray-300 group-focus-within:text-indigo-400'
-          : 'text-gray-700 group-focus-within:text-indigo-600'
+          ? 'text-gray-300 group-focus-within:text-zinc-100'
+          : 'text-gray-700 group-focus-within:text-zinc-950'
       ]"
     >
       <span>{{ label }}</span>
@@ -13,8 +13,8 @@
         class="h-px flex-1 transition-colors duration-200"
         :class="[
           isDarkMode
-            ? 'bg-gray-700 group-focus-within:bg-indigo-500/50'
-            : 'bg-gray-200 group-focus-within:bg-indigo-500/30'
+            ? 'bg-gray-700 group-focus-within:bg-zinc-500/50'
+            : 'bg-gray-200 group-focus-within:bg-zinc-500/30'
         ]"
       ></div>
     </label>
@@ -25,8 +25,8 @@
         class="block w-full rounded-lg border-0 py-2.5 pl-4 pr-10 transition-all duration-200 focus:ring-2 focus:ring-inset sm:text-sm"
         :class="[
           isDarkMode
-            ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-indigo-500/50'
-            : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-indigo-500'
+            ? 'bg-gray-700/50 text-white placeholder-gray-400 focus:ring-zinc-500/50'
+            : 'bg-gray-50 text-gray-900 placeholder-gray-400 focus:ring-zinc-500'
         ]"
         :placeholder="placeholder"
         @input="handleInput"
@@ -34,7 +34,7 @@
       <div
         class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none transition-opacity duration-200 opacity-0 group-focus-within:opacity-100"
       >
-        <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-indigo-400' : 'text-indigo-600']" />
+        <CheckIcon class="w-5 h-5" :class="[isDarkMode ? 'text-zinc-100' : 'text-zinc-900']" />
       </div>
     </div>
   </div>

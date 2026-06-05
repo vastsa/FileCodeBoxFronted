@@ -145,6 +145,10 @@ export default {
       s3EndpointUrl: 'Endpoint URL',
       s3RegionName: 'Region Name',
       s3SignatureVersion: 'Signature Version',
+      s3AddressingStyle: 'S3 Addressing Style',
+      s3AddressingAuto: 'Auto',
+      s3AddressingPath: 'Path-style',
+      s3AddressingVirtual: 'Virtual-host',
       s3Hostname: 'Custom Domain',
       s3v2: 'S3v2',
       s3v4: 'S3v4',
@@ -165,6 +169,9 @@ export default {
       uploadCountLimit: 'Max Files Allowed (within the time window)',
       files: 'files',
       fileSizeLimit: 'Max File Size',
+      allowedFileTypes: 'Allowed File Types',
+      allowedFileTypesPlaceholder: '* or .rar, .zip, image/*',
+      allowedFileTypesHelp: 'Separate multiple types with commas. * allows all; extensions and MIME wildcards are supported.',
       expirationMethod: 'Expiration Options',
       expirationType: 'Expiration Options',
       expiration: {
@@ -205,13 +212,13 @@ export default {
 
   // Retrieve page
   retrieve: {
-    title: 'File Retrieval',
+    title: 'Retrieve File',
     codeInput: {
-      placeholder: 'Enter 5-digit retrieval code',
+      placeholder: 'Enter your 5-character retrieval code',
       label: 'Retrieval Code'
     },
-    submit: 'Retrieve',
-    needSendFile: 'Need to send a file? Click here',
+    submit: 'Retrieve Now',
+    needSendFile: 'Need to send a file?',
     recordsDrawer: 'Retrieval Records',
     messages: {
       invalidCode: 'Please enter a 5-digit retrieval code',
@@ -347,6 +354,7 @@ export default {
       uploadFailed: 'Upload failed, please try again later',
       guestUploadDisabled: 'Guest upload feature is disabled',
       fileSizeExceeded: 'File size exceeds limit ({size})',
+      fileTypeNotAllowed: 'This file type is not allowed. Allowed types: {types}',
       serverError: 'Server response error',
       sendFailed: 'Send failed, please try again later',
       expiresAfterCount: 'Expires after {count} times',
@@ -690,6 +698,9 @@ export default {
       uploadCountLimit: 'Max Files Allowed (within the time window)',
       files: 'files',
       fileSizeLimit: 'Max File Size',
+      allowedFileTypes: 'Allowed File Types',
+      allowedFileTypesPlaceholder: '* or .rar, .zip, image/*',
+      allowedFileTypesHelp: 'Separate multiple types with commas. * allows all; extensions and MIME wildcards are supported.',
       expirationMethod: 'Expiration Options',
       expirationType: 'Expiration Options',
       expiration: {

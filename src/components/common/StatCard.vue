@@ -1,12 +1,21 @@
 <template>
-  <div class="p-6 rounded-lg shadow-md transition-colors duration-300"
-    :class="[isDarkMode ? 'bg-gray-800 bg-opacity-70' : 'bg-white']">
+  <div
+    class="rounded-2xl border p-5 shadow-sm backdrop-blur-xl transition-colors duration-300"
+    :class="[
+      isDarkMode
+        ? 'border-white/10 bg-white/[0.06] shadow-[0_20px_50px_-34px_rgba(255,255,255,0.2)]'
+        : 'border-white/80 bg-white/70 shadow-[0_20px_50px_-34px_rgba(24,24,27,0.28)]'
+    ]"
+  >
     <div class="flex items-center justify-between">
       <div>
-        <p class="text-sm" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']">
+        <p class="text-sm font-medium" :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-500']">
           {{ title }}
         </p>
-        <h3 class="text-2xl font-bold mt-1" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
+        <h3
+          class="text-2xl font-semibold mt-1"
+          :class="[isDarkMode ? 'text-white' : 'text-zinc-950']"
+        >
           {{ value }}
         </h3>
       </div>
@@ -29,7 +38,7 @@ interface Props {
   title: string
   value: string | number
   icon: Component
-  iconColor: 'indigo' | 'purple' | 'green' | 'blue'
+  iconColor: 'zinc'
   descriptionType?: 'success' | 'error' | 'neutral'
 }
 
@@ -40,30 +49,18 @@ const props = withDefaults(defineProps<Props>(), {
 const isDarkMode = useInjectedDarkMode()
 
 const iconBgClass = computed(() => {
-  const colorMap = {
-    indigo: isDarkMode.value ? 'bg-indigo-900' : 'bg-indigo-100',
-    purple: isDarkMode.value ? 'bg-purple-900' : 'bg-purple-100',
-    green: isDarkMode.value ? 'bg-green-900' : 'bg-green-100',
-    blue: isDarkMode.value ? 'bg-blue-900' : 'bg-blue-100'
-  }
-  return colorMap[props.iconColor]
+  return isDarkMode.value ? 'bg-white/10' : 'bg-zinc-100/90'
 })
 
 const iconClass = computed(() => {
-  const colorMap = {
-    indigo: isDarkMode.value ? 'text-indigo-400' : 'text-indigo-600',
-    purple: isDarkMode.value ? 'text-purple-400' : 'text-purple-600',
-    green: isDarkMode.value ? 'text-green-400' : 'text-green-600',
-    blue: isDarkMode.value ? 'text-blue-400' : 'text-blue-600'
-  }
-  return colorMap[props.iconColor]
+  return isDarkMode.value ? 'text-zinc-100' : 'text-zinc-700'
 })
 
 const descriptionClass = computed(() => {
   const typeMap = {
-    success: isDarkMode.value ? 'text-green-400' : 'text-green-600',
+    success: isDarkMode.value ? 'text-zinc-200' : 'text-zinc-700',
     error: isDarkMode.value ? 'text-red-400' : 'text-red-600',
-    neutral: isDarkMode.value ? 'text-gray-400' : 'text-gray-600'
+    neutral: isDarkMode.value ? 'text-zinc-500' : 'text-zinc-500'
   }
   return typeMap[props.descriptionType]
 })

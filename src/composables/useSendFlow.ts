@@ -4,7 +4,7 @@ import { useAlertStore } from '@/stores/alertStore'
 import { useAdminStore } from '@/stores/adminStore'
 import { useConfigStore } from '@/stores/configStore'
 import { useFileDataStore } from '@/stores/fileData'
-import type { SendType, SentFileRecord } from '@/types'
+import type { SendType, SentFileRecord, UploadProgress } from '@/types'
 import { getClipboardFile, insertTextAtSelection } from '@/utils/clipboard-paste'
 import { getErrorMessage } from '@/utils/common'
 import { getStorageUnit } from '@/utils/convert'
@@ -27,6 +27,10 @@ export function useSendFlow() {
   const expirationMethod = ref(config.value.expireStyle[0] || 'day')
   const expirationValue = ref('1')
   const uploadProgress = ref(0)
+  const uploadedBytes = ref(0)
+  const totalBytes = ref(0)
+  const uploadSpeed = ref(0)
+  const lastProgressSnapshot = ref({ loaded: 0, time: 0 })
   const showDrawer = ref(false)
   const selectedRecord = ref<SentFileRecord | null>(null)
   const isSubmitting = ref(false)
@@ -37,6 +41,22 @@ export function useSendFlow() {
       size: getStorageUnit(config.value.uploadSize)
     })
   )
+  const allowedFileTypes = computed(() => {
+    const types = config.value.allowedFileTypes || config.value.allowed_file_types || ['*']
+    const normalized = types.map((type) => String(type).trim()).filter(Boolean)
+    return normalized.length > 0 ? normalized : ['*']
+  })
+  const acceptedTypes = computed(() => {
+    if (allowedFileTypes.value.some((type) => type === '*' || type === '*/*')) return '*'
+
+    return allowedFileTypes.value
+      .map((type) => {
+        const normalizedType = type.toLowerCase()
+        if (normalizedType.includes('/')) return normalizedType
+        return normalizedType.startsWith('.') ? normalizedType : `.${normalizedType}`
+      })
+      .join(',')
+  })
   const expirationOptions = computed(() =>
     config.value.expireStyle.map((value) => ({
       value,
@@ -60,8 +80,21 @@ export function useSendFlow() {
     getMaxFileSize: () => configStore.uploadSizeLimit,
     notify: (message, type) => alertStore.showAlert(message, type),
     translate: t,
-    onProgress: (progress) => {
-      uploadProgress.value = progress
+    onProgress: (progress: UploadProgress) => {
+      const now = performance.now()
+      if (lastProgressSnapshot.value.time > 0 && now > lastProgressSnapshot.value.time) {
+        const deltaBytes = Math.max(0, progress.loaded - lastProgressSnapshot.value.loaded)
+        const deltaSeconds = (now - lastProgressSnapshot.value.time) / 1000
+        uploadSpeed.value = deltaSeconds > 0 ? deltaBytes / deltaSeconds : 0
+      }
+
+      lastProgressSnapshot.value = {
+        loaded: progress.loaded,
+        time: now
+      }
+      uploadedBytes.value = progress.loaded
+      totalBytes.value = progress.total
+      uploadProgress.value = progress.percentage
     },
     onHashCalculated: (hash) => {
       fileHash.value = hash
@@ -76,6 +109,14 @@ export function useSendFlow() {
     return true
   }
 
+  const resetUploadProgress = () => {
+    uploadProgress.value = 0
+    uploadedBytes.value = 0
+    totalBytes.value = 0
+    uploadSpeed.value = 0
+    lastProgressSnapshot.value = { loaded: 0, time: 0 }
+  }
+
   const checkFileSize = (file: File) => {
     if (file.size > config.value.uploadSize) {
       alertStore.showAlert(
@@ -88,6 +129,36 @@ export function useSendFlow() {
     return true
   }
 
+  const checkFileType = (file: File) => {
+    if (allowedFileTypes.value.some((type) => type === '*' || type === '*/*')) {
+      return true
+    }
+
+    const fileName = file.name.toLowerCase()
+    const mimeType = file.type.toLowerCase()
+    const isAllowed = allowedFileTypes.value.some((type) => {
+      const rule = type.toLowerCase()
+      if (rule.includes('/')) {
+        if (rule.endsWith('/*')) {
+          return mimeType.startsWith(rule.slice(0, -1))
+        }
+        return mimeType === rule
+      }
+
+      const extension = rule.startsWith('.') ? rule : `.${rule}`
+      return fileName.endsWith(extension)
+    })
+
+    if (!isAllowed) {
+      alertStore.showAlert(
+        t('send.messages.fileTypeNotAllowed', { types: allowedFileTypes.value.join(', ') }),
+        'error'
+      )
+    }
+
+    return isAllowed
+  }
+
   const checkExpirationTime = (method: string, value: string): boolean =>
     isExpirationWithinLimit(method, value, config.value.max_save_seconds || 0)
 
@@ -95,6 +166,7 @@ export function useSendFlow() {
     if (!selectedFile.value) return false
     if (!checkOpenUpload()) return false
     if (!checkFileSize(selectedFile.value)) return false
+    if (!checkFileType(selectedFile.value)) return false
     if (!checkExpirationTime(expirationMethod.value, expirationValue.value)) return false
     return true
   }
@@ -104,11 +176,14 @@ export function useSendFlow() {
     selectedFiles.value = []
     if (!checkOpenUpload()) return
     if (!checkFileSize(file)) return
+    if (!checkFileType(file)) return
     fileHash.value = await calculateFileHash(file)
   }
 
   const handleFilesSelected = async (files: File[]) => {
     if (!checkOpenUpload()) return
+    const invalidFile = files.find((file) => !checkFileSize(file) || !checkFileType(file))
+    if (invalidFile) return
     selectedFiles.value = files
     selectedFile.value = null
     fileHash.value = ''
@@ -125,6 +200,8 @@ export function useSendFlow() {
       fileHash.value = await calculateFileHash(file)
     } else {
       if (!checkOpenUpload()) return
+      const invalidFile = files.find((file) => !checkFileSize(file) || !checkFileType(file))
+      if (invalidFile) return
       selectedFiles.value = files
       selectedFile.value = null
       fileHash.value = ''
@@ -272,7 +349,7 @@ export function useSendFlow() {
         selectedFile.value = null
         selectedFiles.value = []
         textContent.value = ''
-        uploadProgress.value = 0
+        resetUploadProgress()
         resetPresignUpload()
         selectedRecord.value = newRecord
         await sentRecordActions.copyLink(newRecord)
@@ -282,7 +359,7 @@ export function useSendFlow() {
     } catch (error: unknown) {
       alertStore.showAlert(getErrorMessage(error, t('send.messages.sendFailed')), 'error')
     } finally {
-      uploadProgress.value = 0
+      resetUploadProgress()
       isSubmitting.value = false
     }
   }
@@ -315,6 +392,10 @@ export function useSendFlow() {
     expirationMethod,
     expirationValue,
     uploadProgress,
+    uploadedBytes,
+    totalBytes,
+    uploadSpeed,
+    acceptedTypes,
     showDrawer,
     selectedRecord,
     isSubmitting,

@@ -40,6 +40,8 @@ export interface ConfigState {
   notify_content: string
   openUpload: number
   uploadSize: number
+  allowed_file_types: string[]
+  allowedFileTypes?: string[]
   storage_path: string
   uploadMinute: number
   max_save_seconds: number
@@ -52,6 +54,7 @@ export interface ConfigState {
   s3_secret_access_key: string
   aws_session_token: string
   s3_signature_version: string
+  s3_addressing_style: string
   s3_region_name: string
   s3_bucket_name: string
   s3_endpoint_url: string

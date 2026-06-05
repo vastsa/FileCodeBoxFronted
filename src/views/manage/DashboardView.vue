@@ -43,7 +43,7 @@
         :title="t('admin.dashboard.totalFiles')"
         :value="dashboardData.totalFiles"
         :icon="FilesIcon"
-        icon-color="indigo"
+        icon-color="zinc"
       >
         <template #description>
           {{ t('admin.dashboard.yesterdayShares', { count: dashboardData.yesterdayCount }) }}
@@ -54,7 +54,7 @@
         :title="t('admin.dashboard.storageSpace')"
         :value="dashboardData.storageUsedText"
         :icon="HardDriveIcon"
-        icon-color="purple"
+        icon-color="zinc"
       >
         <template #description>
           {{ t('admin.dashboard.todayIncrease', { count: dashboardData.todaySizeText }) }}
@@ -65,7 +65,7 @@
         :title="t('admin.dashboard.todayShares')"
         :value="dashboardData.todayCount"
         :icon="UploadCloudIcon"
-        icon-color="green"
+        icon-color="zinc"
       >
         <template #description>
           {{ t('admin.dashboard.yesterdayShares', { count: dashboardData.yesterdayCount }) }}
@@ -76,7 +76,7 @@
         :title="t('admin.dashboard.totalRetrievals')"
         :value="dashboardData.usedCount"
         :icon="DownloadCloudIcon"
-        icon-color="blue"
+        icon-color="zinc"
       >
         <template #description>
           {{ t('admin.dashboard.serverUptime') }} {{ dashboardData.sysUptimeText }}
@@ -95,10 +95,7 @@
               {{ t('admin.dashboard.fileHealthDesc') }}
             </p>
           </div>
-          <ActivityIcon
-            class="h-5 w-5"
-            :class="[isDarkMode ? 'text-indigo-300' : 'text-indigo-500']"
-          />
+          <ActivityIcon class="h-5 w-5" :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-500']" />
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -106,19 +103,19 @@
             :label="t('admin.dashboard.activeFileRatio')"
             :value="dashboardData.activeRatio"
             :detail="`${dashboardData.activeCount} / ${dashboardData.totalFiles}`"
-            tone="green"
+            tone="zinc"
           />
           <MetricProgress
             :label="t('admin.dashboard.fileShareRatio')"
             :value="dashboardData.fileRatio"
             :detail="t('admin.dashboard.binaryFiles', { count: dashboardData.fileCount })"
-            tone="indigo"
+            tone="zinc"
           />
           <MetricProgress
             :label="t('admin.dashboard.textShareRatio')"
             :value="dashboardData.textRatio"
             :detail="t('admin.dashboard.textShares', { count: dashboardData.textCount })"
-            tone="purple"
+            tone="zinc"
           />
         </div>
 
@@ -214,7 +211,7 @@
             :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']"
           >
             <div
-              class="h-full rounded-full bg-indigo-500"
+              class="h-full rounded-full bg-zinc-500"
               :style="{ width: `${dashboardData.todaySizeRatio}%` }"
             ></div>
           </div>
@@ -279,13 +276,15 @@ const { dashboardData, errorMessage, fetchDashboardData, isLoading, lastUpdatedT
   })
 
 const primaryTextClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-gray-900'))
-const mutedTextClass = computed(() => (isDarkMode.value ? 'text-gray-400' : 'text-gray-500'))
+const mutedTextClass = computed(() => (isDarkMode.value ? 'text-zinc-400' : 'text-zinc-500'))
 const versionText = computed(() => appVersion.value || t('admin.dashboard.versionPending'))
 const panelClass = computed(() =>
-  isDarkMode.value ? 'bg-gray-800/80 border border-gray-700' : 'bg-white border border-gray-100'
+  isDarkMode.value
+    ? 'border border-white/10 bg-white/[0.06] shadow-[0_22px_54px_-36px_rgba(255,255,255,0.22)] backdrop-blur-xl'
+    : 'border border-white/80 bg-white/70 shadow-[0_22px_54px_-36px_rgba(24,24,27,0.28)] backdrop-blur-xl'
 )
 const subtlePanelClass = computed(() =>
-  isDarkMode.value ? 'border-gray-700 bg-gray-900/30' : 'border-gray-100 bg-gray-50'
+  isDarkMode.value ? 'border-white/10 bg-white/[0.04]' : 'border-zinc-200/70 bg-zinc-50/70'
 )
 const maxSaveTimeText = computed(() => {
   if (!dashboardData.maxSaveSeconds) return t('admin.dashboard.noSaveLimit')
@@ -352,13 +351,13 @@ const getHealthActionClass = (tone: DashboardHealthAction['tone']) => {
   const darkClasses: Record<DashboardHealthAction['tone'], string> = {
     danger: 'border-red-500/20 bg-red-500/10 text-red-200 hover:border-red-400/40',
     warning: 'border-amber-500/20 bg-amber-500/10 text-amber-200 hover:border-amber-400/40',
-    success: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-200 hover:border-emerald-400/40',
-    neutral: 'border-gray-700 bg-gray-900/30 text-gray-300 hover:border-gray-600'
+    success: 'border-zinc-500/20 bg-white/5 text-zinc-200 hover:border-zinc-400/40',
+    neutral: 'border-white/10 bg-white/[0.04] text-zinc-300 hover:border-white/15'
   }
   const lightClasses: Record<DashboardHealthAction['tone'], string> = {
     danger: 'border-red-100 bg-red-50 text-red-700 hover:border-red-200',
     warning: 'border-amber-100 bg-amber-50 text-amber-700 hover:border-amber-200',
-    success: 'border-emerald-100 bg-emerald-50 text-emerald-700 hover:border-emerald-200',
+    success: 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300',
     neutral: 'border-gray-100 bg-gray-50 text-gray-700 hover:border-gray-200'
   }
 
@@ -379,19 +378,12 @@ const MetricProgress = defineComponent({
     value: { type: Number, required: true },
     detail: { type: String, required: true },
     tone: {
-      type: String as PropType<'green' | 'indigo' | 'purple'>,
+      type: String as PropType<'zinc'>,
       required: true
     }
   },
   setup(props) {
-    const toneClass = computed(() => {
-      const classes = {
-        green: 'bg-green-500',
-        indigo: 'bg-indigo-500',
-        purple: 'bg-purple-500'
-      }
-      return classes[props.tone]
-    })
+    const toneClass = computed(() => 'bg-zinc-500')
 
     return () =>
       h('div', { class: 'rounded-lg border p-4 border-gray-200/60 dark:border-gray-700' }, [

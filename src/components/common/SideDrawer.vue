@@ -1,33 +1,60 @@
 <template>
-  <transition name="drawer">
-    <div
-      v-if="visible"
-      class="fixed inset-y-0 right-0 w-full sm:w-120 bg-opacity-70 backdrop-filter backdrop-blur-xl shadow-2xl z-50 overflow-hidden flex flex-col"
-      :class="[isDarkMode ? 'bg-gray-900' : 'bg-white']"
-    >
+  <div v-if="visible">
+    <transition name="drawer-overlay" appear>
       <div
-        class="flex justify-between items-center p-6 border-b"
-        :class="[isDarkMode ? 'border-gray-700' : 'border-gray-200']"
+        class="fixed inset-0 z-40 backdrop-blur-sm"
+        :class="isDarkMode ? 'bg-black/60' : 'bg-slate-900/20'"
+        @click="$emit('close')"
+      ></div>
+    </transition>
+
+    <transition name="drawer" appear>
+      <aside
+        class="fixed right-0 top-0 z-50 flex h-full w-full flex-col overflow-hidden border-l shadow-2xl sm:w-[28rem]"
+        :class="
+          isDarkMode
+            ? 'border-zinc-800 bg-zinc-950'
+            : 'border-white/50 bg-white/95 backdrop-blur-xl'
+        "
       >
-        <h3 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-gray-800']">
-          {{ title }}
-        </h3>
-        <button
-          @click="$emit('close')"
-          class="hover:text-white transition duration-300"
-          :class="[isDarkMode ? 'text-gray-400' : 'text-gray-800']"
+        <div
+          class="flex items-center justify-between border-b px-5 py-5 sm:px-8 sm:py-6"
+          :class="isDarkMode ? 'border-zinc-800/80' : 'border-slate-100'"
         >
-          <XIcon class="w-6 h-6" />
-        </button>
-      </div>
-      <slot></slot>
-    </div>
-  </transition>
+          <h3
+            class="flex items-center gap-2 text-lg font-semibold tracking-tight sm:gap-3 sm:text-xl"
+            :class="isDarkMode ? 'text-zinc-100' : 'text-slate-800'"
+          >
+            <span
+              class="rounded-lg p-1.5 sm:rounded-xl sm:p-2"
+              :class="isDarkMode ? 'bg-white/10 text-zinc-100' : 'bg-zinc-100 text-zinc-900'"
+            >
+              <HistoryIcon class="h-[18px] w-[18px] sm:h-5 sm:w-5" />
+            </span>
+            {{ title }}
+          </h3>
+          <button
+            type="button"
+            @click="$emit('close')"
+            class="rounded-lg p-1.5 transition-all duration-300 hover:scale-105 active:scale-95 sm:rounded-xl sm:p-2"
+            :class="
+              isDarkMode
+                ? 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'
+                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+            "
+          >
+            <XIcon class="h-5 w-5" />
+          </button>
+        </div>
+        <slot></slot>
+      </aside>
+    </transition>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { inject } from 'vue'
-import { XIcon } from 'lucide-vue-next'
+import { HistoryIcon, XIcon } from 'lucide-vue-next'
 
 interface Props {
   visible: boolean
@@ -44,20 +71,23 @@ const isDarkMode = inject('isDarkMode')
 </script>
 
 <style scoped>
+.drawer-overlay-enter-active,
+.drawer-overlay-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.drawer-overlay-enter-from,
+.drawer-overlay-leave-to {
+  opacity: 0;
+}
+
 .drawer-enter-active,
 .drawer-leave-active {
-  transition: transform 0.3s ease;
+  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .drawer-enter-from,
 .drawer-leave-to {
   transform: translateX(100%);
-}
-
-@media (min-width: 640px) {
-  .sm\:w-120 {
-    width: 30rem;
-    /* 480px */
-  }
 }
 </style>
