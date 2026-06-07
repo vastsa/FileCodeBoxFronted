@@ -34,6 +34,7 @@ export async function downloadReceivedRecord(record: ReceivedFileRecord): Promis
 
 export const getSafeFilename = (name: string) =>
   name
+    .trim()
     .replace(unsafeFilenamePattern, '_')
     .replace(/\s+/g, ' ')
     .trim()

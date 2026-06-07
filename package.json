@@ -10,7 +10,9 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "check:architecture": "node scripts/check-architecture.mjs",
+    "test": "vitest run",
     "lint": "eslint . --fix",
+    "lint:check": "eslint .",
     "format": "prettier --write src/"
   },
   "dependencies": {
@@ -42,11 +44,13 @@
     "@vitejs/plugin-vue-jsx": "^5.0.1",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.39.2",
     "eslint-plugin-vue": "^10.4.0",
     "glob": "^13.0.0",
+    "jsdom": "^27.2.0",
     "npm-run-all2": "^8.0.4",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
@@ -54,6 +58,7 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~5.8.3",
     "vite": "^7.3.0",
+    "vitest": "^4.0.15",
     "vue-tsc": "^3.0.4"
   }
 }

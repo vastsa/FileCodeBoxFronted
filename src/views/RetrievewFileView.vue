@@ -53,6 +53,7 @@
       :record="selectedRecord"
       @close="closeDetails"
       @preview-content="showContentPreview"
+      @preview-file="showFilePreview"
     />
 
     <ContentPreviewModal
@@ -60,6 +61,12 @@
       :rendered-content="renderedContent"
       @close="closeContentPreview"
       @copy-content="copyContent"
+    />
+
+    <MediaPreviewModal
+      :visible="showMediaPreview"
+      :record="previewMediaRecord"
+      @close="closeFilePreview"
     />
   </div>
 </template>
@@ -75,6 +82,7 @@ import SideDrawer from '@/components/common/SideDrawer.vue'
 import FileDetailModal from '@/components/common/FileDetailModal.vue'
 import FileRecordList from '@/components/common/FileRecordList.vue'
 import ContentPreviewModal from '@/components/common/ContentPreviewModal.vue'
+import MediaPreviewModal from '@/components/common/MediaPreviewModal.vue'
 import { useRetrieveFlow } from '@/composables'
 import { useInjectedDarkMode } from '@/composables'
 
@@ -88,15 +96,19 @@ const {
   error,
   records,
   selectedRecord,
+  previewMediaRecord,
   showDrawer,
   showPreview,
+  showMediaPreview,
   renderedContent,
+  closeFilePreview,
   closeContentPreview,
   closeDetails,
   copyContent,
   deleteRecord,
   downloadRecord,
   handleSubmit,
+  showFilePreview,
   showContentPreview,
   toggleDrawer,
   viewDetails

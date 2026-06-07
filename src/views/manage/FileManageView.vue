@@ -240,83 +240,25 @@
       </div>
     </section>
 
-    <section
-      v-if="tableData.length > 0"
-      class="mb-4 flex flex-col gap-3 rounded-lg border px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-      :class="[panelClass]"
-    >
-      <label class="inline-flex items-center gap-2 text-sm" :class="[primaryTextClass]">
-        <input
-          type="checkbox"
-          class="h-4 w-4 rounded border-gray-300 text-zinc-600 focus:ring-zinc-500"
-          :checked="isAllCurrentPageSelected"
-          :disabled="isBatchActionRunning"
-          :indeterminate="isCurrentPagePartiallySelected"
-          @change="toggleCurrentPageSelection"
-        />
-        <span>
-          {{
-            hasSelectedFiles
-              ? t('fileManage.selectedCount', { count: selectedCount })
-              : t('fileManage.selectCurrentPage')
-          }}
-        </span>
-      </label>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <BaseButton
-          v-if="hasSelectedFiles"
-          variant="outline"
-          size="sm"
-          :disabled="isBatchActionRunning"
-          @click="clearSelection"
-        >
-          <template #icon>
-            <XIcon class="mr-2 h-4 w-4" />
-          </template>
-          {{ t('fileManage.clearSelection') }}
-        </BaseButton>
-        <BaseButton
-          v-for="option in batchPolicyActionOptions"
-          :key="option.action"
-          variant="outline"
-          size="sm"
-          :title="option.description"
-          :disabled="!hasSelectedFiles || isBatchDeleting || isBatchUpdating"
-          :loading="isBatchPolicyActionRunning"
-          @click="applySelectedPolicyAction(option.action)"
-        >
-          <template #icon>
-            <component :is="getDetailPolicyActionIcon(option.action)" class="mr-2 h-4 w-4" />
-          </template>
-          {{ option.label }}
-        </BaseButton>
-        <BaseButton
-          variant="secondary"
-          size="sm"
-          :disabled="!hasSelectedFiles || isBatchDeleting || isBatchPolicyActionRunning"
-          :loading="isBatchUpdating"
-          @click="openBatchEditModal"
-        >
-          <template #icon>
-            <ClockIcon class="mr-2 h-4 w-4" />
-          </template>
-          {{ t('fileManage.batchEdit') }}
-        </BaseButton>
-        <BaseButton
-          variant="danger"
-          size="sm"
-          :disabled="!hasSelectedFiles || isBatchUpdating || isBatchPolicyActionRunning"
-          :loading="isBatchDeleting"
-          @click="deleteSelectedFiles"
-        >
-          <template #icon>
-            <TrashIcon class="mr-2 h-4 w-4" />
-          </template>
-          {{ t('fileManage.batchDelete') }}
-        </BaseButton>
-      </div>
-    </section>
+    <AdminBatchActionBar
+      :visible="tableData.length > 0"
+      :panel-class="panelClass"
+      :primary-text-class="primaryTextClass"
+      :is-all-current-page-selected="isAllCurrentPageSelected"
+      :is-current-page-partially-selected="isCurrentPagePartiallySelected"
+      :is-batch-action-running="isBatchActionRunning"
+      :has-selected-files="hasSelectedFiles"
+      :selected-count="selectedCount"
+      :is-batch-deleting="isBatchDeleting"
+      :is-batch-updating="isBatchUpdating"
+      :is-batch-policy-action-running="isBatchPolicyActionRunning"
+      :batch-policy-action-options="batchPolicyActionOptions"
+      @toggle-current-page-selection="toggleCurrentPageSelection"
+      @clear-selection="clearSelection"
+      @apply-policy-action="applySelectedPolicyAction"
+      @open-batch-edit="openBatchEditModal"
+      @delete-selected="deleteSelectedFiles"
+    />
 
     <DataTable :title="t('fileManage.allFiles')" :headers="fileTableHeaders">
       <template #body>
@@ -1215,6 +1157,7 @@ import DataPagination from '@/components/common/DataPagination.vue'
 import FileEditField from '@/components/common/FileEditField.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
+import AdminBatchActionBar from '@/components/common/AdminBatchActionBar.vue'
 import { useAdminFiles, useInjectedDarkMode } from '@/composables'
 import { formatTimestamp } from '@/utils/common'
 

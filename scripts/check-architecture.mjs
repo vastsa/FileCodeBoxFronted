@@ -230,7 +230,7 @@ for (const rule of rules) {
       cwd: rootDir,
       absolute: true,
       nodir: true,
-      ignore: ['node_modules/**', 'dist/**'],
+      ignore: ['node_modules/**', 'dist/**', 'src/**/*.test.ts', 'src/**/*.spec.ts', 'src/**/__tests__/**'],
     })
   )
 

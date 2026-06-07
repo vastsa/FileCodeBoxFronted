@@ -8,6 +8,11 @@ import type { SendType, SentFileRecord, UploadProgress } from '@/types'
 import { getClipboardFile, insertTextAtSelection } from '@/utils/clipboard-paste'
 import { getErrorMessage } from '@/utils/common'
 import { getStorageUnit } from '@/utils/convert'
+import {
+  buildAcceptedFileTypes,
+  isFileTypeAllowed,
+  normalizeAllowedFileTypes
+} from '@/utils/file-type'
 import { calculateFileHash } from '@/utils/file-processing'
 import { buildSentRecord, isExpirationWithinLimit } from '@/utils/send-record'
 import { createSentRecordActions } from '@/utils/sent-record-actions'
@@ -43,20 +48,9 @@ export function useSendFlow() {
   )
   const allowedFileTypes = computed(() => {
     const types = config.value.allowedFileTypes || config.value.allowed_file_types || ['*']
-    const normalized = types.map((type) => String(type).trim()).filter(Boolean)
-    return normalized.length > 0 ? normalized : ['*']
+    return normalizeAllowedFileTypes(types)
   })
-  const acceptedTypes = computed(() => {
-    if (allowedFileTypes.value.some((type) => type === '*' || type === '*/*')) return '*'
-
-    return allowedFileTypes.value
-      .map((type) => {
-        const normalizedType = type.toLowerCase()
-        if (normalizedType.includes('/')) return normalizedType
-        return normalizedType.startsWith('.') ? normalizedType : `.${normalizedType}`
-      })
-      .join(',')
-  })
+  const acceptedTypes = computed(() => buildAcceptedFileTypes(allowedFileTypes.value))
   const expirationOptions = computed(() =>
     config.value.expireStyle.map((value) => ({
       value,
@@ -130,33 +124,15 @@ export function useSendFlow() {
   }
 
   const checkFileType = (file: File) => {
-    if (allowedFileTypes.value.some((type) => type === '*' || type === '*/*')) {
-      return true
-    }
-
-    const fileName = file.name.toLowerCase()
-    const mimeType = file.type.toLowerCase()
-    const isAllowed = allowedFileTypes.value.some((type) => {
-      const rule = type.toLowerCase()
-      if (rule.includes('/')) {
-        if (rule.endsWith('/*')) {
-          return mimeType.startsWith(rule.slice(0, -1))
-        }
-        return mimeType === rule
-      }
-
-      const extension = rule.startsWith('.') ? rule : `.${rule}`
-      return fileName.endsWith(extension)
-    })
-
-    if (!isAllowed) {
+    if (!isFileTypeAllowed(file, allowedFileTypes.value)) {
       alertStore.showAlert(
         t('send.messages.fileTypeNotAllowed', { types: allowedFileTypes.value.join(', ') }),
         'error'
       )
+      return false
     }
 
-    return isAllowed
+    return true
   }
 
   const checkExpirationTime = (method: string, value: string): boolean =>
