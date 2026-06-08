@@ -5,6 +5,7 @@ export type PublicConfig = SystemConfig & {
   uploadSize: number
   allowed_file_types?: string[]
   expireStyle: string[]
+  code_generate_type?: 'number' | 'secret'
   openUpload: number
   max_save_seconds: number
   enableChunk: number
@@ -23,6 +24,7 @@ export const DEFAULT_PUBLIC_CONFIG: PublicConfig = {
   allowedFileTypes: ['*'],
   allowed_file_types: ['*'],
   expireStyle: ['day'],
+  code_generate_type: 'number',
   openUpload: 1,
   max_save_seconds: 0,
   enableChunk: 0
@@ -34,6 +36,7 @@ export const DEFAULT_CONFIG_STATE: ConfigState = {
   file_storage: '',
   themesChoices: [],
   expireStyle: DEFAULT_PUBLIC_CONFIG.expireStyle,
+  code_generate_type: DEFAULT_PUBLIC_CONFIG.code_generate_type || 'number',
   admin_token: '',
   robotsText: '',
   keywords: '',
@@ -102,6 +105,7 @@ export function toPublicConfig(config: Partial<ConfigState> | null | undefined):
     allowedFileTypes,
     allowed_file_types: allowedFileTypes,
     expireStyle: config.expireStyle,
+    code_generate_type: config.code_generate_type,
     openUpload: config.openUpload,
     max_save_seconds: config.max_save_seconds,
     enableChunk: config.enableChunk,

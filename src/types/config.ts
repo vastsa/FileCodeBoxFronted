@@ -33,6 +33,7 @@ export interface ConfigState {
   file_storage: string
   themesChoices: ThemeChoice[]
   expireStyle: string[]
+  code_generate_type: 'number' | 'secret'
   admin_token: string
   robotsText: string
   keywords: string

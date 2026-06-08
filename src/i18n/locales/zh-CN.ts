@@ -172,6 +172,10 @@ export default {
       allowedFileTypes: '允许上传类型',
       allowedFileTypesPlaceholder: '* 或 .rar, .zip, image/*',
       allowedFileTypesHelp: '多个类型用英文逗号分隔，* 表示不限制；支持扩展名和 MIME 通配。',
+      codeGenerateType: '取件码规则',
+      codeGenerateNumber: '数字取件码',
+      codeGenerateSecret: 'Secret 取件码',
+      codeGenerateTypeHelp: '数字模式保持原有 5 位数字；Secret 模式使用字母数字混合随机码。',
       expirationMethod: '过期方式',
       expirationType: '过期方式',
       expiration: {
@@ -214,7 +218,7 @@ export default {
   retrieve: {
     title: '提取文件',
     codeInput: {
-      placeholder: '请输入您的 5 位数提取码',
+      placeholder: '请输入您的 5 位取件码',
       label: '取件码'
     },
     submit: '立即提取',
@@ -724,6 +728,10 @@ export default {
       allowedFileTypes: '允许上传类型',
       allowedFileTypesPlaceholder: '* 或 .rar, .zip, image/*',
       allowedFileTypesHelp: '多个类型用英文逗号分隔，* 表示不限制；支持扩展名和 MIME 通配。',
+      codeGenerateType: '取件码规则',
+      codeGenerateNumber: '数字取件码',
+      codeGenerateSecret: 'Secret 取件码',
+      codeGenerateTypeHelp: '数字模式保持原有 5 位数字；Secret 模式使用字母数字混合随机码。',
       expiration: {
         day: '按天数',
         hour: '按小时',
@@ -861,6 +869,10 @@ export default {
       uploadCountLimit: '允许上传文件数（限流窗口内最多上传几个文件）',
       files: '个文件',
       fileSizeLimit: '单文件大小上限',
+      codeGenerateType: '取件码规则',
+      codeGenerateNumber: '数字取件码',
+      codeGenerateSecret: 'Secret 取件码',
+      codeGenerateTypeHelp: '数字模式保持原有 5 位数字；Secret 模式使用字母数字混合随机码。',
       expirationMethod: '过期方式',
       expirationMethods: {
         day: '按天数',

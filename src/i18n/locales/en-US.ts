@@ -172,6 +172,10 @@ export default {
       allowedFileTypes: 'Allowed File Types',
       allowedFileTypesPlaceholder: '* or .rar, .zip, image/*',
       allowedFileTypesHelp: 'Separate multiple types with commas. * allows all; extensions and MIME wildcards are supported.',
+      codeGenerateType: 'Passcode Rule',
+      codeGenerateNumber: 'Numeric Passcode',
+      codeGenerateSecret: 'Secret Passcode',
+      codeGenerateTypeHelp: 'Numeric keeps the existing 5-digit code. Secret uses a random alphanumeric code.',
       expirationMethod: 'Expiration Options',
       expirationType: 'Expiration Options',
       expiration: {
@@ -221,7 +225,7 @@ export default {
     needSendFile: 'Need to send a file?',
     recordsDrawer: 'Retrieval Records',
     messages: {
-      invalidCode: 'Please enter a 5-digit retrieval code',
+      invalidCode: 'Please enter a 5-character retrieval code',
       retrieveSuccess: 'File retrieved successfully',
       invalidCodeError: 'Invalid retrieval code',
       retrieveFailure: 'Failed to retrieve file: ',
@@ -701,6 +705,10 @@ export default {
       allowedFileTypes: 'Allowed File Types',
       allowedFileTypesPlaceholder: '* or .rar, .zip, image/*',
       allowedFileTypesHelp: 'Separate multiple types with commas. * allows all; extensions and MIME wildcards are supported.',
+      codeGenerateType: 'Passcode Rule',
+      codeGenerateNumber: 'Numeric Passcode',
+      codeGenerateSecret: 'Secret Passcode',
+      codeGenerateTypeHelp: 'Numeric keeps the existing 5-digit code. Secret uses a random alphanumeric code.',
       expirationMethod: 'Expiration Options',
       expirationType: 'Expiration Options',
       expiration: {
@@ -770,6 +778,10 @@ export default {
       uploadCountLimit: 'Max Files Allowed (within the time window)',
       files: 'files',
       fileSizeLimit: 'Max File Size',
+      codeGenerateType: 'Passcode Rule',
+      codeGenerateNumber: 'Numeric Passcode',
+      codeGenerateSecret: 'Secret Passcode',
+      codeGenerateTypeHelp: 'Numeric keeps the existing 5-digit code. Secret uses a random alphanumeric code.',
       expirationMethod: 'Expiration Options',
       expirationMethods: {
         day: 'Days',

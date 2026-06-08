@@ -63,12 +63,14 @@ export function useSystemConfig() {
     const allowedFileTypes = normalizeAllowedFileTypes(
       nextConfig.allowed_file_types ?? nextConfig.allowedFileTypes
     )
+    const codeGenerateType = nextConfig.code_generate_type === 'secret' ? 'secret' : 'number'
 
     return {
       ...DEFAULT_CONFIG_STATE,
       ...nextConfig,
       allowed_file_types: allowedFileTypes,
       allowedFileTypes,
+      code_generate_type: codeGenerateType,
       admin_token: ''
     }
   }
