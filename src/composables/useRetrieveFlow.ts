@@ -6,7 +6,7 @@ import { useAlertStore } from '@/stores/alertStore'
 import { useFileDataStore } from '@/stores/fileData'
 import type { ReceivedFileRecord, ShareMetadataResponse, ShareSelectResponse } from '@/types'
 import { copyToClipboard } from '@/utils/clipboard'
-import { getErrorMessage } from '@/utils/common'
+import { getErrorMessage, getResponseMessage } from '@/utils/common'
 import { renderMarkdownPreview } from '@/utils/content-preview'
 import { downloadReceivedRecord } from '@/utils/download-action'
 
@@ -99,7 +99,7 @@ export function useRetrieveFlow() {
         inspectedFile.value = res.detail
       } else {
         inspectedFile.value = null
-        error.value = String(res.detail || res.message || '')
+        error.value = getResponseMessage(res, t('retrieve.messages.unknownError'))
         alertStore.showAlert(t('retrieve.messages.retrieveFailure') + error.value, 'error')
       }
     } catch {
@@ -142,7 +142,7 @@ export function useRetrieveFlow() {
         inspectedFile.value = null
         alertStore.showAlert(t('retrieve.messages.retrieveSuccess'), 'success')
       } else {
-        error.value = String(res.detail || '')
+        error.value = getResponseMessage(res, t('retrieve.messages.unknownError'))
         alertStore.showAlert(t('retrieve.messages.retrieveFailure') + error.value, 'error')
       }
     } catch (err: unknown) {

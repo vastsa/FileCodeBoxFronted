@@ -6,6 +6,7 @@ export interface ApiResponse<T = unknown> {
 }
 
 export interface ApiErrorPayload {
-  detail?: string
+  detail?: string | { setup?: string }
   message?: string
+  msg?: string
 }

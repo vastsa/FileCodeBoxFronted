@@ -4,7 +4,8 @@ import type { ApiErrorPayload } from '@/types'
 import { clearStoredToken, readStoredToken } from '@/utils/auth-storage'
 
 export const AUTH_EVENTS = {
-  UNAUTHORIZED: 'filecodebox:auth:unauthorized'
+  UNAUTHORIZED: 'filecodebox:auth:unauthorized',
+  SETUP_REQUIRED: 'filecodebox:setup:required'
 } as const
 
 const rawBaseURL =
@@ -33,7 +34,23 @@ const attachAuthToken = (config: InternalAxiosRequestConfig) => {
   return config
 }
 
+const getSetupPath = (payload?: ApiErrorPayload) => {
+  const detail = payload?.detail
+  if (detail && typeof detail === 'object' && typeof detail.setup === 'string') {
+    return detail.setup
+  }
+  return ''
+}
+
 const handleAuthError = (error: AxiosError<ApiErrorPayload>) => {
+  if (error.response?.status === API_STATUS_CODES.SETUP_REQUIRED) {
+    window.dispatchEvent(
+      new CustomEvent(AUTH_EVENTS.SETUP_REQUIRED, {
+        detail: { setupPath: getSetupPath(error.response.data) }
+      })
+    )
+  }
+
   if (error.response?.status === API_STATUS_CODES.UNAUTHORIZED) {
     clearStoredToken()
     window.dispatchEvent(new CustomEvent(AUTH_EVENTS.UNAUTHORIZED))

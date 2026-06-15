@@ -22,6 +22,7 @@ export function useAppShell() {
   )
 
   let cleanupThemeListener: (() => void) | null = null
+  let setupRedirecting = false
 
   const handleUnauthorized = () => {
     if (router.currentRoute.value.path !== ROUTES.LOGIN) {
@@ -34,16 +35,32 @@ export function useAppShell() {
     }
   }
 
+  const handleSetupRequired = (event: Event) => {
+    const setupPath =
+      event instanceof CustomEvent && typeof event.detail?.setupPath === 'string'
+        ? event.detail.setupPath
+        : '/setup'
+
+    if (!setupPath || setupRedirecting || window.location.pathname.replace(/\/+$/, '') === setupPath) {
+      return
+    }
+
+    setupRedirecting = true
+    window.location.assign(setupPath)
+  }
+
   onMounted(() => {
     cleanupThemeListener = initTheme()
     setupRouteLoading()
     window.addEventListener(AUTH_EVENTS.UNAUTHORIZED, handleUnauthorized)
+    window.addEventListener(AUTH_EVENTS.SETUP_REQUIRED, handleSetupRequired)
     void syncPublicConfig()
   })
 
   onUnmounted(() => {
     cleanupThemeListener?.()
     window.removeEventListener(AUTH_EVENTS.UNAUTHORIZED, handleUnauthorized)
+    window.removeEventListener(AUTH_EVENTS.SETUP_REQUIRED, handleSetupRequired)
   })
 
   provide('isDarkMode', isDarkMode)

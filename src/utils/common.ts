@@ -1,7 +1,7 @@
 /**
  * 通用工具函数
  */
-import type { ApiErrorPayload } from '@/types'
+import type { ApiErrorPayload, ApiResponse } from '@/types'
 
 /**
  * 格式化时间戳为可读格式
@@ -221,15 +221,46 @@ type ErrorWithResponse = {
   message?: string
 }
 
+const getReadableMessage = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value
+  }
+
+  if (!value || typeof value !== 'object') {
+    return ''
+  }
+
+  const payload = value as Record<string, unknown>
+  for (const key of ['message', 'msg', 'detail', 'error']) {
+    const fieldValue = payload[key]
+    if (typeof fieldValue === 'string' && fieldValue.trim()) {
+      return fieldValue
+    }
+  }
+
+  return ''
+}
+
+export function getResponseMessage(response: ApiResponse, fallback: string): string {
+  return (
+    getReadableMessage(response.detail) ||
+    getReadableMessage(response.message) ||
+    getReadableMessage(response.msg) ||
+    fallback
+  )
+}
+
 export function getErrorMessage(error: unknown, fallback: string): string {
   if (!error || typeof error !== 'object') {
     return fallback
   }
 
   const errorWithResponse = error as ErrorWithResponse
+  const responseData = errorWithResponse.response?.data
   return (
-    errorWithResponse.response?.data?.detail ||
-    errorWithResponse.response?.data?.message ||
+    getReadableMessage(responseData?.detail) ||
+    getReadableMessage(responseData?.message) ||
+    getReadableMessage(responseData?.msg) ||
     errorWithResponse.message ||
     fallback
   )
