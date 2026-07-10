@@ -5,6 +5,7 @@ export const STORAGE_KEYS = {
   COLOR_MODE: 'colorMode',
   ADMIN_PASSWORD: 'adminPassword',
   TOKEN: 'token',
+  TOKEN_EXPIRES_AT: 'tokenExpiresAt',
   CONFIG: 'config',
   NOTIFY: 'notify'
 } as const

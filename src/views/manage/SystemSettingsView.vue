@@ -18,6 +18,7 @@ const {
   sizeUnit,
   saveTime,
   saveTimeUnit,
+  adminSessionDays,
   refreshConfig,
   submitConfig,
   toggleConfigFlag
@@ -166,6 +167,29 @@ onMounted(() => {
                 <span class="text-xs">{{ t('admin.settings.passwordNote') }}</span>
               </div>
             </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div>
+              <SettingNumberInput
+                v-model="adminSessionDays"
+                :label="t('admin.settings.sessionDuration')"
+                :suffix="t('common.day')"
+                :min="1"
+                :max="365"
+              />
+              <p class="mt-2 text-xs" :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-500']">
+                {{ t('admin.settings.sessionDurationHelp') }}
+              </p>
+            </div>
+
+            <SettingSwitch
+              :label="t('admin.settings.showAdminAddress')"
+              :model-value="config.showAdminAddr"
+              :enabled-text="t('common.enabled')"
+              :disabled-text="t('common.disabled')"
+              @toggle="toggleConfigFlag('showAdminAddr')"
+            />
           </div>
 
           <div class="space-y-2">

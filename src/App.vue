@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { RouterLink, RouterView } from 'vue-router'
-import { ShieldCheckIcon } from 'lucide-vue-next'
+import { LogInIcon, ShieldCheckIcon } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 import ThemeToggle from './components/common/ThemeToggle.vue'
 import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import AlertComponent from '@/components/common/AlertComponent.vue'
-import { useAppShell } from '@/composables'
+import { useAdminSession, useAppShell } from '@/composables'
 import { ROUTES } from '@/constants'
 import { useConfigStore } from '@/stores/configStore'
+import { useAdminStore } from '@/stores/adminStore'
 
 const {
   isDarkMode,
@@ -21,7 +23,17 @@ const {
 
 const configStore = useConfigStore()
 const { config } = storeToRefs(configStore)
+const adminStore = useAdminStore()
+const { t } = useI18n()
+const { verifySession } = useAdminSession()
 const showAdminAddress = computed(() => config.value.showAdminAddr === 1)
+const adminEntryLabel = computed(() =>
+  t(adminStore.isAuthenticated ? 'admin.session.loggedIn' : 'admin.session.loggedOut')
+)
+
+onMounted(() => {
+  if (adminStore.hasToken) void verifySession()
+})
 </script>
 
 <template>
@@ -35,14 +47,19 @@ const showAdminAddress = computed(() => config.value.showAdminAddr === 1)
         :to="ROUTES.ADMIN"
         class="rounded-full border p-2.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:scale-105 active:scale-95 sm:p-3"
         :class="
-          isDarkMode
-            ? 'border-white/10 bg-zinc-800/80 text-zinc-100 hover:bg-zinc-700'
-            : 'border-slate-200/50 bg-white/80 text-slate-500 hover:text-slate-700'
+          adminStore.isAuthenticated
+            ? isDarkMode
+              ? 'border-emerald-400/30 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25'
+              : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+            : isDarkMode
+              ? 'border-white/10 bg-zinc-800/80 text-zinc-100 hover:bg-zinc-700'
+              : 'border-slate-200/50 bg-white/80 text-slate-500 hover:text-slate-700'
         "
-        aria-label="进入管理员页面"
-        title="进入管理员页面"
+        :aria-label="adminEntryLabel"
+        :title="adminEntryLabel"
       >
-        <ShieldCheckIcon class="h-5 w-5" />
+        <ShieldCheckIcon v-if="adminStore.isAuthenticated" class="h-5 w-5" />
+        <LogInIcon v-else class="h-5 w-5" />
       </RouterLink>
       <LanguageSwitcher />
       <ThemeToggle v-model="isDarkMode" />

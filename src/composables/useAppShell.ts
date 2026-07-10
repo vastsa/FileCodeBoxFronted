@@ -5,6 +5,7 @@ import { ROUTES } from '@/constants'
 import { useTheme } from './useTheme'
 import { usePublicConfigBootstrap } from './usePublicConfigBootstrap'
 import { useRouteLoading } from './useRouteLoading'
+import { useAdminStore } from '@/stores/adminStore'
 
 export function useAppShell() {
   const route = useRoute()
@@ -12,6 +13,7 @@ export function useAppShell() {
   const { isDarkMode, toggleTheme, initTheme } = useTheme()
   const { isLoading, setupRouteLoading } = useRouteLoading(router)
   const { syncPublicConfig } = usePublicConfigBootstrap()
+  const adminStore = useAdminStore()
   const showGlobalControls = computed(() => route.meta.showGlobalControls !== false)
   const routeTransitionName = computed(() => String(route.meta.routeTransition || 'fade'))
   const routeTransitionMode = computed(() => (route.meta.routeTransition ? undefined : 'out-in'))
@@ -25,6 +27,7 @@ export function useAppShell() {
   let setupRedirecting = false
 
   const handleUnauthorized = () => {
+    adminStore.logout()
     if (router.currentRoute.value.path !== ROUTES.LOGIN) {
       void router.push({
         path: ROUTES.LOGIN,
@@ -41,7 +44,11 @@ export function useAppShell() {
         ? event.detail.setupPath
         : '/setup'
 
-    if (!setupPath || setupRedirecting || window.location.pathname.replace(/\/+$/, '') === setupPath) {
+    if (
+      !setupPath ||
+      setupRedirecting ||
+      window.location.pathname.replace(/\/+$/, '') === setupPath
+    ) {
       return
     }
 

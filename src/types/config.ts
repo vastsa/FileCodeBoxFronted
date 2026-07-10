@@ -34,6 +34,7 @@ export interface ConfigState {
   themesChoices: ThemeChoice[]
   expireStyle: string[]
   code_generate_type: 'number' | 'secret'
+  adminSessionExpire: number
   admin_token: string
   robotsText: string
   keywords: string

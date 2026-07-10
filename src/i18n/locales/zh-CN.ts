@@ -54,6 +54,10 @@ export default {
   // 管理员模块
   admin: {
     logout: '退出登录',
+    session: {
+      loggedIn: '已登录，进入管理后台',
+      loggedOut: '登录管理后台'
+    },
     dashboard: {
       title: '仪表盘',
       totalFiles: '总文件数',
@@ -123,6 +127,9 @@ export default {
       websiteDescription: '网站描述',
       siteName: '网站名称',
       adminPassword: '管理员密码',
+      sessionDuration: '登录会话时长',
+      sessionDurationHelp: '仅影响新登录，允许设置 1 至 365 天。',
+      showAdminAddress: '在主页显示管理入口',
       passwordPlaceholder: '如需修改请输入新密码',
       passwordNote: '不修改请留空',
       keywords: 'SEO 关键词',

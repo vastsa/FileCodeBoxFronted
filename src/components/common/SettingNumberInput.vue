@@ -10,6 +10,9 @@
       <input
         type="number"
         :value="modelValue"
+        :min="min"
+        :max="max"
+        step="1"
         class="w-24 rounded-xl border px-4 py-2.5 shadow-sm outline-none transition-all duration-200 ease-in-out focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500"
         :class="[
           isDarkMode
@@ -26,10 +29,12 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   label: string
   modelValue: number
   suffix: string
+  min?: number
+  max?: number
 }>()
 
 const isDarkMode = inject('isDarkMode')
@@ -41,13 +46,16 @@ const emit = defineEmits<{
 const handleInput = (event: Event) => {
   const input = event.target as HTMLInputElement
   if (!input.value) {
-    emit('update:modelValue', 0)
+    emit('update:modelValue', props.min ?? 0)
     return
   }
 
   const nextValue = input.valueAsNumber
   if (!Number.isNaN(nextValue)) {
-    emit('update:modelValue', nextValue)
+    const integerValue = Math.round(nextValue)
+    const lowerBound = props.min ?? Number.NEGATIVE_INFINITY
+    const upperBound = props.max ?? Number.POSITIVE_INFINITY
+    emit('update:modelValue', Math.min(upperBound, Math.max(lowerBound, integerValue)))
   }
 }
 </script>

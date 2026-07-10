@@ -13,7 +13,9 @@ import {
   type SaveTimeUnit
 } from '@/utils/config-form'
 
-type ConfigFlagKey = 'enableChunk' | 's3_proxy' | 'openUpload'
+type ConfigFlagKey = 'enableChunk' | 's3_proxy' | 'openUpload' | 'showAdminAddr'
+
+const SECONDS_PER_DAY = 24 * 60 * 60
 
 export function useSystemConfig() {
   const alertStore = useAlertStore()
@@ -28,6 +30,7 @@ export function useSystemConfig() {
   const sizeUnit = ref<FileSizeUnit>('MB')
   const saveTime = ref(1)
   const saveTimeUnit = ref<SaveTimeUnit>('天')
+  const adminSessionDays = ref(30)
 
   const isLoading = computed(() => isRefreshing.value || isSaving.value)
 
@@ -37,6 +40,7 @@ export function useSystemConfig() {
       { value: fileSize.value, unit: sizeUnit.value },
       { value: saveTime.value, unit: saveTimeUnit.value }
     )
+    payload.adminSessionExpire = Math.round(adminSessionDays.value * SECONDS_PER_DAY)
 
     if (!payload.admin_token) {
       delete payload.admin_token
@@ -168,6 +172,10 @@ export function useSystemConfig() {
     const saveTimeForm = secondsToSaveTimeForm(nextConfig.max_save_seconds)
     saveTime.value = saveTimeForm.value
     saveTimeUnit.value = saveTimeForm.unit
+    adminSessionDays.value = Math.max(
+      1,
+      Math.round(nextConfig.adminSessionExpire / SECONDS_PER_DAY)
+    )
   }
 
   const refreshConfig = async () => {
@@ -220,6 +228,7 @@ export function useSystemConfig() {
     sizeUnit,
     saveTime,
     saveTimeUnit,
+    adminSessionDays,
 
     // 计算属性
     maxFileSizeMB,

@@ -1,7 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { API_STATUS_CODES, TIME_CONSTANTS } from '@/constants'
 import type { ApiErrorPayload } from '@/types'
-import { clearStoredToken, readStoredToken } from '@/utils/auth-storage'
+import { clearStoredToken, hasValidStoredAdminSession, readStoredToken } from '@/utils/auth-storage'
 
 export const AUTH_EVENTS = {
   UNAUTHORIZED: 'filecodebox:auth:unauthorized',
@@ -27,9 +27,11 @@ const apiClient = axios.create(clientOptions)
 export const rawApiClient = axios.create(clientOptions)
 
 const attachAuthToken = (config: InternalAxiosRequestConfig) => {
-  const token = readStoredToken()
-  if (token) {
+  if (hasValidStoredAdminSession()) {
+    const token = readStoredToken()
     config.headers.Authorization = `Bearer ${token}`
+  } else {
+    clearStoredToken()
   }
   return config
 }
@@ -58,20 +60,11 @@ const handleAuthError = (error: AxiosError<ApiErrorPayload>) => {
   return Promise.reject(error)
 }
 
-apiClient.interceptors.request.use(
-  attachAuthToken,
-  (error) => Promise.reject(error)
-)
+apiClient.interceptors.request.use(attachAuthToken, (error) => Promise.reject(error))
 
-rawApiClient.interceptors.request.use(
-  attachAuthToken,
-  (error) => Promise.reject(error)
-)
+rawApiClient.interceptors.request.use(attachAuthToken, (error) => Promise.reject(error))
 
-apiClient.interceptors.response.use(
-  (response) => response.data,
-  handleAuthError
-)
+apiClient.interceptors.response.use((response) => response.data, handleAuthError)
 
 rawApiClient.interceptors.response.use((response) => response, handleAuthError)
 

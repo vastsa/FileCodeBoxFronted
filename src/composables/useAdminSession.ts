@@ -13,10 +13,9 @@ export function useAdminSession() {
         adminStore.login(response.detail)
         return true
       }
-    } catch {
-      adminStore.logout()
-    }
+    } catch {}
 
+    adminStore.logout()
     return false
   }
 

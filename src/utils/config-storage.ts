@@ -43,6 +43,7 @@ export const DEFAULT_CONFIG_STATE: ConfigState = {
   themesChoices: [],
   expireStyle: DEFAULT_PUBLIC_CONFIG.expireStyle,
   code_generate_type: DEFAULT_PUBLIC_CONFIG.code_generate_type || 'secret',
+  adminSessionExpire: 30 * 24 * 60 * 60,
   admin_token: '',
   robotsText: '',
   keywords: '',

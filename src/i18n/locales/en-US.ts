@@ -54,6 +54,10 @@ export default {
   // Admin module
   admin: {
     logout: 'Logout',
+    session: {
+      loggedIn: 'Signed in, open admin console',
+      loggedOut: 'Sign in to admin console'
+    },
     dashboard: {
       title: 'Dashboard',
       totalFiles: 'Total Files',
@@ -123,6 +127,9 @@ export default {
       websiteDescription: 'Site Description',
       siteName: 'Site Name',
       adminPassword: 'Admin Password',
+      sessionDuration: 'Login Session Duration',
+      sessionDurationHelp: 'Applies to new logins only. Allowed range: 1 to 365 days.',
+      showAdminAddress: 'Show Admin Entry on Home Pages',
       passwordPlaceholder: 'Enter new password to change',
       passwordNote: 'Leave empty to keep current',
       keywords: 'SEO Keywords',
@@ -171,11 +178,13 @@ export default {
       fileSizeLimit: 'Max File Size',
       allowedFileTypes: 'Allowed File Types',
       allowedFileTypesPlaceholder: '* or .rar, .zip, image/*',
-      allowedFileTypesHelp: 'Separate multiple types with commas. * allows all; extensions and MIME wildcards are supported.',
+      allowedFileTypesHelp:
+        'Separate multiple types with commas. * allows all; extensions and MIME wildcards are supported.',
       codeGenerateType: 'Passcode Rule',
       codeGenerateNumber: 'Numeric Passcode',
       codeGenerateSecret: 'Secret Passcode',
-      codeGenerateTypeHelp: 'Numeric keeps the existing 5-digit code. Secret uses a random alphanumeric code.',
+      codeGenerateTypeHelp:
+        'Numeric keeps the existing 5-digit code. Secret uses a random alphanumeric code.',
       expirationMethod: 'Expiration Options',
       expirationType: 'Expiration Options',
       expiration: {
@@ -704,11 +713,13 @@ export default {
       fileSizeLimit: 'Max File Size',
       allowedFileTypes: 'Allowed File Types',
       allowedFileTypesPlaceholder: '* or .rar, .zip, image/*',
-      allowedFileTypesHelp: 'Separate multiple types with commas. * allows all; extensions and MIME wildcards are supported.',
+      allowedFileTypesHelp:
+        'Separate multiple types with commas. * allows all; extensions and MIME wildcards are supported.',
       codeGenerateType: 'Passcode Rule',
       codeGenerateNumber: 'Numeric Passcode',
       codeGenerateSecret: 'Secret Passcode',
-      codeGenerateTypeHelp: 'Numeric keeps the existing 5-digit code. Secret uses a random alphanumeric code.',
+      codeGenerateTypeHelp:
+        'Numeric keeps the existing 5-digit code. Secret uses a random alphanumeric code.',
       expirationMethod: 'Expiration Options',
       expirationType: 'Expiration Options',
       expiration: {
@@ -781,7 +792,8 @@ export default {
       codeGenerateType: 'Passcode Rule',
       codeGenerateNumber: 'Numeric Passcode',
       codeGenerateSecret: 'Secret Passcode',
-      codeGenerateTypeHelp: 'Numeric keeps the existing 5-digit code. Secret uses a random alphanumeric code.',
+      codeGenerateTypeHelp:
+        'Numeric keeps the existing 5-digit code. Secret uses a random alphanumeric code.',
       expirationMethod: 'Expiration Options',
       expirationMethods: {
         day: 'Days',

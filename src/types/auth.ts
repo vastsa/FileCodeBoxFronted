@@ -3,5 +3,6 @@ export interface AdminUser {
   username: string
   token: string
   token_type?: string
-  expires_at?: number
+  expires_at: number
+  expires_in?: number
 }

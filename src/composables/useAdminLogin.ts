@@ -30,7 +30,7 @@ export function useAdminLogin() {
     isLoading.value = true
     try {
       const response = await AuthService.login(password.value)
-      if (!response.detail?.token) {
+      if (!response.detail?.token || !response.detail.expires_at) {
         alertStore.showAlert('登录失败：未获取到有效令牌', 'error')
         return false
       }

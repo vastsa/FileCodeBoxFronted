@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { ROUTE_NAMES, ROUTES } from '@/constants'
-import { readStoredToken } from '@/utils/auth-storage'
+import { hasValidStoredAdminSession } from '@/utils/auth-storage'
 
 const publicPageMeta = {
   showGlobalControls: true,
@@ -92,7 +92,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  if (to.meta.requiresAuth && !readStoredToken()) {
+  if (to.meta.requiresAuth && !hasValidStoredAdminSession()) {
     return {
       path: ROUTES.LOGIN,
       query: {
