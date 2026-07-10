@@ -18,16 +18,22 @@ export type PublicConfig = SystemConfig & {
   opacity?: number
 }
 
+type PublicConfigInput = Omit<Partial<ConfigState>, 'showAdminAddr'> & {
+  showAdminAddr?: number | string
+  show_admin_address?: number | string
+}
+
 export const DEFAULT_PUBLIC_CONFIG: PublicConfig = {
   ...DEFAULT_CONFIG,
   uploadSize: FILE_SIZE_LIMITS.MAX_FILE_SIZE,
   allowedFileTypes: ['*'],
   allowed_file_types: ['*'],
   expireStyle: ['day'],
-  code_generate_type: 'number',
+  code_generate_type: 'secret',
   openUpload: 1,
   max_save_seconds: 0,
-  enableChunk: 0
+  enableChunk: 0,
+  showAdminAddr: 0
 }
 
 export const DEFAULT_CONFIG_STATE: ConfigState = {
@@ -36,7 +42,7 @@ export const DEFAULT_CONFIG_STATE: ConfigState = {
   file_storage: '',
   themesChoices: [],
   expireStyle: DEFAULT_PUBLIC_CONFIG.expireStyle,
-  code_generate_type: DEFAULT_PUBLIC_CONFIG.code_generate_type || 'number',
+  code_generate_type: DEFAULT_PUBLIC_CONFIG.code_generate_type || 'secret',
   admin_token: '',
   robotsText: '',
   keywords: '',
@@ -84,6 +90,11 @@ function normalizeFileTypes(value: unknown): string[] {
   return normalized.length > 0 ? normalized : ['*']
 }
 
+function normalizeAdminAddress(value: number | string | undefined): number | undefined {
+  if (value === undefined) return undefined
+  return Number(value) === 1 ? 1 : 0
+}
+
 export function readStoredConfig<T extends object = Partial<ConfigState>>(): T | null {
   try {
     const rawConfig = localStorage.getItem(STORAGE_KEYS.CONFIG)
@@ -93,7 +104,9 @@ export function readStoredConfig<T extends object = Partial<ConfigState>>(): T |
   }
 }
 
-export function toPublicConfig(config: Partial<ConfigState> | null | undefined): Partial<PublicConfig> {
+export function toPublicConfig(
+  config: PublicConfigInput | null | undefined
+): Partial<PublicConfig> {
   if (!config) return {}
 
   const allowedFileTypes = normalizeFileTypes(config.allowedFileTypes ?? config.allowed_file_types)
@@ -112,7 +125,7 @@ export function toPublicConfig(config: Partial<ConfigState> | null | undefined):
     notify_title: config.notify_title,
     notify_content: config.notify_content,
     page_explain: config.page_explain,
-    showAdminAddr: config.showAdminAddr,
+    showAdminAddr: normalizeAdminAddress(config.showAdminAddr ?? config.show_admin_address),
     themesSelect: config.themesSelect,
     background: config.background,
     opacity: config.opacity
@@ -120,7 +133,10 @@ export function toPublicConfig(config: Partial<ConfigState> | null | undefined):
 }
 
 export function writeStoredConfig(config: object) {
-  localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(toPublicConfig(config as Partial<ConfigState>)))
+  localStorage.setItem(
+    STORAGE_KEYS.CONFIG,
+    JSON.stringify(toPublicConfig(config as PublicConfigInput))
+  )
 }
 
 export function readNotifyKey(): string | null {

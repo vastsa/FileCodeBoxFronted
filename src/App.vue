@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { RouterLink, RouterView } from 'vue-router'
 import { ShieldCheckIcon } from 'lucide-vue-next'
 import ThemeToggle from './components/common/ThemeToggle.vue'
@@ -6,6 +8,7 @@ import LanguageSwitcher from './components/common/LanguageSwitcher.vue'
 import AlertComponent from '@/components/common/AlertComponent.vue'
 import { useAppShell } from '@/composables'
 import { ROUTES } from '@/constants'
+import { useConfigStore } from '@/stores/configStore'
 
 const {
   isDarkMode,
@@ -15,6 +18,10 @@ const {
   routeViewKey,
   showGlobalControls
 } = useAppShell()
+
+const configStore = useConfigStore()
+const { config } = storeToRefs(configStore)
+const showAdminAddress = computed(() => config.value.showAdminAddr === 1)
 </script>
 
 <template>
@@ -24,6 +31,7 @@ const {
       class="fixed top-4 right-4 z-50 flex items-center gap-2 sm:top-6 sm:right-6 sm:gap-3"
     >
       <RouterLink
+        v-if="showAdminAddress"
         :to="ROUTES.ADMIN"
         class="rounded-full border p-2.5 shadow-sm backdrop-blur-xl transition-all duration-300 hover:scale-105 active:scale-95 sm:p-3"
         :class="
