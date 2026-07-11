@@ -40,19 +40,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-6">
+  <div class="settings-page p-6">
     <div
-      class="sticky top-0 z-20 -mx-6 -mt-6 mb-6 border-b px-6 py-4 backdrop-blur"
-      :class="[isDarkMode ? 'border-white/10 bg-[#101012]/85' : 'border-white/80 bg-white/70']"
+      class="theme-surface sticky top-0 z-20 -mx-6 -mt-6 mb-6 border-b px-6 py-4 backdrop-blur"
     >
       <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 class="text-2xl font-bold" :class="[isDarkMode ? 'text-white' : 'text-zinc-800']">
+          <h2 class="theme-text-strong text-2xl font-bold">
             {{ t('admin.settings.title') }}
           </h2>
           <p
             class="mt-1 text-sm"
-            :class="[isDirty ? 'text-amber-500' : isDarkMode ? 'text-zinc-400' : 'text-zinc-500']"
+            :class="isDirty ? 'theme-warning' : 'theme-text-muted'"
           >
             {{
               isDirty ? t('manage.settings.unsavedChanges') : t('manage.settings.allChangesSaved')
@@ -93,8 +92,7 @@ onMounted(() => {
     </div>
 
     <div
-      class="space-y-6 rounded-2xl border p-6 shadow-sm backdrop-blur-xl"
-      :class="[isDarkMode ? 'border-white/10 bg-white/[0.06]' : 'border-white/80 bg-white/70']"
+      class="theme-panel space-y-6 rounded-2xl border p-6 backdrop-blur-xl"
     >
       <!-- 基本设置 -->
       <section class="space-y-4">
@@ -857,4 +855,28 @@ onMounted(() => {
     </div>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+.settings-page :deep(input:not([type='checkbox'])),
+.settings-page :deep(select),
+.settings-page :deep(textarea) {
+  background-color: rgb(var(--color-surface-input) / 0.8) !important;
+  border-color: rgb(var(--color-border)) !important;
+  color: rgb(var(--color-text-strong)) !important;
+}
+
+.settings-page :deep(input::placeholder),
+.settings-page :deep(textarea::placeholder) {
+  color: rgb(var(--color-text-subtle)) !important;
+}
+
+.settings-page :deep(input:hover),
+.settings-page :deep(select:hover),
+.settings-page :deep(textarea:hover) {
+  border-color: rgb(var(--color-border-strong)) !important;
+}
+
+.settings-page :deep(label),
+.settings-page :deep(h3) {
+  color: rgb(var(--color-text)) !important;
+}
+</style>

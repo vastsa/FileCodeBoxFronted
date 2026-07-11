@@ -1,41 +1,34 @@
 <template>
   <div
-    class="flex h-screen overflow-hidden flex-col transition-colors duration-300 lg:flex-row"
-    :class="[isDarkMode ? 'bg-[#101012]' : 'bg-[#f5f5f7]']"
+    class="theme-page flex h-screen overflow-hidden flex-col transition-colors duration-300 lg:flex-row"
   >
     <!-- Sidebar -->
     <aside
-      class="fixed inset-y-0 left-0 z-50 flex h-full w-64 shrink-0 transform flex-col border-r lg:relative lg:h-screen lg:translate-x-0"
+      class="theme-surface fixed inset-y-0 left-0 z-50 flex h-full w-64 shrink-0 transform flex-col border-r shadow-[var(--shadow-sidebar)] backdrop-blur-2xl lg:relative lg:h-screen lg:translate-x-0"
       :class="[
-        isDarkMode
-          ? 'border-white/10 bg-zinc-900/80 backdrop-blur-2xl shadow-[12px_0_40px_-28px_rgba(255,255,255,0.18)]'
-          : 'border-white/80 bg-white/70 backdrop-blur-2xl shadow-[12px_0_40px_-28px_rgba(24,24,27,0.24)]',
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full',
         'transition-transform duration-300 ease-in-out lg:transition-none'
       ]"
     >
       <!-- Logo区域 -->
       <div
-        class="flex h-16 shrink-0 items-center justify-between gap-3 border-b px-4"
-        :class="[isDarkMode ? 'border-white/10' : 'border-zinc-200/70']"
+        class="theme-divider flex h-16 shrink-0 items-center justify-between gap-3 border-b px-4"
       >
         <div class="flex min-w-0 items-center">
           <div
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition-colors"
-            :class="[isDarkMode ? 'bg-white/10 text-zinc-100' : 'bg-zinc-950 text-white']"
+            class="theme-brand flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl transition-colors"
           >
             <BoxIcon class="h-5 w-5 shrink-0" />
           </div>
           <h1
             @click="router.push('/')"
-            class="ml-2 min-w-0 truncate text-xl font-semibold cursor-pointer"
-            :class="[isDarkMode ? 'text-white' : 'text-gray-800']"
+            class="theme-text-strong ml-2 min-w-0 truncate text-xl font-semibold cursor-pointer"
           >
             {{ t('common.appName') }}
           </h1>
         </div>
         <button @click="toggleSidebar" class="shrink-0 lg:hidden">
-          <XIcon class="w-6 h-6" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']" />
+          <XIcon class="theme-text-muted w-6 h-6" />
         </button>
       </div>
 
@@ -46,15 +39,7 @@
             <RouterLink
               :to="item.redirect"
               class="flex h-10 w-full items-center rounded-lg border-l-4 px-3 text-sm font-medium"
-              :class="[
-                route.name === item.id
-                  ? isDarkMode
-                    ? 'border-zinc-200 bg-white/10 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
-                    : 'border-zinc-900 bg-zinc-900/[0.06] text-zinc-950 shadow-sm'
-                  : isDarkMode
-                    ? 'border-transparent text-zinc-400 hover:bg-white/5 hover:text-zinc-100'
-                    : 'border-transparent text-zinc-500 hover:bg-zinc-900/[0.04] hover:text-zinc-900'
-              ]"
+              :class="route.name === item.id ? 'theme-nav-item-active' : 'theme-nav-item'"
             >
               <component :is="item.icon" class="mr-3 h-5 w-5 shrink-0" />
               {{ item.name }}
@@ -64,15 +49,10 @@
       </nav>
 
       <!-- 退出登录按钮 -->
-      <div class="p-4 border-t" :class="[isDarkMode ? 'border-white/10' : 'border-zinc-200/70']">
+      <div class="theme-divider p-4 border-t">
         <button
           @click="handleLogout"
-          class="flex items-center w-full p-2 rounded-lg transition-colors duration-200"
-          :class="[
-            isDarkMode
-              ? 'text-zinc-400 hover:bg-white/5 hover:text-white'
-              : 'text-zinc-500 hover:bg-zinc-900/[0.04] hover:text-zinc-950'
-          ]"
+          class="theme-icon-button flex items-center w-full p-2 rounded-lg transition-colors duration-200"
         >
           <LogOutIcon class="w-5 h-5 mr-3" />
           {{ t('admin.logout') }}
@@ -84,20 +64,18 @@
     <div class="flex h-full min-h-0 min-w-0 flex-1 flex-col">
       <!-- Header -->
       <header
-        class="border-b transition-colors duration-300 h-16 backdrop-blur-xl"
-        :class="[isDarkMode ? 'border-white/10 bg-zinc-900/70' : 'border-white/80 bg-white/60']"
+        class="theme-surface border-b transition-colors duration-300 h-16 backdrop-blur-xl"
       >
         <div class="flex items-center justify-between h-16 px-4">
           <button @click="toggleSidebar" class="lg:hidden">
-            <MenuIcon class="w-6 h-6" :class="[isDarkMode ? 'text-gray-400' : 'text-gray-600']" />
+            <MenuIcon class="theme-text-muted w-6 h-6" />
           </button>
         </div>
       </header>
 
       <!-- Content -->
       <main
-        class="min-h-0 flex-1 overflow-y-auto transition-colors duration-300 custom-scrollbar"
-        :class="[isDarkMode ? 'bg-[#101012]' : 'bg-[#f5f5f7]']"
+        class="theme-page min-h-0 flex-1 overflow-y-auto transition-colors duration-300 custom-scrollbar"
       >
         <router-view />
       </main>
@@ -106,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import {
   BoxIcon,
   MenuIcon,
@@ -131,7 +109,6 @@ interface MenuItem {
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
-const isDarkMode = inject('isDarkMode')
 const { verifySession, logout } = useAdminSession()
 const menuItems: MenuItem[] = [
   {
@@ -210,20 +187,12 @@ const handleLogout = async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #e5e7eb;
+  background-color: rgb(var(--color-surface-muted));
   transition: 0.4s;
 }
 
-.dark .slider {
-  background-color: #4b5563;
-}
-
 input:checked + .slider {
-  background-color: #18181b;
-}
-
-.dark input:checked + .slider {
-  background-color: #f4f4f5;
+  background-color: rgb(var(--color-accent));
 }
 
 .slider:before {
@@ -233,12 +202,8 @@ input:checked + .slider {
   width: 26px;
   left: 4px;
   bottom: 4px;
-  background-color: white;
+  background-color: rgb(var(--color-accent-contrast));
   transition: 0.4s;
-}
-
-.dark .slider:before {
-  background-color: #e5e7eb;
 }
 
 .slider.round {
@@ -279,23 +244,13 @@ input:checked + .slider {
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #cbd5e0;
+    background-color: rgb(var(--color-scrollbar));
     border-radius: 3px;
 
     &:hover {
-      background-color: #a0aec0;
+      background-color: rgb(var(--color-scrollbar-hover));
     }
   }
 }
 
-/* 暗黑模式下的滚动条样式 */
-:global(.dark) .custom-scrollbar {
-  &::-webkit-scrollbar-thumb {
-    background-color: #4a5568;
-
-    &:hover {
-      background-color: #2d3748;
-    }
-  }
-}
 </style>

@@ -175,12 +175,12 @@
         </div>
       </section>
 
-      <section class="rounded-lg p-5 shadow-sm" :class="[panelClass]">
+      <section class="theme-text rounded-lg p-5 shadow-sm" :class="[panelClass]">
         <div class="mb-5">
-          <h3 class="text-lg font-semibold" :class="[primaryTextClass]">
+          <h3 class="theme-text-strong text-lg font-semibold">
             {{ t('admin.dashboard.storagePolicy') }}
           </h3>
-          <p class="text-sm" :class="[mutedTextClass]">
+          <p class="theme-text-muted text-sm">
             {{ t('admin.dashboard.storagePolicyDesc') }}
           </p>
         </div>
@@ -203,15 +203,14 @@
 
         <div class="mt-5">
           <div class="mb-2 flex items-center justify-between text-sm">
-            <span :class="[mutedTextClass]">{{ t('admin.dashboard.todayCapacityReference') }}</span>
-            <span :class="[primaryTextClass]">{{ dashboardData.todaySizeRatio }}%</span>
+            <span class="theme-text-muted">{{ t('admin.dashboard.todayCapacityReference') }}</span>
+            <span class="theme-text-strong">{{ dashboardData.todaySizeRatio }}%</span>
           </div>
           <div
-            class="h-2 overflow-hidden rounded-full"
-            :class="[isDarkMode ? 'bg-gray-700' : 'bg-gray-100']"
+            class="h-2 overflow-hidden rounded-full bg-[rgb(var(--color-surface-muted))]"
           >
             <div
-              class="h-full rounded-full bg-zinc-500"
+              class="h-full rounded-full bg-[rgb(var(--color-accent))]"
               :style="{ width: `${dashboardData.todaySizeRatio}%` }"
             ></div>
           </div>
@@ -414,11 +413,11 @@ const PolicyRow = defineComponent({
         'div',
         {
           class:
-            'flex items-center justify-between gap-4 border-b border-gray-200/60 pb-3 last:border-b-0 dark:border-gray-700'
+            'theme-divider flex items-center justify-between gap-4 border-b pb-3 last:border-b-0'
         },
         [
-          h('span', { class: 'text-sm text-gray-500 dark:text-gray-400' }, props.label),
-          h('span', { class: 'text-sm font-medium text-gray-900 dark:text-white' }, props.value)
+          h('span', { class: 'theme-text-muted text-sm' }, props.label),
+          h('span', { class: 'theme-text-strong text-sm font-medium' }, props.value)
         ]
       )
   }

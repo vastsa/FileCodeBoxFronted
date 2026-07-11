@@ -85,11 +85,13 @@ onMounted(() => {
 }
 
 .light {
-  @apply bg-[#f5f5f7] text-zinc-900;
+  background-color: rgb(var(--color-page));
+  color: rgb(var(--color-text));
 }
 
 .dark {
-  @apply bg-zinc-950 text-zinc-100;
+  background-color: rgb(var(--color-page));
+  color: rgb(var(--color-text));
 }
 
 .fade-enter-active,
@@ -132,7 +134,7 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgb(var(--color-overlay) / var(--loading-overlay-opacity));
   display: flex;
   justify-content: center;
   align-items: center;
@@ -140,10 +142,10 @@ onMounted(() => {
 }
 
 .loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 3px solid #fff;
-  border-top: 3px solid #27272a;
+  width: var(--spinner-size);
+  height: var(--spinner-size);
+  border: var(--spinner-border-width) solid rgb(var(--color-accent-contrast));
+  border-top-color: rgb(var(--color-accent));
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

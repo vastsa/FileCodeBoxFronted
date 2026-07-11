@@ -2,6 +2,68 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+:root {
+  color-scheme: light;
+  --color-page: 245 245 247;
+  --color-surface: 255 255 255;
+  --color-surface-raised: 255 255 255;
+  --color-surface-muted: 244 244 245;
+  --color-surface-input: 255 255 255;
+  --color-text: 24 24 27;
+  --color-text-strong: 9 9 11;
+  --color-text-muted: 82 82 91;
+  --color-text-subtle: 113 113 122;
+  --color-border: 228 228 231;
+  --color-border-strong: 161 161 170;
+  --color-accent: 24 24 27;
+  --color-accent-contrast: 255 255 255;
+  --color-danger: 220 38 38;
+  --color-warning: 217 119 6;
+  --color-success: 4 120 87;
+  --color-overlay: 9 9 11;
+  --surface-glass: rgb(var(--color-surface) / 0.78);
+  --surface-glass-strong: rgb(var(--color-surface) / 0.92);
+  --border-glass: rgb(var(--color-border) / 0.85);
+  --shadow-color: 24 24 27;
+  --shadow-panel: 0 22px 54px -36px rgb(var(--shadow-color) / 0.28);
+  --shadow-sidebar: 12px 0 40px -28px rgb(var(--shadow-color) / 0.24);
+  --color-scrollbar: 161 161 170;
+  --color-scrollbar-hover: 113 113 122;
+  --color-focus-ring: 113 113 122;
+  --loading-overlay-opacity: 0.5;
+  --spinner-size: 50px;
+  --spinner-border-width: 3px;
+}
+
+:root.dark {
+  color-scheme: dark;
+  --color-page: 16 16 18;
+  --color-surface: 24 24 27;
+  --color-surface-raised: 39 39 42;
+  --color-surface-muted: 39 39 42;
+  --color-surface-input: 9 9 11;
+  --color-text: 228 228 231;
+  --color-text-strong: 250 250 250;
+  --color-text-muted: 161 161 170;
+  --color-text-subtle: 113 113 122;
+  --color-border: 63 63 70;
+  --color-border-strong: 113 113 122;
+  --color-accent: 244 244 245;
+  --color-accent-contrast: 9 9 11;
+  --color-danger: 248 113 113;
+  --color-warning: 251 191 36;
+  --color-success: 52 211 153;
+  --surface-glass: rgb(var(--color-surface) / 0.82);
+  --surface-glass-strong: rgb(var(--color-surface) / 0.94);
+  --border-glass: rgb(var(--color-border) / 0.7);
+  --shadow-color: 255 255 255;
+  --shadow-panel: 0 22px 54px -36px rgb(var(--shadow-color) / 0.2);
+  --shadow-sidebar: 12px 0 40px -28px rgb(var(--shadow-color) / 0.18);
+  --color-scrollbar: 82 82 91;
+  --color-scrollbar-hover: 113 113 122;
+  --color-focus-ring: 161 161 170;
+}
+
 @font-face {
   font-family: 'DingTalk';
   src: url('@/assets/font/DingTalk.ttf') format('truetype');
@@ -10,4 +72,32 @@
 
 body {
   font-family: 'DingTalk', sans-serif;
+  background-color: rgb(var(--color-page));
+  color: rgb(var(--color-text));
+}
+
+::selection {
+  background-color: rgb(var(--color-accent) / 0.16);
+}
+
+@layer components {
+  .theme-page { background-color: rgb(var(--color-page)); color: rgb(var(--color-text)); }
+  .theme-surface { background: var(--surface-glass); border-color: var(--border-glass); }
+  .theme-surface-strong { background: var(--surface-glass-strong); border-color: var(--border-glass); }
+  .theme-panel { background: var(--surface-glass); border-color: var(--border-glass); box-shadow: var(--shadow-panel); }
+  .theme-divider { border-color: rgb(var(--color-border) / 0.7); }
+  .theme-text { color: rgb(var(--color-text)); }
+  .theme-text-strong { color: rgb(var(--color-text-strong)); }
+  .theme-text-muted { color: rgb(var(--color-text-muted)); }
+  .theme-icon-button { color: rgb(var(--color-text-muted)); }
+  .theme-icon-button:hover { background-color: rgb(var(--color-accent) / 0.08); color: rgb(var(--color-text-strong)); }
+  .theme-brand { background-color: rgb(var(--color-accent)); color: rgb(var(--color-accent-contrast)); }
+  .theme-nav-item { border-color: transparent; color: rgb(var(--color-text-muted)); }
+  .theme-nav-item:hover { background-color: rgb(var(--color-accent) / 0.06); color: rgb(var(--color-text-strong)); }
+  .theme-nav-item-active { border-color: rgb(var(--color-accent)); background-color: rgb(var(--color-accent) / 0.1); color: rgb(var(--color-text-strong)); }
+  .theme-control { background-color: rgb(var(--color-surface-input) / 0.8); border-color: rgb(var(--color-border)); color: rgb(var(--color-text-strong)); }
+  .theme-control::placeholder { color: rgb(var(--color-text-subtle)); }
+  .theme-control:hover { border-color: rgb(var(--color-border-strong)); }
+  .theme-control:focus { border-color: rgb(var(--color-focus-ring)); --tw-ring-color: rgb(var(--color-focus-ring) / 0.25); }
+  .theme-warning { color: rgb(var(--color-warning)); }
 }
