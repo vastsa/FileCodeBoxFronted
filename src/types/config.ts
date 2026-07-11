@@ -45,6 +45,7 @@ export interface ConfigState {
   allowed_file_types: string[]
   allowedFileTypes?: string[]
   storage_path: string
+  storageLimit: number
   uploadMinute: number
   max_save_seconds: number
   opacity: number

@@ -54,6 +54,7 @@ export const DEFAULT_CONFIG_STATE: ConfigState = {
   allowed_file_types: DEFAULT_PUBLIC_CONFIG.allowedFileTypes,
   allowedFileTypes: DEFAULT_PUBLIC_CONFIG.allowedFileTypes,
   storage_path: '',
+  storageLimit: 0,
   uploadMinute: 1,
   max_save_seconds: DEFAULT_PUBLIC_CONFIG.max_save_seconds,
   opacity: 0.9,

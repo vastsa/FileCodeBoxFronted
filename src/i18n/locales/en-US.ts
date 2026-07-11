@@ -139,6 +139,9 @@ export default {
       notificationTitle: 'Announcement Title',
       notificationContent: 'Announcement Content',
       storageSettings: 'Storage',
+      storageLimit: 'Total Storage Capacity',
+      storageLimitHelp:
+        'Active shares and pending uploads share this quota. Set to 0 for unlimited.',
       storagePath: 'Storage Path',
       storagePathPlaceholder: 'Leave empty for default path',
       storageMethod: 'Storage Type',

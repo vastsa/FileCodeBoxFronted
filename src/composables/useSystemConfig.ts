@@ -8,6 +8,7 @@ import { getErrorMessage } from '@/utils/common'
 import {
   buildConfigSubmitPayload,
   bytesToFileSizeForm,
+  fileSizeFormToBytes,
   secondsToSaveTimeForm,
   type FileSizeUnit,
   type SaveTimeUnit
@@ -28,6 +29,8 @@ export function useSystemConfig() {
   const savedPayloadSnapshot = ref('')
   const fileSize = ref(1)
   const sizeUnit = ref<FileSizeUnit>('MB')
+  const storageLimit = ref(0)
+  const storageLimitUnit = ref<FileSizeUnit>('GB')
   const saveTime = ref(1)
   const saveTimeUnit = ref<SaveTimeUnit>('天')
   const adminSessionDays = ref(30)
@@ -41,6 +44,8 @@ export function useSystemConfig() {
       { value: saveTime.value, unit: saveTimeUnit.value }
     )
     payload.adminSessionExpire = Math.round(adminSessionDays.value * SECONDS_PER_DAY)
+    payload.storageLimit =
+      storageLimit.value === 0 ? 0 : fileSizeFormToBytes(storageLimit.value, storageLimitUnit.value)
 
     if (!payload.admin_token) {
       delete payload.admin_token
@@ -169,6 +174,10 @@ export function useSystemConfig() {
     fileSize.value = sizeForm.value
     sizeUnit.value = sizeForm.unit
 
+    const storageLimitForm = bytesToFileSizeForm(nextConfig.storageLimit)
+    storageLimit.value = storageLimitForm.value
+    storageLimitUnit.value = storageLimitForm.unit
+
     const saveTimeForm = secondsToSaveTimeForm(nextConfig.max_save_seconds)
     saveTime.value = saveTimeForm.value
     saveTimeUnit.value = saveTimeForm.unit
@@ -226,6 +235,8 @@ export function useSystemConfig() {
     isDirty,
     fileSize,
     sizeUnit,
+    storageLimit,
+    storageLimitUnit,
     saveTime,
     saveTimeUnit,
     adminSessionDays,

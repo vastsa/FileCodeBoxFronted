@@ -16,6 +16,8 @@ const {
   isDirty,
   fileSize,
   sizeUnit,
+  storageLimit,
+  storageLimitUnit,
   saveTime,
   saveTimeUnit,
   adminSessionDays,
@@ -777,6 +779,45 @@ onMounted(() => {
                   <option value="天">{{ t('common.day') }}</option>
                 </select>
               </div>
+            </div>
+
+            <div class="space-y-2">
+              <label
+                class="block text-sm font-medium"
+                :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
+              >
+                {{ t('admin.settings.storageLimit') }}
+              </label>
+              <div class="flex items-center space-x-2">
+                <input
+                  v-model.number="storageLimit"
+                  type="number"
+                  min="0"
+                  step="1"
+                  class="w-28 rounded-md border px-4 py-2.5 shadow-sm outline-none transition-all duration-200 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500"
+                  :class="[
+                    isDarkMode
+                      ? 'border-white/10 bg-zinc-950/45 text-white hover:border-white/20'
+                      : 'border-zinc-200/80 bg-white/80 text-zinc-950 hover:border-zinc-300'
+                  ]"
+                />
+                <select
+                  v-model="storageLimitUnit"
+                  class="rounded-md border px-4 py-2.5 shadow-sm outline-none transition-all duration-200 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-500"
+                  :class="[
+                    isDarkMode
+                      ? 'border-white/10 bg-zinc-950/45 text-white hover:border-white/20'
+                      : 'border-zinc-200/80 bg-white/80 text-zinc-950 hover:border-zinc-300'
+                  ]"
+                >
+                  <option value="KB">KB</option>
+                  <option value="MB">MB</option>
+                  <option value="GB">GB</option>
+                </select>
+              </div>
+              <p class="text-xs" :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-500']">
+                {{ t('admin.settings.storageLimitHelp') }}
+              </p>
             </div>
 
             <SettingSwitch

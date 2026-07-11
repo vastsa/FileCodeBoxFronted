@@ -139,6 +139,8 @@ export default {
       notificationTitle: '公告标题',
       notificationContent: '公告内容',
       storageSettings: '存储配置',
+      storageLimit: '总存储容量上限',
+      storageLimitHelp: '所有有效分享与未完成上传共同占用容量，设置为 0 表示不限制。',
       storagePath: '文件存储路径',
       storagePathPlaceholder: '使用默认路径可留空',
       storageMethod: '存储方式',
