@@ -26,6 +26,14 @@ pnpm install
 pnpm dev
 ```
 
+The frontend version comes from `package.json`. Production builds also embed the
+current Git commit. CI can override these values with `VITE_APP_VERSION` and
+`VITE_GIT_COMMIT`.
+
+Releases are managed by Release Please. Use Conventional Commits such as
+`feat:` and `fix:`; the workflow automatically merges its release pull request,
+updates the version and changelog, and creates a `vX.Y.Z` tag.
+
 ### Type-Check, Compile and Minify for Production
 
 ```sh

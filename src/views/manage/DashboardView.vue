@@ -223,8 +223,8 @@
       :class="[isDarkMode ? 'border-gray-800 text-gray-500' : 'border-gray-200 text-gray-500']"
     >
       <span>{{ t('admin.dashboard.footerProduct') }}</span>
-      <span class="inline-flex items-center gap-2">
-        <span>{{ t('admin.dashboard.runtimeVersion') }}</span>
+      <span class="flex flex-wrap items-center justify-end gap-2">
+        <span>{{ t('admin.dashboard.backendVersion') }}</span>
         <span
           class="rounded-md border px-2 py-0.5 font-medium"
           :class="[
@@ -234,6 +234,17 @@
           ]"
         >
           {{ versionText }}
+        </span>
+        <span>{{ t('admin.dashboard.frontendVersion') }}</span>
+        <span
+          class="rounded-md border px-2 py-0.5 font-medium"
+          :class="[
+            isDarkMode
+              ? 'border-gray-700 bg-gray-800/70 text-gray-300'
+              : 'border-gray-200 bg-white text-gray-700'
+          ]"
+        >
+          {{ buildInfo.displayVersion }}
         </span>
       </span>
     </footer>
@@ -263,6 +274,7 @@ import { useI18n } from 'vue-i18n'
 import { ROUTES } from '@/constants'
 import { useConfigStore } from '@/stores/configStore'
 import type { DashboardHealthAction } from '@/types'
+import { buildInfo } from '@/utils/build-info'
 
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()

@@ -1,0 +1,45 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Merge release pull request
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_PR: ${{ fromJSON(steps.release.outputs.pr).number }}
+        run: |
+          for attempt in {1..120}; do
+            if gh pr merge "$RELEASE_PR" --squash --delete-branch; then
+              break
+            fi
+            if [[ "$attempt" -eq 120 ]]; then
+              echo "Timed out waiting for release PR #$RELEASE_PR to merge" >&2
+              exit 1
+            fi
+            sleep 10
+          done
+          gh workflow run release-please.yml --ref main
