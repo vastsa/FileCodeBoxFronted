@@ -18,7 +18,7 @@ export const useConfigStore = defineStore('config', () => {
   })
   const publicMeta = ref<PublicConfigMeta>({})
 
-  const uploadSizeLimit = computed(() => config.value.uploadSize)
+  const uploadSizeLimit = computed(() => config.value.upload_size)
   const appVersion = computed(() => publicMeta.value.version || '')
 
   const updateConfig = (nextConfig: Partial<ConfigState>) => {

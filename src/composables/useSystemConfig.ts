@@ -14,7 +14,7 @@ import {
   type SaveTimeUnit
 } from '@/utils/config-form'
 
-type ConfigFlagKey = 'enableChunk' | 's3_proxy' | 'openUpload' | 'showAdminAddr'
+type ConfigFlagKey = 'enable_chunk' | 's3_proxy' | 'open_upload' | 'show_admin_addr'
 
 const SECONDS_PER_DAY = 24 * 60 * 60
 
@@ -29,7 +29,7 @@ export function useSystemConfig() {
   const savedPayloadSnapshot = ref('')
   const fileSize = ref(1)
   const sizeUnit = ref<FileSizeUnit>('MB')
-  const storageLimit = ref(0)
+  const storage_limit = ref(0)
   const storageLimitUnit = ref<FileSizeUnit>('GB')
   const saveTime = ref(1)
   const saveTimeUnit = ref<SaveTimeUnit>('天')
@@ -43,9 +43,9 @@ export function useSystemConfig() {
       { value: fileSize.value, unit: sizeUnit.value },
       { value: saveTime.value, unit: saveTimeUnit.value }
     )
-    payload.adminSessionExpire = Math.round(adminSessionDays.value * SECONDS_PER_DAY)
-    payload.storageLimit =
-      storageLimit.value === 0 ? 0 : fileSizeFormToBytes(storageLimit.value, storageLimitUnit.value)
+    payload.admin_session_expire = Math.round(adminSessionDays.value * SECONDS_PER_DAY)
+    payload.storage_limit =
+      storage_limit.value === 0 ? 0 : fileSizeFormToBytes(storage_limit.value, storageLimitUnit.value)
 
     if (!payload.admin_token) {
       delete payload.admin_token
@@ -170,12 +170,12 @@ export function useSystemConfig() {
   }
 
   const syncConfigForm = (nextConfig: ConfigState) => {
-    const sizeForm = bytesToFileSizeForm(nextConfig.uploadSize)
+    const sizeForm = bytesToFileSizeForm(nextConfig.upload_size)
     fileSize.value = sizeForm.value
     sizeUnit.value = sizeForm.unit
 
-    const storageLimitForm = bytesToFileSizeForm(nextConfig.storageLimit)
-    storageLimit.value = storageLimitForm.value
+    const storageLimitForm = bytesToFileSizeForm(nextConfig.storage_limit)
+    storage_limit.value = storageLimitForm.value
     storageLimitUnit.value = storageLimitForm.unit
 
     const saveTimeForm = secondsToSaveTimeForm(nextConfig.max_save_seconds)
@@ -183,7 +183,7 @@ export function useSystemConfig() {
     saveTimeUnit.value = saveTimeForm.unit
     adminSessionDays.value = Math.max(
       1,
-      Math.round(nextConfig.adminSessionExpire / SECONDS_PER_DAY)
+      Math.round(nextConfig.admin_session_expire / SECONDS_PER_DAY)
     )
   }
 
@@ -219,7 +219,7 @@ export function useSystemConfig() {
 
   // 计算属性
   const maxFileSizeMB = computed(() => {
-    return Math.round(config.value.uploadSize / 1024 / 1024)
+    return Math.round(config.value.upload_size / 1024 / 1024)
   })
 
   const isConfigLoaded = computed(() => {
@@ -235,7 +235,7 @@ export function useSystemConfig() {
     isDirty,
     fileSize,
     sizeUnit,
-    storageLimit,
+    storage_limit,
     storageLimitUnit,
     saveTime,
     saveTimeUnit,

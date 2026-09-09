@@ -140,7 +140,7 @@ export default {
       notificationTitle: 'Announcement Title',
       notificationContent: 'Announcement Content',
       storageSettings: 'Storage',
-      storageLimit: 'Total Storage Capacity',
+      storage_limit: 'Total Storage Capacity',
       storageLimitHelp:
         'Active shares and pending uploads share this quota. Set to 0 for unlimited.',
       storagePath: 'Storage Path',

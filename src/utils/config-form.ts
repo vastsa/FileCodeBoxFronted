@@ -101,7 +101,7 @@ export function buildConfigSubmitPayload(
 ): ConfigState {
   return {
     ...config,
-    uploadSize: fileSizeFormToBytes(fileSize.value, fileSize.unit),
+    upload_size: fileSizeFormToBytes(fileSize.value, fileSize.unit),
     max_save_seconds: saveTimeFormToSeconds(saveTime.value, saveTime.unit)
   }
 }

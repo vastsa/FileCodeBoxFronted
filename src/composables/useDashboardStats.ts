@@ -24,8 +24,8 @@ const emptyDashboardData = (): DashboardViewData => ({
   usedCount: 0,
   storageBackend: '-',
   uploadSizeLimit: 0,
-  openUpload: 0,
-  enableChunk: 0,
+  open_upload: 0,
+  enable_chunk: 0,
   maxSaveSeconds: 0,
   healthAttentionCount: 0,
   healthDangerCount: 0,
@@ -128,8 +128,8 @@ export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
       dashboardData.usedCount = toNumber(detail.usedCount)
       dashboardData.storageBackend = detail.storageBackend || '-'
       dashboardData.uploadSizeLimit = toNumber(detail.uploadSizeLimit)
-      dashboardData.openUpload = toNumber(detail.openUpload)
-      dashboardData.enableChunk = toNumber(detail.enableChunk)
+      dashboardData.open_upload = toNumber(detail.open_upload)
+      dashboardData.enable_chunk = toNumber(detail.enable_chunk)
       dashboardData.maxSaveSeconds = toNumber(detail.maxSaveSeconds)
       const healthSummary = normalizeHealthSummary(detail)
       healthSummaryKeys.forEach((key) => {

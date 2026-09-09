@@ -27,8 +27,8 @@ export interface DashboardData {
   usedCount?: number
   storageBackend?: string
   uploadSizeLimit?: number
-  openUpload?: number
-  enableChunk?: number
+  open_upload?: number
+  enable_chunk?: number
   maxSaveSeconds?: number
   healthAttentionCount?: number
   healthDangerCount?: number
@@ -52,8 +52,8 @@ export type DashboardViewData = Omit<
   | 'usedCount'
   | 'storageBackend'
   | 'uploadSizeLimit'
-  | 'openUpload'
-  | 'enableChunk'
+  | 'open_upload'
+  | 'enable_chunk'
   | 'maxSaveSeconds'
   | 'storageUsed'
   | 'yesterdaySize'
@@ -69,8 +69,8 @@ export type DashboardViewData = Omit<
     usedCount: number
     storageBackend: string
     uploadSizeLimit: number
-    openUpload: number
-    enableChunk: number
+    open_upload: number
+    enable_chunk: number
     maxSaveSeconds: number
     storageUsed: number
     yesterdaySize: number

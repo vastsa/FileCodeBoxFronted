@@ -168,7 +168,7 @@
                 {{ dashboardData.chunkedCount }}
               </strong>
               <span class="text-sm" :class="[mutedTextClass]">
-                {{ dashboardData.enableChunk ? t('common.enabled') : t('common.disabled') }}
+                {{ dashboardData.enable_chunk ? t('common.enabled') : t('common.disabled') }}
               </span>
             </div>
           </div>
@@ -196,7 +196,7 @@
           />
           <PolicyRow
             :label="t('admin.dashboard.guestUpload')"
-            :value="dashboardData.openUpload ? t('common.enabled') : t('common.disabled')"
+            :value="dashboardData.open_upload ? t('common.enabled') : t('common.disabled')"
           />
           <PolicyRow :label="t('admin.dashboard.maxSaveTime')" :value="maxSaveTimeText" />
         </div>

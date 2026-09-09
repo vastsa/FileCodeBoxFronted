@@ -31,28 +31,28 @@ export interface ConfigState {
   name: string
   description: string
   file_storage: string
-  themesChoices: ThemeChoice[]
-  expireStyle: string[]
+  themes_choices: ThemeChoice[]
+  expire_style: string[]
   code_generate_type: 'number' | 'secret'
-  adminSessionExpire: number
+  admin_session_expire: number
   admin_token: string
-  robotsText: string
+  robots_text: string
   keywords: string
   notify_title: string
   notify_content: string
-  openUpload: number
-  uploadSize: number
+  open_upload: number
+  upload_size: number
   allowed_file_types: string[]
   allowedFileTypes?: string[]
   storage_path: string
-  storageLimit: number
-  uploadMinute: number
+  storage_limit: number
+  upload_minute: number
   max_save_seconds: number
   opacity: number
-  enableChunk: number
+  enable_chunk: number
   s3_access_key_id: string
   background: string
-  showAdminAddr: number
+  show_admin_addr: number
   page_explain: string
   s3_secret_access_key: string
   aws_session_token: string
@@ -62,11 +62,11 @@ export interface ConfigState {
   s3_bucket_name: string
   s3_endpoint_url: string
   s3_hostname: string
-  uploadCount: number
-  errorMinute: number
-  errorCount: number
+  upload_count: number
+  error_minute: number
+  error_count: number
   s3_proxy: number
-  themesSelect: string
+  themes_select: string
   webdav_url: string
   webdav_username: string
   webdav_password: string
