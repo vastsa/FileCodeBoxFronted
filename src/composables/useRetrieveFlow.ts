@@ -72,8 +72,7 @@ export function useRetrieveFlow() {
       downloadUrl,
       content,
       date: new Date().toLocaleString(),
-      type: isText ? 'text' : 'file',
-      remainingDownloads: detail.remaining_downloads
+      type: isText ? 'text' : 'file'
     }
   }
 

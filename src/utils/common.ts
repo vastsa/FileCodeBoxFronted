@@ -245,7 +245,6 @@ export function getResponseMessage(response: ApiResponse, fallback: string): str
   return (
     getReadableMessage(response.detail) ||
     getReadableMessage(response.message) ||
-    getReadableMessage(response.msg) ||
     fallback
   )
 }
@@ -260,7 +259,6 @@ export function getErrorMessage(error: unknown, fallback: string): string {
   return (
     getReadableMessage(responseData?.detail) ||
     getReadableMessage(responseData?.message) ||
-    getReadableMessage(responseData?.msg) ||
     errorWithResponse.message ||
     fallback
   )

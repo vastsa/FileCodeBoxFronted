@@ -22,19 +22,12 @@ export interface FileListItem {
   name?: string
   type?: 'text' | 'file'
   status?: 'active' | 'expired'
-  isText?: boolean
   is_text?: boolean
-  isExpired?: boolean
   is_expired?: boolean
-  isChunked?: boolean
   is_chunked?: boolean
-  statusInsights?: AdminFileDetailStatusInsights
   status_insights?: AdminFileDetailStatusInsights
-  remainingDownloads?: number | null
   remaining_downloads?: number | null
-  usedCount?: number
   used_count?: number
-  fileHash?: string | null
   file_hash?: string | null
 }
 
@@ -57,22 +50,22 @@ export interface AdminFileViewItem extends FileListItem {
 }
 
 export interface AdminFileSummary {
-  totalFiles: number
-  activeCount: number
-  expiredCount: number
-  textCount: number
-  fileCount: number
-  chunkedCount: number
-  healthAttentionCount: number
-  healthDangerCount: number
-  healthWarningCount: number
-  expiringSoonCount: number
-  storageIssueCount: number
-  neverRetrievedCount: number
-  healthyCount: number
-  permanentCount: number
-  storageUsed: number
-  usedCount: number
+  total_files: number
+  active_count: number
+  expired_count: number
+  text_count: number
+  file_count: number
+  chunked_count: number
+  health_attention_count: number
+  health_danger_count: number
+  health_warning_count: number
+  expiring_soon_count: number
+  storage_issue_count: number
+  never_retrieved_count: number
+  healthy_count: number
+  permanent_count: number
+  storage_used: number
+  used_count: number
 }
 
 export type AdminFileStatusFilter = 'all' | 'active' | 'expired'
@@ -98,8 +91,8 @@ export interface AdminFileListParams {
   status?: AdminFileStatusFilter
   type?: AdminFileTypeFilter
   health?: AdminFileHealthFilter
-  sortBy?: AdminFileSortBy
-  sortOrder?: AdminFileSortOrder
+  sort_by?: AdminFileSortBy
+  sort_order?: AdminFileSortOrder
 }
 
 export interface AdminFileViewPresetParams {
@@ -107,8 +100,8 @@ export interface AdminFileViewPresetParams {
   status: AdminFileStatusFilter
   type: AdminFileTypeFilter
   health: AdminFileHealthFilter
-  sortBy: AdminFileSortBy
-  sortOrder: AdminFileSortOrder
+  sort_by: AdminFileSortBy
+  sort_order: AdminFileSortOrder
   size: number
 }
 
@@ -118,11 +111,8 @@ export interface AdminFileViewPreset {
   filters?: AdminFileViewPresetParams
   params?: AdminFileViewPresetParams
   isBuiltIn?: boolean
-  isDefault?: boolean
   is_default?: boolean
-  createdAt?: string | null
   created_at?: string | null
-  updatedAt?: string | null
   updated_at?: string | null
 }
 
@@ -130,12 +120,10 @@ export interface AdminFileViewPresetRequest {
   id?: string
   name: string
   filters: AdminFileViewPresetParams
-  params?: AdminFileViewPresetParams
 }
 
 export interface AdminFileViewPresetsResponse {
   presets?: AdminFileViewPreset[]
-  items?: AdminFileViewPreset[]
   total?: number
 }
 
@@ -166,14 +154,12 @@ export type AdminFilePolicyAction =
 export interface AdminFilePolicyActionRequest {
   id: number
   action: AdminFilePolicyAction
-  downloadLimit?: number
   download_limit?: number
 }
 
 export interface AdminFileMetadata {
   note: string
   tags: string[]
-  updatedAt?: string | null
   updated_at?: string | null
 }
 
@@ -198,14 +184,10 @@ export interface AdminFilePreviewResponse {
   type: 'text'
   content: string
   length: number
-  previewLength?: number
   preview_length?: number
   truncated: boolean
-  maxChars?: number
   max_chars?: number
-  createdAt?: string | null
   created_at?: string | null
-  expiredAt?: string | null
   expired_at?: string | null
 }
 
@@ -214,9 +196,7 @@ export interface AdminFileDetailPolicy {
   expired_at?: string | null
   expiredCount?: number | null
   expired_count?: number | null
-  remainingDownloads?: number | null
   remaining_downloads?: number | null
-  isExpired?: boolean
   is_expired?: boolean
   isPermanent?: boolean
   is_permanent?: boolean
@@ -228,9 +208,7 @@ export interface AdminFileDetailStorage {
   file_path?: string | null
   uuidFileName?: string | null
   uuid_file_name?: string | null
-  fileHash?: string | null
   file_hash?: string | null
-  isChunked?: boolean
   is_chunked?: boolean
   uploadId?: string | null
   upload_id?: string | null
@@ -243,16 +221,13 @@ export interface AdminFileDetailInsightMetrics {
   age_seconds?: number
   secondsUntilExpiration?: number | null
   seconds_until_expiration?: number | null
-  remainingDownloads?: number | null
   remaining_downloads?: number | null
-  usedCount?: number
   used_count?: number
 }
 
 export interface AdminFileDetailStatusInsights {
   severity?: AdminFileInsightSeverity
   state?: string
-  nextAction?: string
   next_action?: string
   reasons?: string[]
   metrics?: AdminFileDetailInsightMetrics
@@ -306,7 +281,6 @@ export interface AdminFileDetailResponse extends FileListItem {
   tags?: string[]
   metadataUpdatedAt?: string | null
   metadata_updated_at?: string | null
-  statusInsights?: AdminFileDetailStatusInsights
   status_insights?: AdminFileDetailStatusInsights
   timeline?: AdminFileDetailTimelineItem[]
 }
@@ -385,7 +359,6 @@ export interface AdminBatchUpdateFilesResponse {
 export interface AdminBatchPolicyActionRequest {
   ids: number[]
   action: AdminFilePolicyAction
-  downloadLimit?: number
   download_limit?: number
 }
 
@@ -421,7 +394,6 @@ export interface ShareSelectResponse {
   download_url?: string | null
   created_at?: string | null
   expired_at?: string | null
-  expires_at?: string | null
   expired_count?: number | null
   used_count?: number
   remaining_downloads?: number | null
@@ -435,7 +407,6 @@ export interface ShareMetadataResponse {
   is_text: boolean
   created_at?: string | null
   expired_at?: string | null
-  expires_at?: string | null
   expired_count?: number | null
   used_count?: number
   remaining_downloads?: number | null
@@ -450,7 +421,6 @@ export interface ReceivedFileRecord {
   content: string | null
   date: string
   type?: 'file' | 'text'
-  remainingDownloads?: number | null
 }
 
 export interface SentFileRecord {

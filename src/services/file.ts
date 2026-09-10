@@ -265,7 +265,7 @@ export class FileService {
     return api.get('/admin/file/preview', {
       params: {
         id,
-        maxChars
+        max_chars: maxChars
       }
     })
   }
