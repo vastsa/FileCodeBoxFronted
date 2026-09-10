@@ -26,7 +26,6 @@ type PublicConfigInput = Omit<Partial<ConfigState>, 'show_admin_addr'> & {
 export const DEFAULT_PUBLIC_CONFIG: PublicConfig = {
   ...DEFAULT_CONFIG,
   upload_size: FILE_SIZE_LIMITS.MAX_FILE_SIZE,
-  allowedFileTypes: ['*'],
   allowed_file_types: ['*'],
   expire_style: ['day'],
   code_generate_type: 'secret',
@@ -51,8 +50,7 @@ export const DEFAULT_CONFIG_STATE: ConfigState = {
   notify_content: '',
   open_upload: DEFAULT_PUBLIC_CONFIG.open_upload,
   upload_size: DEFAULT_PUBLIC_CONFIG.upload_size,
-  allowed_file_types: DEFAULT_PUBLIC_CONFIG.allowedFileTypes,
-  allowedFileTypes: DEFAULT_PUBLIC_CONFIG.allowedFileTypes,
+  allowed_file_types: DEFAULT_PUBLIC_CONFIG.allowed_file_types,
   storage_path: '',
   storage_limit: 0,
   upload_minute: 1,
@@ -87,7 +85,7 @@ function normalizeFileTypes(value: unknown): string[] {
       ? value.split(',')
       : Array.isArray(value)
         ? value
-        : DEFAULT_PUBLIC_CONFIG.allowedFileTypes
+        : DEFAULT_PUBLIC_CONFIG.allowed_file_types
   const normalized = rawTypes.map((item) => String(item).trim()).filter(Boolean)
   return normalized.length > 0 ? normalized : ['*']
 }
@@ -111,14 +109,13 @@ export function toPublicConfig(
 ): Partial<PublicConfig> {
   if (!config) return {}
 
-  const allowedFileTypes = normalizeFileTypes(config.allowedFileTypes ?? config.allowed_file_types)
+  const allowed_file_types = normalizeFileTypes(config.allowed_file_types)
 
   return {
     name: config.name,
     description: config.description,
     upload_size: config.upload_size,
-    allowedFileTypes,
-    allowed_file_types: allowedFileTypes,
+    allowed_file_types,
     expire_style: config.expire_style,
     code_generate_type: config.code_generate_type,
     open_upload: config.open_upload,

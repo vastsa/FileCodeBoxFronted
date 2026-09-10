@@ -42,7 +42,7 @@ export function useSendFlow() {
     })
   )
   const allowedFileTypes = computed(() => {
-    const types = config.value.allowedFileTypes || config.value.allowed_file_types || ['*']
+    const types = config.value.allowed_file_types || ['*']
     const normalized = types.map((type) => String(type).trim()).filter(Boolean)
     return normalized.length > 0 ? normalized : ['*']
   })

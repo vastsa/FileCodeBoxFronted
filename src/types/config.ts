@@ -1,9 +1,7 @@
 export interface SystemConfig {
   name: string
   description?: string
-  maxFileSize: number
-  allowedFileTypes: string[]
-  expireDays: number
+  allowed_file_types: string[]
   notify_title?: string
   notify_content?: string
 }
@@ -43,7 +41,6 @@ export interface ConfigState {
   open_upload: number
   upload_size: number
   allowed_file_types: string[]
-  allowedFileTypes?: string[]
   storage_path: string
   storage_limit: number
   upload_minute: number

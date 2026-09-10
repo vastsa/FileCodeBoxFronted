@@ -70,7 +70,7 @@ export function useSystemConfig() {
 
   const normalizeEditableConfig = (nextConfig: Partial<ConfigState>): ConfigState => {
     const allowedFileTypes = normalizeAllowedFileTypes(
-      nextConfig.allowed_file_types ?? nextConfig.allowedFileTypes
+      nextConfig.allowed_file_types
     )
     const codeGenerateType = nextConfig.code_generate_type === 'secret' ? 'secret' : 'number'
 
@@ -78,7 +78,6 @@ export function useSystemConfig() {
       ...DEFAULT_CONFIG_STATE,
       ...nextConfig,
       allowed_file_types: allowedFileTypes,
-      allowedFileTypes,
       code_generate_type: codeGenerateType,
       admin_token: ''
     }
