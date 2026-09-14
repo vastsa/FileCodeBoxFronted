@@ -2,66 +2,64 @@ import { DEFAULT_CONFIG, FILE_SIZE_LIMITS, STORAGE_KEYS } from '@/constants'
 import type { ConfigState, SystemConfig } from '@/types'
 
 export type PublicConfig = SystemConfig & {
-  uploadSize: number
+  upload_size: number
   allowed_file_types?: string[]
-  expireStyle: string[]
+  expire_style: string[]
   code_generate_type?: 'number' | 'secret'
-  openUpload: number
+  open_upload: number
   max_save_seconds: number
-  enableChunk: number
+  enable_chunk: number
   notify_title?: string
   notify_content?: string
   page_explain?: string
-  showAdminAddr?: number
-  themesSelect?: string
+  show_admin_addr?: number
+  themes_select?: string
   background?: string
   opacity?: number
 }
 
-type PublicConfigInput = Omit<Partial<ConfigState>, 'showAdminAddr'> & {
-  showAdminAddr?: number | string
+type PublicConfigInput = Omit<Partial<ConfigState>, 'show_admin_addr'> & {
+  show_admin_addr?: number | string
   show_admin_address?: number | string
 }
 
 export const DEFAULT_PUBLIC_CONFIG: PublicConfig = {
   ...DEFAULT_CONFIG,
-  uploadSize: FILE_SIZE_LIMITS.MAX_FILE_SIZE,
-  allowedFileTypes: ['*'],
+  upload_size: FILE_SIZE_LIMITS.MAX_FILE_SIZE,
   allowed_file_types: ['*'],
-  expireStyle: ['day'],
+  expire_style: ['day'],
   code_generate_type: 'secret',
-  openUpload: 1,
+  open_upload: 1,
   max_save_seconds: 0,
-  enableChunk: 0,
-  showAdminAddr: 0
+  enable_chunk: 0,
+  show_admin_addr: 0
 }
 
 export const DEFAULT_CONFIG_STATE: ConfigState = {
   name: DEFAULT_PUBLIC_CONFIG.name,
   description: DEFAULT_PUBLIC_CONFIG.description || '',
   file_storage: '',
-  themesChoices: [],
-  expireStyle: DEFAULT_PUBLIC_CONFIG.expireStyle,
+  themes_choices: [],
+  expire_style: DEFAULT_PUBLIC_CONFIG.expire_style,
   code_generate_type: DEFAULT_PUBLIC_CONFIG.code_generate_type || 'secret',
-  adminSessionExpire: 30 * 24 * 60 * 60,
+  admin_session_expire: 30 * 24 * 60 * 60,
   admin_token: '',
-  robotsText: '',
+  robots_text: '',
   keywords: '',
   notify_title: '',
   notify_content: '',
-  openUpload: DEFAULT_PUBLIC_CONFIG.openUpload,
-  uploadSize: DEFAULT_PUBLIC_CONFIG.uploadSize,
-  allowed_file_types: DEFAULT_PUBLIC_CONFIG.allowedFileTypes,
-  allowedFileTypes: DEFAULT_PUBLIC_CONFIG.allowedFileTypes,
+  open_upload: DEFAULT_PUBLIC_CONFIG.open_upload,
+  upload_size: DEFAULT_PUBLIC_CONFIG.upload_size,
+  allowed_file_types: DEFAULT_PUBLIC_CONFIG.allowed_file_types,
   storage_path: '',
-  storageLimit: 0,
-  uploadMinute: 1,
+  storage_limit: 0,
+  upload_minute: 1,
   max_save_seconds: DEFAULT_PUBLIC_CONFIG.max_save_seconds,
   opacity: 0.9,
-  enableChunk: DEFAULT_PUBLIC_CONFIG.enableChunk,
+  enable_chunk: DEFAULT_PUBLIC_CONFIG.enable_chunk,
   s3_access_key_id: '',
   background: '',
-  showAdminAddr: 0,
+  show_admin_addr: 0,
   page_explain: '',
   s3_secret_access_key: '',
   aws_session_token: '',
@@ -71,11 +69,11 @@ export const DEFAULT_CONFIG_STATE: ConfigState = {
   s3_bucket_name: '',
   s3_endpoint_url: '',
   s3_hostname: '',
-  uploadCount: 1,
-  errorMinute: 1,
-  errorCount: 1,
+  upload_count: 1,
+  error_minute: 1,
+  error_count: 1,
   s3_proxy: 0,
-  themesSelect: '',
+  themes_select: '',
   webdav_url: '',
   webdav_username: '',
   webdav_password: ''
@@ -87,7 +85,7 @@ function normalizeFileTypes(value: unknown): string[] {
       ? value.split(',')
       : Array.isArray(value)
         ? value
-        : DEFAULT_PUBLIC_CONFIG.allowedFileTypes
+        : DEFAULT_PUBLIC_CONFIG.allowed_file_types
   const normalized = rawTypes.map((item) => String(item).trim()).filter(Boolean)
   return normalized.length > 0 ? normalized : ['*']
 }
@@ -111,24 +109,23 @@ export function toPublicConfig(
 ): Partial<PublicConfig> {
   if (!config) return {}
 
-  const allowedFileTypes = normalizeFileTypes(config.allowedFileTypes ?? config.allowed_file_types)
+  const allowed_file_types = normalizeFileTypes(config.allowed_file_types)
 
   return {
     name: config.name,
     description: config.description,
-    uploadSize: config.uploadSize,
-    allowedFileTypes,
-    allowed_file_types: allowedFileTypes,
-    expireStyle: config.expireStyle,
+    upload_size: config.upload_size,
+    allowed_file_types,
+    expire_style: config.expire_style,
     code_generate_type: config.code_generate_type,
-    openUpload: config.openUpload,
+    open_upload: config.open_upload,
     max_save_seconds: config.max_save_seconds,
-    enableChunk: config.enableChunk,
+    enable_chunk: config.enable_chunk,
     notify_title: config.notify_title,
     notify_content: config.notify_content,
     page_explain: config.page_explain,
-    showAdminAddr: normalizeAdminAddress(config.showAdminAddr ?? config.show_admin_address),
-    themesSelect: config.themesSelect,
+    show_admin_addr: normalizeAdminAddress(config.show_admin_addr ?? config.show_admin_address),
+    themes_select: config.themes_select,
     background: config.background,
     opacity: config.opacity
   }

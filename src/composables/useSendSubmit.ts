@@ -20,15 +20,15 @@ type SubmitFileOptions = {
   selectedFile: File | null
   selectedFiles: File[]
   expireValue: number
-  expireStyle: string
-  enableChunk: boolean
+  expire_style: string
+  enable_chunk: boolean
   validateFileSize: (file: File) => boolean
 }
 
 type SubmitTextOptions = {
   text: string
   expireValue: number
-  expireStyle: string
+  expire_style: string
 }
 
 export function useSendSubmit(options: UseSendSubmitOptions) {
@@ -40,11 +40,11 @@ export function useSendSubmit(options: UseSendSubmitOptions) {
   const handleChunkUpload = async (
     file: File,
     expireValue: number,
-    expireStyle: string
+    expire_style: string
   ): Promise<ApiResponse> => {
     return uploadChunkedFile(file, {
       expireValue,
-      expireStyle,
+      expire_style,
       onHashCalculated: options.onHashCalculated,
       onProgress: (progress: UploadProgress) => {
         options.onProgress(progress)
@@ -60,11 +60,11 @@ export function useSendSubmit(options: UseSendSubmitOptions) {
   const handlePresignedUpload = async (
     file: File,
     expireValue: number,
-    expireStyle: string
+    expire_style: string
   ): Promise<ApiResponse<{ code?: string; name?: string }>> => {
     const code = await presignUploadFile(file, {
       expireValue,
-      expireStyle: expireStyle as ExpireStyle,
+      expire_style: expire_style as ExpireStyle,
       onProgress: (progress) => {
         options.onProgress(progress)
       }
@@ -87,8 +87,8 @@ export function useSendSubmit(options: UseSendSubmitOptions) {
     selectedFile,
     selectedFiles,
     expireValue,
-    expireStyle,
-    enableChunk,
+    expire_style,
+    enable_chunk,
     validateFileSize
   }: SubmitFileOptions): Promise<ApiResponse | null> => {
     let fileToUpload = selectedFile
@@ -106,13 +106,13 @@ export function useSendSubmit(options: UseSendSubmitOptions) {
       throw new Error(options.translate('send.messages.selectFile'))
     }
 
-    return enableChunk
-      ? handleChunkUpload(fileToUpload, expireValue, expireStyle)
-      : handlePresignedUpload(fileToUpload, expireValue, expireStyle)
+    return enable_chunk
+      ? handleChunkUpload(fileToUpload, expireValue, expire_style)
+      : handlePresignedUpload(fileToUpload, expireValue, expire_style)
   }
 
-  const submitText = ({ text, expireValue, expireStyle }: SubmitTextOptions) =>
-    FileService.uploadText(text, expireValue, expireStyle)
+  const submitText = ({ text, expireValue, expire_style }: SubmitTextOptions) =>
+    FileService.uploadText(text, expireValue, expire_style)
 
   return {
     resetPresignUpload,

@@ -24,8 +24,8 @@ const emptyDashboardData = (): DashboardViewData => ({
   usedCount: 0,
   storageBackend: '-',
   uploadSizeLimit: 0,
-  openUpload: 0,
-  enableChunk: 0,
+  open_upload: 0,
+  enable_chunk: 0,
   maxSaveSeconds: 0,
   healthAttentionCount: 0,
   healthDangerCount: 0,
@@ -75,19 +75,19 @@ const healthSummaryKeys: (keyof DashboardHealthSummary)[] = [
 
 const normalizeHealthSummary = (detail: DashboardData): DashboardHealthSummary => ({
   healthAttentionCount: toNumber(
-    detail.healthSummary?.healthAttentionCount ?? detail.healthAttentionCount
+    detail.health_attention_count
   ),
-  healthDangerCount: toNumber(detail.healthSummary?.healthDangerCount ?? detail.healthDangerCount),
+  healthDangerCount: toNumber(detail.health_danger_count),
   healthWarningCount: toNumber(
-    detail.healthSummary?.healthWarningCount ?? detail.healthWarningCount
+    detail.health_warning_count
   ),
-  expiringSoonCount: toNumber(detail.healthSummary?.expiringSoonCount ?? detail.expiringSoonCount),
-  storageIssueCount: toNumber(detail.healthSummary?.storageIssueCount ?? detail.storageIssueCount),
+  expiringSoonCount: toNumber(detail.expiring_soon_count),
+  storageIssueCount: toNumber(detail.storage_issue_count),
   neverRetrievedCount: toNumber(
-    detail.healthSummary?.neverRetrievedCount ?? detail.neverRetrievedCount
+    detail.never_retrieved_count
   ),
-  healthyCount: toNumber(detail.healthSummary?.healthyCount ?? detail.healthyCount),
-  permanentCount: toNumber(detail.healthSummary?.permanentCount ?? detail.permanentCount)
+  healthyCount: toNumber(detail.healthy_count),
+  permanentCount: toNumber(detail.permanent_count)
 })
 
 export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
@@ -110,27 +110,27 @@ export function useDashboardStats(options: UseDashboardStatsOptions = {}) {
       }
 
       const detail = response.detail
-      dashboardData.totalFiles = toNumber(detail.totalFiles)
-      dashboardData.storageUsed = toNumber(detail.storageUsed)
-      dashboardData.yesterdayCount = toNumber(detail.yesterdayCount)
-      dashboardData.todayCount = toNumber(detail.todayCount)
-      dashboardData.yesterdaySize = toNumber(detail.yesterdaySize)
-      dashboardData.todaySize = toNumber(detail.todaySize)
-      dashboardData.sysUptime = detail.sysUptime
-      dashboardData.hasExtendedStats = hasOwn(detail, 'activeCount')
+      dashboardData.totalFiles = toNumber(detail.total_files)
+      dashboardData.storageUsed = toNumber(detail.storage_used)
+      dashboardData.yesterdayCount = toNumber(detail.yesterday_count)
+      dashboardData.todayCount = toNumber(detail.today_count)
+      dashboardData.yesterdaySize = toNumber(detail.yesterday_size)
+      dashboardData.todaySize = toNumber(detail.today_size)
+      dashboardData.sysUptime = detail.sys_uptime
+      dashboardData.hasExtendedStats = hasOwn(detail, 'active_count')
       dashboardData.activeCount = dashboardData.hasExtendedStats
-        ? toNumber(detail.activeCount)
+        ? toNumber(detail.active_count)
         : dashboardData.totalFiles
-      dashboardData.expiredCount = toNumber(detail.expiredCount)
-      dashboardData.textCount = toNumber(detail.textCount)
-      dashboardData.fileCount = toNumber(detail.fileCount)
-      dashboardData.chunkedCount = toNumber(detail.chunkedCount)
-      dashboardData.usedCount = toNumber(detail.usedCount)
-      dashboardData.storageBackend = detail.storageBackend || '-'
-      dashboardData.uploadSizeLimit = toNumber(detail.uploadSizeLimit)
-      dashboardData.openUpload = toNumber(detail.openUpload)
-      dashboardData.enableChunk = toNumber(detail.enableChunk)
-      dashboardData.maxSaveSeconds = toNumber(detail.maxSaveSeconds)
+      dashboardData.expiredCount = toNumber(detail.expired_count)
+      dashboardData.textCount = toNumber(detail.text_count)
+      dashboardData.fileCount = toNumber(detail.file_count)
+      dashboardData.chunkedCount = toNumber(detail.chunked_count)
+      dashboardData.usedCount = toNumber(detail.used_count)
+      dashboardData.storageBackend = detail.storage_backend || '-'
+      dashboardData.uploadSizeLimit = toNumber(detail.upload_size_limit)
+      dashboardData.open_upload = toNumber(detail.open_upload)
+      dashboardData.enable_chunk = toNumber(detail.enable_chunk)
+      dashboardData.maxSaveSeconds = toNumber(detail.max_save_seconds)
       const healthSummary = normalizeHealthSummary(detail)
       healthSummaryKeys.forEach((key) => {
         dashboardData[key] = healthSummary[key]

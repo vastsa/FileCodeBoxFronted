@@ -136,7 +136,7 @@ export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
         file_name: file.name,
         file_size: file.size,
         expire_value: options?.expireValue ?? DEFAULT_EXPIRE_VALUE,
-        expire_style: options?.expireStyle ?? DEFAULT_EXPIRE_STYLE
+        expire_style: options?.expire_style ?? DEFAULT_EXPIRE_STYLE
       })
 
       if (response.code === 200 && response.detail) {
@@ -178,7 +178,7 @@ export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
       presignStatus.value = PRESIGN_UPLOAD_STATUS.CONFIRMING
       const confirmResponse = await PresignUploadService.confirmUpload(session.upload_id, {
         expire_value: options?.expireValue ?? DEFAULT_EXPIRE_VALUE,
-        expire_style: options?.expireStyle ?? DEFAULT_EXPIRE_STYLE
+        expire_style: options?.expire_style ?? DEFAULT_EXPIRE_STYLE
       })
 
       if (confirmResponse.code === 200 && confirmResponse.detail?.code) {

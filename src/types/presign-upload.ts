@@ -50,6 +50,6 @@ export interface PresignStatusResponse {
 
 export interface PresignUploadOptions {
   expireValue?: number
-  expireStyle?: ExpireStyle
+  expire_style?: ExpireStyle
   onProgress?: (progress: UploadProgress) => void
 }

@@ -24,7 +24,7 @@ export function useSendFlow() {
   const selectedFile = ref<File | null>(null)
   const selectedFiles = ref<File[]>([])
   const textContent = ref('')
-  const expirationMethod = ref(config.value.expireStyle[0] || 'day')
+  const expirationMethod = ref(config.value.expire_style[0] || 'day')
   const expirationValue = ref('1')
   const uploadProgress = ref(0)
   const uploadedBytes = ref(0)
@@ -38,11 +38,11 @@ export function useSendFlow() {
   const sendRecords = computed(() => fileDataStore.shareData)
   const uploadDescription = computed(() =>
     t('send.uploadArea.descriptionWithLimit', {
-      size: getStorageUnit(config.value.uploadSize)
+      size: getStorageUnit(config.value.upload_size)
     })
   )
   const allowedFileTypes = computed(() => {
-    const types = config.value.allowedFileTypes || config.value.allowed_file_types || ['*']
+    const types = config.value.allowed_file_types || ['*']
     const normalized = types.map((type) => String(type).trim()).filter(Boolean)
     return normalized.length > 0 ? normalized : ['*']
   })
@@ -58,16 +58,16 @@ export function useSendFlow() {
       .join(',')
   })
   const expirationOptions = computed(() =>
-    config.value.expireStyle.map((value) => ({
+    config.value.expire_style.map((value) => ({
       value,
       label: getUnit(value)
     }))
   )
   watch(
-    () => config.value.expireStyle,
-    (expireStyle) => {
-      if (expireStyle.length > 0 && !expireStyle.includes(expirationMethod.value)) {
-        expirationMethod.value = expireStyle[0]
+    () => config.value.expire_style,
+    (expire_style) => {
+      if (expire_style.length > 0 && !expire_style.includes(expirationMethod.value)) {
+        expirationMethod.value = expire_style[0]
       }
     },
     { immediate: true }
@@ -102,7 +102,7 @@ export function useSendFlow() {
   })
 
   const checkOpenUpload = () => {
-    if (config.value.openUpload === 0 && !adminStore.hasToken) {
+    if (config.value.open_upload === 0 && !adminStore.hasToken) {
       alertStore.showAlert(t('send.messages.guestUploadDisabled'), 'error')
       return false
     }
@@ -118,9 +118,9 @@ export function useSendFlow() {
   }
 
   const checkFileSize = (file: File) => {
-    if (file.size > config.value.uploadSize) {
+    if (file.size > config.value.upload_size) {
       alertStore.showAlert(
-        t('send.messages.fileSizeExceeded', { size: getStorageUnit(config.value.uploadSize) }),
+        t('send.messages.fileSizeExceeded', { size: getStorageUnit(config.value.upload_size) }),
         'error'
       )
       selectedFile.value = null
@@ -315,15 +315,15 @@ export function useSendFlow() {
           selectedFile: selectedFile.value,
           selectedFiles: selectedFiles.value,
           expireValue,
-          expireStyle: expirationMethod.value,
-          enableChunk: Boolean(config.value.enableChunk),
+          expire_style: expirationMethod.value,
+          enable_chunk: Boolean(config.value.enable_chunk),
           validateFileSize: checkFileSize
         })
       } else {
         response = await submitText({
           text: textContent.value,
           expireValue,
-          expireStyle: expirationMethod.value
+          expire_style: expirationMethod.value
         })
       }
 

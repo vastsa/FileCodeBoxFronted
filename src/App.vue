@@ -26,7 +26,7 @@ const { config } = storeToRefs(configStore)
 const adminStore = useAdminStore()
 const { t } = useI18n()
 const { verifySession } = useAdminSession()
-const showAdminAddress = computed(() => config.value.showAdminAddr === 1)
+const showAdminAddress = computed(() => config.value.show_admin_addr === 1)
 const adminEntryLabel = computed(() =>
   t(adminStore.isAuthenticated ? 'admin.session.loggedIn' : 'admin.session.loggedOut')
 )

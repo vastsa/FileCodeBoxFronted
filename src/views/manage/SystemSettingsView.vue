@@ -16,7 +16,7 @@ const {
   isDirty,
   fileSize,
   sizeUnit,
-  storageLimit,
+  storage_limit,
   storageLimitUnit,
   saveTime,
   saveTimeUnit,
@@ -185,10 +185,10 @@ onMounted(() => {
 
             <SettingSwitch
               :label="t('admin.settings.showAdminAddress')"
-              :model-value="config.showAdminAddr"
+              :model-value="config.show_admin_addr"
               :enabled-text="t('common.enabled')"
               :disabled-text="t('common.disabled')"
-              @toggle="toggleConfigFlag('showAdminAddr')"
+              @toggle="toggleConfigFlag('show_admin_addr')"
             />
           </div>
 
@@ -220,7 +220,7 @@ onMounted(() => {
               {{ t('manage.settings.themeSelection') }}
             </label>
             <select
-              v-model="config.themesSelect"
+              v-model="config.themes_select"
               class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border appearance-none bg-no-repeat bg-right focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none cursor-pointer"
               :class="[
                 isDarkMode
@@ -231,7 +231,7 @@ onMounted(() => {
                 background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%208l3%203%203-3%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E');
               "
             >
-              <option v-for="item in config.themesChoices" :value="item.key" :key="item.key">
+              <option v-for="item in config.themes_choices" :value="item.key" :key="item.key">
                 {{ item.name }} (by {{ item.author }} V{{ item.version }})
               </option>
             </select>
@@ -244,7 +244,7 @@ onMounted(() => {
               {{ t('manage.settings.robotsFile') }}
             </label>
             <textarea
-              v-model="config.robotsText"
+              v-model="config.robots_text"
               rows="3"
               class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border resize-none focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
               :class="[
@@ -354,10 +354,10 @@ onMounted(() => {
             <SettingSwitch
               v-if="config.file_storage === 'local'"
               :label="t('manage.settings.chunkUploadNote')"
-              :model-value="config.enableChunk"
+              :model-value="config.enable_chunk"
               :enabled-text="t('common.enabled')"
               :disabled-text="t('common.disabled')"
-              @toggle="toggleConfigFlag('enableChunk')"
+              @toggle="toggleConfigFlag('enable_chunk')"
             />
             <div v-if="config.file_storage === 'webdav'" class="space-y-4">
               <!-- 通知设置 -->
@@ -593,10 +593,10 @@ onMounted(() => {
 
                 <SettingSwitch
                   :label="t('manage.settings.chunkUploadNote')"
-                  :model-value="config.enableChunk"
+                  :model-value="config.enable_chunk"
                   :enabled-text="t('common.enabled')"
                   :disabled-text="t('common.disabled')"
-                  @toggle="toggleConfigFlag('enableChunk')"
+                  @toggle="toggleConfigFlag('enable_chunk')"
                 />
               </div>
             </div>
@@ -614,13 +614,13 @@ onMounted(() => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <SettingNumberInput
-              v-model="config.uploadMinute"
+              v-model="config.upload_minute"
               :label="t('manage.settings.uploadPerMinute')"
               :suffix="t('common.minute')"
             />
 
             <SettingNumberInput
-              v-model="config.uploadCount"
+              v-model="config.upload_count"
               :label="t('manage.settings.uploadCountLimit')"
               :suffix="t('common.files')"
             />
@@ -699,13 +699,13 @@ onMounted(() => {
                   <input
                     type="checkbox"
                     :value="style"
-                    v-model="config.expireStyle"
+                    v-model="config.expire_style"
                     class="peer sr-only"
                   />
                   <div
                     class="px-4 py-2 rounded-full border-2 transition-all duration-200 select-none"
                     :class="[
-                      config.expireStyle.includes(style)
+                      config.expire_style.includes(style)
                         ? isDarkMode
                           ? 'bg-zinc-600 border-zinc-600 text-white'
                           : 'bg-zinc-600 border-zinc-600 text-white'
@@ -784,11 +784,11 @@ onMounted(() => {
                 class="block text-sm font-medium"
                 :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
               >
-                {{ t('admin.settings.storageLimit') }}
+                {{ t('admin.settings.storage_limit') }}
               </label>
               <div class="flex items-center space-x-2">
                 <input
-                  v-model.number="storageLimit"
+                  v-model.number="storage_limit"
                   type="number"
                   min="0"
                   step="1"
@@ -820,10 +820,10 @@ onMounted(() => {
 
             <SettingSwitch
               :label="t('manage.settings.guestUpload')"
-              :model-value="config.openUpload"
+              :model-value="config.open_upload"
               :enabled-text="t('common.enabled')"
               :disabled-text="t('common.disabled')"
-              @toggle="toggleConfigFlag('openUpload')"
+              @toggle="toggleConfigFlag('open_upload')"
             />
           </div>
         </div>
@@ -839,13 +839,13 @@ onMounted(() => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <SettingNumberInput
-              v-model="config.errorMinute"
+              v-model="config.error_minute"
               :label="t('manage.settings.errorPerMinute')"
               :suffix="t('common.minute')"
             />
 
             <SettingNumberInput
-              v-model="config.errorCount"
+              v-model="config.error_count"
               :label="t('manage.settings.errorCountLimit')"
               :suffix="t('common.times')"
             />

@@ -40,22 +40,22 @@ import {
 import { buildRetrieveUrl } from '@/utils/share-url'
 
 const emptySummary = (): AdminFileSummary => ({
-  totalFiles: 0,
-  activeCount: 0,
-  expiredCount: 0,
-  textCount: 0,
-  fileCount: 0,
-  chunkedCount: 0,
-  healthAttentionCount: 0,
-  healthDangerCount: 0,
-  healthWarningCount: 0,
-  expiringSoonCount: 0,
-  storageIssueCount: 0,
-  neverRetrievedCount: 0,
-  healthyCount: 0,
-  permanentCount: 0,
-  storageUsed: 0,
-  usedCount: 0
+  total_files: 0,
+  active_count: 0,
+  expired_count: 0,
+  text_count: 0,
+  file_count: 0,
+  chunked_count: 0,
+  health_attention_count: 0,
+  health_danger_count: 0,
+  health_warning_count: 0,
+  expiring_soon_count: 0,
+  storage_issue_count: 0,
+  never_retrieved_count: 0,
+  healthy_count: 0,
+  permanent_count: 0,
+  storage_used: 0,
+  used_count: 0
 })
 
 const normalizeCount = (value: number | string | null | undefined) => Number(value || 0)
@@ -172,8 +172,8 @@ const buildDefaultViewPresetParams = (): AdminFileViewPresetParams => ({
   status: 'all',
   type: 'all',
   health: 'all',
-  sortBy: 'created_at',
-  sortOrder: 'desc',
+  sort_by: 'created_at',
+  sort_order: 'desc',
   size: 10
 })
 
@@ -189,15 +189,15 @@ const normalizeViewPresetParams = (params: unknown): AdminFileViewPresetParams =
     status: normalizePresetChoice(rawParams.status, adminFileStatusFilters, defaults.status),
     type: normalizePresetChoice(rawParams.type, adminFileTypeFilters, defaults.type),
     health: normalizePresetChoice(rawParams.health, adminFileHealthFilters, defaults.health),
-    sortBy: normalizePresetChoice(
-      rawParams.sortBy ?? rawParams.sort_by,
+    sort_by: normalizePresetChoice(
+      rawParams.sort_by,
       adminFileSortFields,
-      defaults.sortBy
+      defaults.sort_by
     ),
-    sortOrder: normalizePresetChoice(
-      rawParams.sortOrder ?? rawParams.sort_order,
+    sort_order: normalizePresetChoice(
+      rawParams.sort_order,
       adminFileSortOrders,
-      defaults.sortOrder
+      defaults.sort_order
     ),
     size: normalizePresetSize(rawParams.size ?? defaults.size)
   }
@@ -220,8 +220,8 @@ export function useAdminFiles() {
     status: 'all',
     type: 'all',
     health: 'all',
-    sortBy: 'created_at',
-    sortOrder: 'desc'
+    sort_by: 'created_at',
+    sort_order: 'desc'
   })
 
   const showEditModal = ref(false)
@@ -262,7 +262,7 @@ export function useAdminFiles() {
     () => isBatchDeleting.value || isBatchUpdating.value || isBatchPolicyActionRunning.value
   )
   const totalPages = computed(() => Math.max(Math.ceil(params.value.total / params.value.size), 1))
-  const storageUsedText = computed(() => formatFileSize(summary.value.storageUsed))
+  const storageUsedText = computed(() => formatFileSize(summary.value.storage_used))
   const currentPageSelectedCount = computed(
     () => tableData.value.filter((file) => selectedFileIds.value.has(file.id)).length
   )
@@ -282,8 +282,8 @@ export function useAdminFiles() {
     status: params.value.status === 'all' ? undefined : params.value.status,
     type: params.value.type === 'all' ? undefined : params.value.type,
     health: params.value.health === 'all' ? undefined : params.value.health,
-    sortBy: params.value.sortBy,
-    sortOrder: params.value.sortOrder
+    sort_by: params.value.sort_by,
+    sort_order: params.value.sort_order
   }))
 
   const hasActiveFilters = computed(
@@ -299,8 +299,8 @@ export function useAdminFiles() {
     status: params.value.status || 'all',
     type: params.value.type || 'all',
     health: params.value.health || 'all',
-    sortBy: params.value.sortBy || 'created_at',
-    sortOrder: params.value.sortOrder || 'desc',
+    sort_by: params.value.sort_by || 'created_at',
+    sort_order: params.value.sort_order || 'desc',
     size: params.value.size || 10
   })
 
@@ -318,9 +318,7 @@ export function useAdminFiles() {
       id,
       name: t(nameKey),
       filters: presetFilters,
-      params: presetFilters,
       isBuiltIn: true,
-      isDefault: id === builtInAllViewPresetId,
       is_default: id === builtInAllViewPresetId
     }
   }
@@ -350,46 +348,46 @@ export function useAdminFiles() {
   ])
 
   const healthFilterOptions = computed<HealthFilterOption[]>(() => [
-    { value: 'all', label: t('fileManage.healthFilters.all'), count: summary.value.totalFiles },
+    { value: 'all', label: t('fileManage.healthFilters.all'), count: summary.value.total_files },
     {
       value: 'attention',
       label: t('fileManage.healthFilters.attention'),
-      count: summary.value.healthAttentionCount
+      count: summary.value.health_attention_count
     },
     {
       value: 'danger',
       label: t('fileManage.healthFilters.danger'),
-      count: summary.value.healthDangerCount
+      count: summary.value.health_danger_count
     },
     {
       value: 'warning',
       label: t('fileManage.healthFilters.warning'),
-      count: summary.value.healthWarningCount
+      count: summary.value.health_warning_count
     },
     {
       value: 'expiring_soon',
       label: t('fileManage.healthFilters.expiringSoon'),
-      count: summary.value.expiringSoonCount
+      count: summary.value.expiring_soon_count
     },
     {
       value: 'storage_issue',
       label: t('fileManage.healthFilters.storageIssue'),
-      count: summary.value.storageIssueCount
+      count: summary.value.storage_issue_count
     },
     {
       value: 'never_retrieved',
       label: t('fileManage.healthFilters.neverRetrieved'),
-      count: summary.value.neverRetrievedCount
+      count: summary.value.never_retrieved_count
     },
     {
       value: 'healthy',
       label: t('fileManage.healthFilters.healthy'),
-      count: summary.value.healthyCount
+      count: summary.value.healthy_count
     },
     {
       value: 'permanent',
       label: t('fileManage.healthFilters.permanent'),
-      count: summary.value.permanentCount
+      count: summary.value.permanent_count
     }
   ])
 
@@ -425,14 +423,14 @@ export function useAdminFiles() {
   )
 
   const inferIsText = (file: FileListItem) => {
-    if (typeof file.isText === 'boolean') return file.isText
+    if (typeof file.is_text === 'boolean') return file.is_text
     if (typeof file.is_text === 'boolean') return file.is_text
     if (file.type) return file.type === 'text'
     return Boolean(file.text)
   }
 
   const inferIsExpired = (file: FileListItem) => {
-    if (typeof file.isExpired === 'boolean') return file.isExpired
+    if (typeof file.is_expired === 'boolean') return file.is_expired
     if (typeof file.is_expired === 'boolean') return file.is_expired
     if (
       file.expired_count !== null &&
@@ -444,10 +442,10 @@ export function useAdminFiles() {
     return isExpiredByDate(file.expired_at)
   }
 
-  const inferIsChunked = (file: FileListItem) => Boolean(file.isChunked ?? file.is_chunked)
+  const inferIsChunked = (file: FileListItem) => Boolean(file.is_chunked)
 
   const getRemainingDownloads = (file: FileListItem) => {
-    if (file.remainingDownloads !== undefined) return file.remainingDownloads
+    if (file.remaining_downloads !== undefined) return file.remaining_downloads
     if (file.remaining_downloads !== undefined) return file.remaining_downloads
     if (
       file.expired_count !== null &&
@@ -460,30 +458,30 @@ export function useAdminFiles() {
   }
 
   const buildFallbackSummary = (files: AdminFileViewItem[], total: number): AdminFileSummary => ({
-    totalFiles: total,
-    activeCount: files.filter((file) => !file.isExpiredFile).length,
-    expiredCount: files.filter((file) => file.isExpiredFile).length,
-    textCount: files.filter((file) => file.isTextFile).length,
-    fileCount: files.filter((file) => !file.isTextFile).length,
-    chunkedCount: files.filter((file) => file.isChunkedFile).length,
-    healthAttentionCount: files.filter((file) =>
+    total_files: total,
+    active_count: files.filter((file) => !file.isExpiredFile).length,
+    expired_count: files.filter((file) => file.isExpiredFile).length,
+    text_count: files.filter((file) => file.isTextFile).length,
+    file_count: files.filter((file) => !file.isTextFile).length,
+    chunked_count: files.filter((file) => file.isChunkedFile).length,
+    health_attention_count: files.filter((file) =>
       ['danger', 'warning'].includes(file.statusInsightSeverity)
     ).length,
-    healthDangerCount: files.filter((file) => file.statusInsightSeverity === 'danger').length,
-    healthWarningCount: files.filter((file) => file.statusInsightSeverity === 'warning').length,
-    expiringSoonCount: files.filter((file) => file.statusInsightReasons.includes('expires_soon'))
+    health_danger_count: files.filter((file) => file.statusInsightSeverity === 'danger').length,
+    health_warning_count: files.filter((file) => file.statusInsightSeverity === 'warning').length,
+    expiring_soon_count: files.filter((file) => file.statusInsightReasons.includes('expires_soon'))
       .length,
-    storageIssueCount: files.filter((file) =>
+    storage_issue_count: files.filter((file) =>
       file.statusInsightReasons.includes('storage_metadata_incomplete')
     ).length,
-    neverRetrievedCount: files.filter((file) =>
+    never_retrieved_count: files.filter((file) =>
       file.statusInsightReasons.includes('never_retrieved')
     ).length,
-    healthyCount: files.filter((file) => file.statusInsightSeverity === 'success').length,
-    permanentCount: files.filter((file) => file.statusInsightState === 'permanent').length,
-    storageUsed: files.reduce((totalSize, file) => totalSize + normalizeCount(file.size), 0),
-    usedCount: files.reduce(
-      (totalUsed, file) => totalUsed + normalizeCount(file.usedCount ?? file.used_count),
+    healthy_count: files.filter((file) => file.statusInsightSeverity === 'success').length,
+    permanent_count: files.filter((file) => file.statusInsightState === 'permanent').length,
+    storage_used: files.reduce((totalSize, file) => totalSize + normalizeCount(file.size), 0),
+    used_count: files.reduce(
+      (totalUsed, file) => totalUsed + normalizeCount(file.used_count),
       0
     )
   })
@@ -497,28 +495,28 @@ export function useAdminFiles() {
     if (!rawSummary) return fallback
 
     return {
-      totalFiles: normalizeCount(rawSummary.totalFiles ?? fallback.totalFiles),
-      activeCount: normalizeCount(rawSummary.activeCount ?? fallback.activeCount),
-      expiredCount: normalizeCount(rawSummary.expiredCount ?? fallback.expiredCount),
-      textCount: normalizeCount(rawSummary.textCount ?? fallback.textCount),
-      fileCount: normalizeCount(rawSummary.fileCount ?? fallback.fileCount),
-      chunkedCount: normalizeCount(rawSummary.chunkedCount ?? fallback.chunkedCount),
-      healthAttentionCount: normalizeCount(
-        rawSummary.healthAttentionCount ?? fallback.healthAttentionCount
+      total_files: normalizeCount(rawSummary.total_files ?? fallback.total_files),
+      active_count: normalizeCount(rawSummary.active_count ?? fallback.active_count),
+      expired_count: normalizeCount(rawSummary.expired_count ?? fallback.expired_count),
+      text_count: normalizeCount(rawSummary.text_count ?? fallback.text_count),
+      file_count: normalizeCount(rawSummary.file_count ?? fallback.file_count),
+      chunked_count: normalizeCount(rawSummary.chunked_count ?? fallback.chunked_count),
+      health_attention_count: normalizeCount(
+        rawSummary.health_attention_count ?? fallback.health_attention_count
       ),
-      healthDangerCount: normalizeCount(rawSummary.healthDangerCount ?? fallback.healthDangerCount),
-      healthWarningCount: normalizeCount(
-        rawSummary.healthWarningCount ?? fallback.healthWarningCount
+      health_danger_count: normalizeCount(rawSummary.health_danger_count ?? fallback.health_danger_count),
+      health_warning_count: normalizeCount(
+        rawSummary.health_warning_count ?? fallback.health_warning_count
       ),
-      expiringSoonCount: normalizeCount(rawSummary.expiringSoonCount ?? fallback.expiringSoonCount),
-      storageIssueCount: normalizeCount(rawSummary.storageIssueCount ?? fallback.storageIssueCount),
-      neverRetrievedCount: normalizeCount(
-        rawSummary.neverRetrievedCount ?? fallback.neverRetrievedCount
+      expiring_soon_count: normalizeCount(rawSummary.expiring_soon_count ?? fallback.expiring_soon_count),
+      storage_issue_count: normalizeCount(rawSummary.storage_issue_count ?? fallback.storage_issue_count),
+      never_retrieved_count: normalizeCount(
+        rawSummary.never_retrieved_count ?? fallback.never_retrieved_count
       ),
-      healthyCount: normalizeCount(rawSummary.healthyCount ?? fallback.healthyCount),
-      permanentCount: normalizeCount(rawSummary.permanentCount ?? fallback.permanentCount),
-      storageUsed: normalizeCount(rawSummary.storageUsed ?? fallback.storageUsed),
-      usedCount: normalizeCount(rawSummary.usedCount ?? fallback.usedCount)
+      healthy_count: normalizeCount(rawSummary.healthy_count ?? fallback.healthy_count),
+      permanent_count: normalizeCount(rawSummary.permanent_count ?? fallback.permanent_count),
+      storage_used: normalizeCount(rawSummary.storage_used ?? fallback.storage_used),
+      used_count: normalizeCount(rawSummary.used_count ?? fallback.used_count)
     }
   }
 
@@ -539,8 +537,8 @@ export function useAdminFiles() {
     const isExpiredFile = inferIsExpired(file)
     const isChunkedFile = inferIsChunked(file)
     const remainingDownloadsValue = getRemainingDownloads(file)
-    const usedCount = normalizeCount(file.usedCount ?? file.used_count)
-    const statusInsights = file.statusInsights ?? file.status_insights
+    const usedCount = normalizeCount(file.used_count)
+    const statusInsights = file.status_insights
     const isPermanentFile =
       !file.expired_at &&
       (file.expired_count === null || file.expired_count === undefined || file.expired_count < 0)
@@ -548,7 +546,7 @@ export function useAdminFiles() {
       statusInsights?.state ??
       (isExpiredFile ? 'expired' : isPermanentFile ? 'permanent' : 'available')
     const statusInsightNextAction =
-      statusInsights?.nextAction ?? statusInsights?.next_action ?? 'monitor'
+      statusInsights?.next_action ?? 'monitor'
     const statusInsightSeverity = normalizeInsightSeverity(statusInsights?.severity)
 
     return {
@@ -630,11 +628,11 @@ export function useAdminFiles() {
     const detail = file as AdminFileDetailResponse
     const policy = detail.policy
     const storage = detail.storage
-    const expiredAt = policy?.expiredAt ?? policy?.expired_at ?? file.expired_at ?? null
-    const expiredCount = policy?.expiredCount ?? policy?.expired_count ?? file.expired_count ?? null
+    const expiredAt = policy?.expired_at ?? file.expired_at ?? null
+    const expiredCount = policy?.expired_count ?? file.expired_count ?? null
     const prefixedName = `${file.prefix || ''}${file.suffix || ''}`
     const displayName =
-      detail.displayName ??
+      detail.display_name ??
       detail.display_name ??
       detail.filename ??
       file.name ??
@@ -647,41 +645,41 @@ export function useAdminFiles() {
     }
     const viewItem = createFileViewItem(normalizedFile)
     const remainingDownloadsValue =
-      policy?.remainingDownloads ?? policy?.remaining_downloads ?? viewItem.remainingDownloadsValue
+      policy?.remaining_downloads ?? viewItem.remainingDownloadsValue
     const canPreviewText =
-      detail.canPreviewText ?? detail.can_preview_text ?? viewItem.canPreviewText
-    const canDownloadFile = detail.canDownload ?? detail.can_download ?? !viewItem.isExpiredFile
+      detail.can_preview_text ?? viewItem.canPreviewText
+    const canDownloadFile = detail.can_download ?? !viewItem.isExpiredFile
     const textLengthValue = normalizeCount(
-      detail.textLength ?? detail.text_length ?? detail.text?.length
+      detail.text_length ?? detail.text?.length
     )
     const isPermanentFile =
-      detail.isPermanent ??
       detail.is_permanent ??
-      policy?.isPermanent ??
+      detail.is_permanent ??
+      policy?.is_permanent ??
       policy?.is_permanent ??
       (!expiredAt && (expiredCount === null || expiredCount === undefined || expiredCount < 0))
     const hasDownloadLimitFile =
-      detail.hasDownloadLimit ??
+      detail.has_download_limit ??
       detail.has_download_limit ??
       (expiredCount !== null && expiredCount !== undefined && expiredCount >= 0)
     const hasExpirationTimeFile =
-      detail.hasExpirationTime ?? detail.has_expiration_time ?? Boolean(expiredAt)
+      detail.has_expiration_time ?? Boolean(expiredAt)
     const storageBackendValue =
       storage?.backend ?? detail.storageBackend ?? detail.storage_backend ?? '-'
-    const isChunkedStorage = storage?.isChunked ?? storage?.is_chunked ?? viewItem.isChunkedFile
-    const statusInsights = detail.statusInsights ?? detail.status_insights
+    const isChunkedStorage = storage?.is_chunked ?? viewItem.isChunkedFile
+    const statusInsights = detail.status_insights
     const statusInsightState =
       statusInsights?.state ??
       (viewItem.isExpiredFile ? 'expired' : isPermanentFile ? 'permanent' : 'available')
     const statusInsightNextAction =
-      statusInsights?.nextAction ?? statusInsights?.next_action ?? 'monitor'
-    const metadata = detail.metadata ?? detail.meta
+      statusInsights?.next_action ?? 'monitor'
+    const metadata = detail.metadata
     const metadataNote = detail.note ?? metadata?.note ?? ''
     const metadataTags = normalizeMetadataTags(detail.tags ?? metadata?.tags)
     const metadataUpdatedAt =
-      detail.metadataUpdatedAt ??
       detail.metadata_updated_at ??
-      metadata?.updatedAt ??
+      detail.metadata_updated_at ??
+      metadata?.updated_at ??
       metadata?.updated_at ??
       null
 
@@ -700,14 +698,14 @@ export function useAdminFiles() {
       hasExpirationTimeFile,
       isChunkedStorage: Boolean(isChunkedStorage),
       storageBackendValue,
-      fileHashValue: storage?.fileHash ?? storage?.file_hash ?? detail.fileHash ?? detail.file_hash,
-      filePathValue: storage?.filePath ?? storage?.file_path ?? detail.filePath ?? detail.file_path,
+      fileHashValue: storage?.file_hash ?? detail.file_hash,
+      filePathValue: storage?.file_path ?? detail.file_path,
       uuidFileNameValue:
-        storage?.uuidFileName ??
         storage?.uuid_file_name ??
-        detail.uuidFileName ??
+        storage?.uuid_file_name ??
+        detail.uuid_file_name ??
         detail.uuid_file_name,
-      uploadIdValue: storage?.uploadId ?? storage?.upload_id ?? detail.uploadId ?? detail.upload_id,
+      uploadIdValue: storage?.upload_id ?? detail.upload_id,
       metadataNote,
       metadataTags,
       metadataUpdatedAt,
@@ -813,7 +811,6 @@ export function useAdminFiles() {
 
     return {
       ids,
-      clearExpiredAt: true,
       clear_expired_at: true
     }
   }
@@ -822,7 +819,7 @@ export function useAdminFiles() {
     id: number,
     payload: AdminBatchUpdateFilesRequest
   ): AdminFilePatchPayload => {
-    if (payload.clearExpiredAt || payload.clear_expired_at) {
+    if (payload.clear_expired_at) {
       return {
         id,
         expired_at: legacyForeverExpiresAt,
@@ -850,7 +847,7 @@ export function useAdminFiles() {
     }
 
     if (action === 'reset_download_limit') {
-      request.downloadLimit = detailPolicyDownloadLimit
+      request.download_limit = detailPolicyDownloadLimit
       request.download_limit = detailPolicyDownloadLimit
     }
 
@@ -867,7 +864,7 @@ export function useAdminFiles() {
     }
 
     if (action === 'reset_download_limit') {
-      request.downloadLimit = detailPolicyDownloadLimit
+      request.download_limit = detailPolicyDownloadLimit
       request.download_limit = detailPolicyDownloadLimit
     }
 
@@ -913,7 +910,7 @@ export function useAdminFiles() {
   }
 
   const getPresetParams = (preset: AdminFileViewPreset) =>
-    normalizeViewPresetParams(preset.filters ?? preset.params)
+    normalizeViewPresetParams(preset.filters)
 
   const normalizeSavedViewPreset = (preset: AdminFileViewPreset): AdminFileViewPreset | null => {
     const id = String(preset.id || '').trim()
@@ -950,8 +947,7 @@ export function useAdminFiles() {
     return {
       id,
       name: normalizedName,
-      filters,
-      params: filters
+      filters
     }
   }
 
@@ -963,7 +959,7 @@ export function useAdminFiles() {
     isViewPresetLoading.value = true
     try {
       const response = await FileService.getAdminFileViewPresets()
-      const rawPresets = response.detail?.presets ?? response.detail?.items ?? []
+      const rawPresets = response.detail?.presets ?? []
       savedViewPresets.value = rawPresets
         .map((preset) => normalizeSavedViewPreset(preset))
         .filter((preset): preset is AdminFileViewPreset => Boolean(preset))
@@ -999,8 +995,8 @@ export function useAdminFiles() {
     params.value.status = presetParams.status
     params.value.type = presetParams.type
     params.value.health = presetParams.health
-    params.value.sortBy = presetParams.sortBy
-    params.value.sortOrder = presetParams.sortOrder
+    params.value.sort_by = presetParams.sort_by
+    params.value.sort_order = presetParams.sort_order
     params.value.size = presetParams.size
     params.value.page = 1
     selectedViewPresetId.value = preset.id
@@ -1128,8 +1124,8 @@ export function useAdminFiles() {
     params.value.status = 'all'
     params.value.type = 'all'
     params.value.health = 'all'
-    params.value.sortBy = 'created_at'
-    params.value.sortOrder = 'desc'
+    params.value.sort_by = 'created_at'
+    params.value.sort_order = 'desc'
     selectedViewPresetId.value = builtInAllViewPresetId
     clearSelection()
     await loadFiles()
@@ -1332,8 +1328,8 @@ export function useAdminFiles() {
     try {
       const response = await deleteAdminFilesWithFallback(ids)
       const detail = response.detail
-      const deletedCount = detail?.deletedCount ?? detail?.deleted_count ?? ids.length
-      const failedCount = detail?.failedCount ?? detail?.failed_count ?? 0
+      const deletedCount = detail?.deleted_count ?? ids.length
+      const failedCount = detail?.failed_count ?? 0
 
       if (tableData.value.length <= deletedCount && params.value.page > 1) {
         params.value.page -= 1
@@ -1378,8 +1374,8 @@ export function useAdminFiles() {
     try {
       const response = await updateAdminFilesWithFallback(ids, payload)
       const detail = response.detail
-      const updatedCount = detail?.updatedCount ?? detail?.updated_count ?? ids.length
-      const failedCount = detail?.failedCount ?? detail?.failed_count ?? 0
+      const updatedCount = detail?.updated_count ?? ids.length
+      const failedCount = detail?.failed_count ?? 0
 
       clearSelection()
       await loadFiles()
@@ -1424,10 +1420,10 @@ export function useAdminFiles() {
     try {
       const response = await applyAdminFilesPolicyActionWithFallback(ids, action)
       const detail = response.detail
-      const updatedCount = detail?.updatedCount ?? detail?.updated_count ?? ids.length
+      const updatedCount = detail?.updated_count ?? ids.length
       const failedCount =
-        (detail?.failedCount ?? detail?.failed_count ?? 0) +
-        (detail?.missingCount ?? detail?.missing_count ?? 0)
+        (detail?.failed_count ?? 0) +
+        (detail?.missing_count ?? 0)
 
       clearSelection()
       await loadFiles()
@@ -1468,7 +1464,7 @@ export function useAdminFiles() {
       previewText.value = response.detail.content
       previewMetaText.value = response.detail.truncated
         ? t('fileManage.previewTruncated', {
-            shown: response.detail.previewLength ?? response.detail.preview_length ?? 0,
+            shown: response.detail.preview_length ?? 0,
             total: response.detail.length
           })
         : t('fileManage.previewComplete', { count: response.detail.length })

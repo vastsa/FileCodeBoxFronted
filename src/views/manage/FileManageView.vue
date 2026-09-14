@@ -6,7 +6,7 @@
           {{ t('fileManage.title') }}
         </h2>
         <p class="mt-1 text-sm" :class="[mutedTextClass]">
-          {{ t('fileManage.subtitle', { count: summary.totalFiles }) }}
+          {{ t('fileManage.subtitle', { count: summary.total_files }) }}
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
@@ -149,7 +149,7 @@
               {{ t('fileManage.sortBy') }}
             </span>
             <select
-              v-model="params.sortBy"
+              v-model="params.sort_by"
               class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
               :class="[fieldClass]"
               @change="handleSearch"
@@ -166,7 +166,7 @@
               {{ t('fileManage.sortOrder') }}
             </span>
             <select
-              v-model="params.sortOrder"
+              v-model="params.sort_order"
               class="w-full rounded-lg border px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-zinc-500"
               :class="[fieldClass]"
               @change="handleSearch"
@@ -1473,19 +1473,19 @@ const openDetailTextPreview = () => {
 const summaryCards = computed(() => [
   {
     label: t('fileManage.totalFiles'),
-    value: summary.value.totalFiles,
+    value: summary.value.total_files,
     icon: ArchiveIcon,
     iconClass: isDarkMode.value ? 'bg-zinc-900/30 text-zinc-300' : 'bg-zinc-50 text-zinc-600'
   },
   {
     label: t('fileManage.activeFiles'),
-    value: summary.value.activeCount,
+    value: summary.value.active_count,
     icon: ActivityIcon,
     iconClass: isDarkMode.value ? 'bg-zinc-700 text-zinc-200' : 'bg-slate-100 text-slate-700'
   },
   {
     label: t('fileManage.expiredFiles'),
-    value: summary.value.expiredCount,
+    value: summary.value.expired_count,
     icon: ClockIcon,
     iconClass: isDarkMode.value ? 'bg-red-900/30 text-red-300' : 'bg-red-50 text-red-600'
   },

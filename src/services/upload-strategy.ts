@@ -6,7 +6,7 @@ const CHUNK_SIZE = 5 * 1024 * 1024
 
 type ChunkedUploadOptions = {
   expireValue: number
-  expireStyle: string
+  expire_style: string
   onHashCalculated?: (hash: string) => void
   onProgress?: (progress: UploadProgress) => void
   messages?: {
@@ -86,7 +86,7 @@ export const uploadChunkedFile = async (
 
   const completeResponse = await FileService.completeChunkUpload(uploadId, {
     expire_value: options.expireValue,
-    expire_style: options.expireStyle
+    expire_style: options.expire_style
   })
 
   if (completeResponse.code !== 200) {

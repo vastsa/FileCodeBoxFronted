@@ -63,12 +63,12 @@ export class FileService {
   static async uploadText(
     text: string,
     expireValue = 1,
-    expireStyle = 'day'
+    expire_style = 'day'
   ): Promise<ApiResponse<TextSendResponse>> {
     const formData = new FormData()
     formData.append('text', text)
     formData.append('expire_value', String(expireValue))
-    formData.append('expire_style', expireStyle)
+    formData.append('expire_style', expire_style)
     return api.post('/share/text/', formData, multipartUploadConfig())
   }
 
@@ -265,7 +265,7 @@ export class FileService {
     return api.get('/admin/file/preview', {
       params: {
         id,
-        maxChars
+        max_chars: maxChars
       }
     })
   }

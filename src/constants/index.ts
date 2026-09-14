@@ -94,7 +94,5 @@ export const REGEX_PATTERNS = {
 export const DEFAULT_CONFIG = {
   name: 'FileCodeBox',
   description: '文件传输工具',
-  maxFileSize: FILE_SIZE_LIMITS.MAX_FILE_SIZE,
-  allowedFileTypes: ['*'] as string[],
-  expireDays: 7
+  allowed_file_types: ['*'] as string[]
 }
