@@ -1,6 +1,7 @@
 <template>
-  <div class="p-6">
-    <div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+  <div :class="embedded ? 'min-w-0' : 'p-6'">
+    <!-- 收件页仅隐藏概览和筛选区，表格及操作弹窗直接共用。 -->
+    <div v-if="!embedded" class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
       <div>
         <h2 class="text-2xl font-bold" :class="[primaryTextClass]">
           {{ t('fileManage.title') }}
@@ -30,7 +31,7 @@
       </div>
     </div>
 
-    <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div v-if="!embedded" class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
       <div
         v-for="card in summaryCards"
         :key="card.label"
@@ -51,7 +52,7 @@
       </div>
     </div>
 
-    <section class="mb-6 rounded-lg border p-4" :class="[panelClass]">
+    <section v-if="!embedded" class="mb-6 rounded-lg border p-4" :class="[panelClass]">
       <div class="grid gap-4">
         <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
           <label class="min-w-0 flex-1">
@@ -241,7 +242,7 @@
     </section>
 
     <section
-      v-if="tableData.length > 0"
+      v-if="tableData.length > 0 && (!embedded || hasSelectedFiles)"
       class="mb-4 flex flex-col gap-3 rounded-lg border px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
       :class="[panelClass]"
     >
@@ -527,19 +528,7 @@
                   <PencilIcon class="mr-1.5 h-4 w-4" />
                   {{ t('common.edit') }}
                 </button>
-                <button
-                  type="button"
-                  class="inline-flex items-center rounded-md px-3 py-1.5 transition-colors duration-200"
-                  :class="[
-                    isDarkMode
-                      ? 'bg-red-900/20 text-red-300 hover:bg-red-900/30'
-                      : 'bg-red-50 text-red-600 hover:bg-red-100'
-                  ]"
-                  @click="deleteFile(file.id)"
-                >
-                  <TrashIcon class="mr-1.5 h-4 w-4" />
-                  {{ t('common.delete') }}
-                </button>
+                <DeleteActionButton @click="deleteFile(file.id)" />
               </div>
             </td>
           </tr>
@@ -1215,9 +1204,12 @@ import DataPagination from '@/components/common/DataPagination.vue'
 import FileEditField from '@/components/common/FileEditField.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
+import DeleteActionButton from '@/components/common/DeleteActionButton.vue'
 import { useAdminFiles, useInjectedDarkMode } from '@/composables'
 import { formatTimestamp } from '@/utils/common'
 
+// 由宿主通过 key 隔离不同寄件码，详情/编辑/删除继续使用原文件管理实例。
+const props = defineProps<{ embedded?: boolean; deliveryId?: number; refreshKey?: number }>()
 const { t } = useI18n()
 const isDarkMode = useInjectedDarkMode()
 const route = useRoute()
@@ -1313,7 +1305,7 @@ const {
   updateDetailMetadata,
   toggleCurrentPageSelection,
   toggleFileSelection
-} = useAdminFiles()
+} = useAdminFiles({ getDeliveryId: () => props.deliveryId })
 
 const primaryTextClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-zinc-950'))
 const mutedTextClass = computed(() => (isDarkMode.value ? 'text-zinc-400' : 'text-zinc-500'))
@@ -1538,6 +1530,7 @@ const healthFilterValues: AdminFileHealthFilter[] = [
 ]
 
 const getRouteHealthFilter = (): AdminFileHealthFilter => {
+  if (props.embedded) return 'all'
   const health = route.query.health
   if (typeof health === 'string' && healthFilterValues.includes(health as AdminFileHealthFilter)) {
     return health as AdminFileHealthFilter
@@ -1546,6 +1539,7 @@ const getRouteHealthFilter = (): AdminFileHealthFilter => {
 }
 
 const syncHealthFilterQuery = async (health: AdminFileHealthFilter) => {
+  if (props.embedded) return
   const query = { ...route.query }
   if (health === 'all') {
     delete query.health
@@ -1727,15 +1721,22 @@ const getTimelineDotClass = (severity: AdminFileInsightSeverity) => {
 watch(
   () => route.query.health,
   async () => {
+    if (props.embedded) return
     const health = getRouteHealthFilter()
     if (params.value.health === health) return
     await setHealthFilter(health)
   }
 )
 
+// 宿主刷新收件时同步刷新共用表格。
+watch(
+  () => props.refreshKey,
+  () => void refreshFiles()
+)
+
 onMounted(() => {
   params.value.health = getRouteHealthFilter()
-  void loadViewPresets()
+  if (!props.embedded) void loadViewPresets()
   void loadFiles()
 })
 </script>

@@ -1,4 +1,6 @@
+import { deliveryZh } from '../delivery'
 export default {
+  delivery: deliveryZh,
   // 通用
   common: {
     confirm: '确认',

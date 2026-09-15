@@ -1,4 +1,5 @@
 import { computed, ref, watch } from 'vue'
+import type { DeliverySession } from '@/types/delivery'
 import { useI18n } from 'vue-i18n'
 import { useAlertStore } from '@/stores/alertStore'
 import { useAdminStore } from '@/stores/adminStore'
@@ -13,13 +14,22 @@ import { buildSentRecord, isExpirationWithinLimit } from '@/utils/send-record'
 import { createSentRecordActions } from '@/utils/sent-record-actions'
 import { useSendSubmit } from './useSendSubmit'
 
-export function useSendFlow() {
+export function useSendFlow(
+  options: {
+    getDeliverySession?: () => DeliverySession | null
+    onDeliverySuccess?: () => void
+  } = {}
+) {
   const { t } = useI18n()
   const alertStore = useAlertStore()
   const adminStore = useAdminStore()
   const configStore = useConfigStore()
   const fileDataStore = useFileDataStore()
-  const config = computed(() => configStore.config)
+  // 验证寄件码后复用同一页面状态；不修改全站游客开关。
+  const config = computed(() => ({
+    ...configStore.config,
+    ...(options.getDeliverySession?.() || {})
+  }))
   const sendType = ref<SendType>('file')
   const selectedFile = ref<File | null>(null)
   const selectedFiles = ref<File[]>([])
@@ -77,7 +87,10 @@ export function useSendFlow() {
   }
   const sentRecordActions = createSentRecordActions(notifyCopyResult)
   const { resetPresignUpload, submitFile, submitText } = useSendSubmit({
-    getMaxFileSize: () => configStore.uploadSizeLimit,
+    getMaxFileSize: () => config.value.upload_size,
+    getDeliveryToken: options.getDeliverySession
+      ? () => options.getDeliverySession?.()?.token || ''
+      : undefined,
     notify: (message, type) => alertStore.showAlert(message, type),
     translate: t,
     onProgress: (progress: UploadProgress) => {
@@ -102,6 +115,12 @@ export function useSendFlow() {
   })
 
   const checkOpenUpload = () => {
+    if (options.getDeliverySession) {
+      const session = options.getDeliverySession()
+      if (session) return true
+      alertStore.showAlert(t('delivery.tooMany'), 'error')
+      return false
+    }
     if (config.value.open_upload === 0 && !adminStore.hasToken) {
       alertStore.showAlert(t('send.messages.guestUploadDisabled'), 'error')
       return false
@@ -330,6 +349,7 @@ export function useSendFlow() {
       if (!response) return
 
       if (response?.code === 200) {
+        options.onDeliverySuccess?.()
         const newRecord = buildSentRecord({
           response,
           sendType: sendType.value,

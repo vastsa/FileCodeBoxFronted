@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FileService } from '@/services'
 import { useAlertStore } from '@/stores/alertStore'
@@ -203,7 +203,7 @@ const normalizeViewPresetParams = (params: unknown): AdminFileViewPresetParams =
   }
 }
 
-export function useAdminFiles() {
+export function useAdminFiles(options: { getDeliveryId?: () => number | undefined } = {}) {
   const { t } = useI18n()
   const alertStore = useAlertStore()
 
@@ -276,6 +276,7 @@ export function useAdminFiles() {
   )
 
   const requestParams = computed<AdminFileListParams>(() => ({
+    delivery_id: options.getDeliveryId?.(),
     page: params.value.page,
     size: params.value.size,
     keyword: params.value.keyword,
@@ -1086,11 +1087,18 @@ export function useAdminFiles() {
     }
   }
 
+  // 初次加载、分页与宿主刷新可能并发，仅接受最新请求；退出收件页后丢弃迟到响应。
+  let listRequestSequence = 0
+  onBeforeUnmount(() => { listRequestSequence++ })
+
   const loadFiles = async () => {
+    const sequence = ++listRequestSequence
+    const request = { ...requestParams.value }
     isLoading.value = true
     try {
       hasLoadError.value = false
-      const res = await FileService.getAdminFileList(requestParams.value)
+      const res = await FileService.getAdminFileList(request)
+      if (sequence !== listRequestSequence) return
       if (!res.detail) return
 
       tableData.value = res.detail.data.map(createFileViewItem)
@@ -1098,13 +1106,14 @@ export function useAdminFiles() {
       summary.value = normalizeSummary(res.detail.summary, tableData.value, res.detail.total)
       syncSelectedFilesWithCurrentPage()
     } catch (error) {
+      if (sequence !== listRequestSequence) return
       hasLoadError.value = true
       alertStore.showAlert(
         getErrorMessage(error, t('manage.fileManage.loadFileListFailed')),
         'error'
       )
     } finally {
-      isLoading.value = false
+      if (sequence === listRequestSequence) isLoading.value = false
     }
   }
 

@@ -16,6 +16,13 @@ const adminPageMeta = {
 }
 
 const routes: RouteRecordRaw[] = [
+  // 2024 主题原生寄件入口，共用应用壳的语言和主题控件。
+  {
+    path: ROUTES.DELIVERY,
+    name: ROUTE_NAMES.DELIVERY,
+    component: () => import('@/views/DeliveryView.vue'),
+    meta: { ...publicPageMeta, title: 'delivery' }
+  },
   {
     path: '/',
     name: ROUTE_NAMES.RETRIEVE,
@@ -41,6 +48,12 @@ const routes: RouteRecordRaw[] = [
     redirect: ROUTES.DASHBOARD,
     meta: adminPageMeta,
     children: [
+      {
+        path: 'delivery',
+        name: ROUTE_NAMES.DELIVERY_MANAGE,
+        component: () => import('@/views/manage/DeliveryManageView.vue'),
+        meta: { ...adminPageMeta, title: 'delivery' }
+      },
       {
         path: 'dashboard',
         name: ROUTE_NAMES.DASHBOARD,

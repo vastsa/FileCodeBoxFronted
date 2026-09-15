@@ -11,12 +11,26 @@
         isDarkMode ? 'text-zinc-400 hover:text-zinc-100' : 'text-slate-500 hover:text-zinc-950'
       "
     >
-      <SendIcon
+      <component
+        :is="linkMode === 'retrieve' ? CloudDownloadIcon : SendIcon"
         class="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 sm:h-4 sm:w-4"
       />
       {{ linkText }}
     </router-link>
     <span v-else></span>
+
+    <!-- 发送与取件页面共用中间寄件入口，避免只调整其中一页造成位置不一致。 -->
+    <router-link
+      v-if="showDelivery"
+      :to="ROUTES.DELIVERY"
+      class="group flex items-center gap-1.5 text-xs font-medium transition-colors sm:gap-2 sm:text-sm"
+      :class="
+        isDarkMode ? 'text-zinc-400 hover:text-zinc-100' : 'text-slate-500 hover:text-zinc-950'
+      "
+    >
+      <InboxIcon class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+      {{ t('delivery.title') }}
+    </router-link>
 
     <button
       type="button"
@@ -34,9 +48,14 @@
 
 <script setup lang="ts">
 import { inject } from 'vue'
-import { HistoryIcon, SendIcon } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
+import { ROUTES } from '@/constants'
+import { CloudDownloadIcon, HistoryIcon, InboxIcon, SendIcon } from 'lucide-vue-next'
 
 interface Props {
+  // 寄件页复用发送表单时隐藏自身入口，普通收发页均显示。
+  showDelivery?: boolean
+  linkMode?: 'send' | 'retrieve'
   linkText?: string
   linkTo?: string
   drawerText: string
@@ -49,5 +68,6 @@ interface Emits {
 defineProps<Props>()
 defineEmits<Emits>()
 
+const { t } = useI18n()
 const isDarkMode = inject('isDarkMode')
 </script>

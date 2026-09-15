@@ -1,14 +1,19 @@
-import { FileService, uploadChunkedFile } from '@/services'
+import {
+  FileService,
+  uploadChunkedFile,
+  PresignUploadService,
+  createFileUploadService,
+  createPresignUploadService,
+  createDeliveryUploadClient
+} from '@/services'
 import type { AlertType, ApiResponse, ExpireStyle, UploadProgress } from '@/types'
 import { calculateFileHash, packFilesAsZip } from '@/utils/file-processing'
 import { usePresignedUpload } from './usePresignedUpload'
 
-type Translate = (
-  key: string,
-  params?: Record<string, string | number | undefined>
-) => string
+type Translate = (key: string, params?: Record<string, string | number | undefined>) => string
 
 type UseSendSubmitOptions = {
+  getDeliveryToken?: () => string
   getMaxFileSize: () => number
   notify: (message: string, type: AlertType) => void
   translate: Translate
@@ -32,7 +37,14 @@ type SubmitTextOptions = {
 }
 
 export function useSendSubmit(options: UseSendSubmitOptions) {
+  // 两种发送使用相同服务，只让凭码寄件携带自己的上传授权。
+  const client = options.getDeliveryToken
+    ? createDeliveryUploadClient(options.getDeliveryToken)
+    : null
+  const fileService = client ? createFileUploadService(client) : FileService
+  const presignService = client ? createPresignUploadService(client) : PresignUploadService
   const { uploadFile: presignUploadFile, reset: resetPresignUpload } = usePresignedUpload({
+    service: presignService,
     getMaxFileSize: options.getMaxFileSize,
     notify: options.notify
   })
@@ -43,6 +55,7 @@ export function useSendSubmit(options: UseSendSubmitOptions) {
     expire_style: string
   ): Promise<ApiResponse> => {
     return uploadChunkedFile(file, {
+      service: fileService,
       expireValue,
       expire_style,
       onHashCalculated: options.onHashCalculated,
@@ -112,7 +125,7 @@ export function useSendSubmit(options: UseSendSubmitOptions) {
   }
 
   const submitText = ({ text, expireValue, expire_style }: SubmitTextOptions) =>
-    FileService.uploadText(text, expireValue, expire_style)
+    fileService.uploadText(text, expireValue, expire_style)
 
   return {
     resetPresignUpload,

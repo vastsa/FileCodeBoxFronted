@@ -19,7 +19,7 @@
 
         <div class="px-5 pb-7 pt-8 sm:px-8 sm:pb-10 sm:pt-12">
           <PageHeader
-            :title="t('send.title')"
+            :title="t(deliverySession ? 'delivery.title' : 'send.title')"
             :subtitle="
               sendType === 'file'
                 ? t('send.uploadArea.placeholder')
@@ -28,6 +28,24 @@
             mode="send"
             @title-click="toRetrieve"
           />
+          <!-- 验证后的寄件授权信息与普通发送表单共存，所有上传交互仍由同一组件处理。 -->
+          <div
+            v-if="deliverySession"
+            class="theme-text-muted mb-5 flex items-center justify-between text-xs"
+          >
+            <span
+              >{{ deliverySession.name }} ·
+              {{ t('delivery.remaining', { count: deliverySession.remaining }) }}</span
+            >
+            <button
+              type="button"
+              :disabled="isSubmitting"
+              class="underline disabled:opacity-50"
+              @click="emit('changeDelivery')"
+            >
+              {{ t('delivery.change') }}
+            </button>
+          </div>
           <form @submit.prevent="handleSubmit" class="space-y-6 sm:space-y-8">
             <SendTypeSelector :selected-type="sendType" @update:selected-type="sendType = $event" />
 
@@ -83,42 +101,15 @@
           </form>
         </div>
 
-        <div
-          class="flex items-center justify-between border-t px-5 py-3.5 transition-colors sm:px-8 sm:py-6"
-          :class="
-            isDarkMode ? 'border-zinc-800/60 bg-zinc-900/40' : 'border-slate-100 bg-slate-50/50'
-          "
-        >
-          <router-link
-            to="/"
-            class="group flex items-center gap-1.5 text-xs font-medium transition-colors sm:gap-2 sm:text-sm"
-            :class="
-              isDarkMode
-                ? 'text-zinc-400 hover:text-zinc-100'
-                : 'text-slate-500 hover:text-zinc-950'
-            "
-          >
-            <CloudDownloadIcon
-              class="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 sm:h-4 sm:w-4"
-            />
-            {{ t('send.needRetrieveFile') }}
-          </router-link>
-          <button
-            type="button"
-            @click="toggleDrawer"
-            class="group flex items-center gap-1.5 text-xs font-medium transition-colors sm:gap-2 sm:text-sm"
-            :class="
-              isDarkMode
-                ? 'text-zinc-400 hover:text-zinc-100'
-                : 'text-slate-500 hover:text-zinc-950'
-            "
-          >
-            <HistoryIcon
-              class="h-3.5 w-3.5 transition-transform group-hover:-rotate-12 sm:h-4 sm:w-4"
-            />
-            {{ t('send.sendRecords') }}
-          </button>
-        </div>
+        <!-- 与取件首页复用同一底栏，入口位置与主题样式同步维护。 -->
+        <PageFooter
+          :link-text="t('send.needRetrieveFile')"
+          link-to="/"
+          link-mode="retrieve"
+          :show-delivery="!deliverySession"
+          :drawer-text="t('send.sendRecords')"
+          @toggle-drawer="toggleDrawer"
+        />
       </div>
     </div>
 
@@ -144,9 +135,11 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import type { DeliverySession } from '@/types/delivery'
 import { useRouter } from 'vue-router'
-import { CloudDownloadIcon, HistoryIcon, LoaderCircleIcon, SendIcon } from 'lucide-vue-next'
+import { LoaderCircleIcon, SendIcon } from 'lucide-vue-next'
 import PageHeader from '@/components/common/PageHeader.vue'
+import PageFooter from '@/components/common/PageFooter.vue'
 import SendTypeSelector from '@/components/common/SendTypeSelector.vue'
 import FileUploadArea from '@/components/common/FileUploadArea.vue'
 import ExpirationSelector from '@/components/common/ExpirationSelector.vue'
@@ -156,6 +149,8 @@ import SentRecordList from '@/components/common/SentRecordList.vue'
 import SentRecordDetailModal from '@/components/common/SentRecordDetailModal.vue'
 import { useInjectedDarkMode, useSendFlow } from '@/composables'
 
+const props = defineProps<{ deliverySession?: DeliverySession }>()
+const emit = defineEmits<{ changeDelivery: []; deliverySuccess: [] }>()
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()
 const router = useRouter()
@@ -190,7 +185,14 @@ const {
   handleSubmit,
   toggleDrawer,
   viewDetails
-} = useSendFlow()
+} = useSendFlow(
+  props.deliverySession
+    ? {
+        getDeliverySession: () => props.deliverySession || null,
+        onDeliverySuccess: () => emit('deliverySuccess')
+      }
+    : {}
+)
 
 const toRetrieve = () => {
   router.push('/')

@@ -70,6 +70,8 @@
           <button @click="toggleSidebar" class="lg:hidden">
             <MenuIcon class="theme-text-muted w-6 h-6" />
           </button>
+          <!-- 寄件管理与原后台共享主题和语言入口。 -->
+          <div class="ml-auto flex items-center gap-3"><LanguageSwitcher /><ThemeToggle /></div>
         </div>
       </header>
 
@@ -84,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import {
   BoxIcon,
   MenuIcon,
@@ -92,12 +94,15 @@ import {
   FolderIcon,
   CogIcon,
   LayoutDashboardIcon,
-  LogOutIcon
+  LogOutIcon,
+  InboxIcon
 } from 'lucide-vue-next'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ROUTE_NAMES, ROUTES } from '@/constants'
 import { useAdminSession } from '@/composables'
+import ThemeToggle from '@/components/common/ThemeToggle.vue'
+import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
 
 interface MenuItem {
   id: string
@@ -110,7 +115,8 @@ const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
 const { verifySession, logout } = useAdminSession()
-const menuItems: MenuItem[] = [
+// 切换语言时即时刷新菜单名称，不再固定在首次渲染的语言。
+const menuItems = computed<MenuItem[]>(() => [
   {
     id: ROUTE_NAMES.DASHBOARD,
     name: t('admin.dashboard.title'),
@@ -124,12 +130,18 @@ const menuItems: MenuItem[] = [
     redirect: ROUTES.FILE_MANAGE
   },
   {
+    id: ROUTE_NAMES.DELIVERY_MANAGE,
+    name: t('delivery.manage'),
+    icon: InboxIcon,
+    redirect: ROUTES.DELIVERY_MANAGE
+  },
+  {
     id: ROUTE_NAMES.SETTINGS,
     name: t('admin.settings.title'),
     icon: CogIcon,
     redirect: ROUTES.SETTINGS
   }
-]
+])
 
 const isSidebarOpen = ref(true)
 const toggleSidebar = () => {

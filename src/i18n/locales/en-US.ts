@@ -1,4 +1,6 @@
+import { deliveryEn } from '../delivery'
 export default {
+  delivery: deliveryEn,
   // Common
   common: {
     confirm: 'Confirm',

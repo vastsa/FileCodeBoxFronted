@@ -35,6 +35,7 @@ type ErrorWithResponse = {
 type PresignedUploadNotifier = (message: string, type: AlertType) => void
 
 type UsePresignedUploadOptions = {
+  service?: typeof PresignUploadService
   getMaxFileSize?: () => number
   notify?: PresignedUploadNotifier
 }
@@ -44,6 +45,8 @@ type UsePresignedUploadOptions = {
  * 支持 S3 直传模式和服务器代理模式
  */
 export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
+  // 服务注入只隔离授权，普通代理上传及云存储直传流程保持共用。
+  const service = options.service || PresignUploadService
   // 状态管理
   const presignStatus = ref<PresignUploadStatus>(PRESIGN_UPLOAD_STATUS.IDLE)
   const uploadSession = ref<PresignInitResponse | null>(null)
@@ -132,7 +135,7 @@ export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
     try {
       presignStatus.value = PRESIGN_UPLOAD_STATUS.INITIALIZING
 
-      const response = await PresignUploadService.initUpload({
+      const response = await service.initUpload({
         file_name: file.name,
         file_size: file.size,
         expire_value: options?.expireValue ?? DEFAULT_EXPIRE_VALUE,
@@ -164,7 +167,7 @@ export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
 
       // 上传到 S3
       const progressHandler = createProgressHandler(options?.onProgress)
-      const uploadSuccess = await PresignUploadService.directUploadToS3(
+      const uploadSuccess = await service.directUploadToS3(
         session.upload_url,
         file,
         progressHandler
@@ -176,7 +179,7 @@ export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
 
       // 确认上传
       presignStatus.value = PRESIGN_UPLOAD_STATUS.CONFIRMING
-      const confirmResponse = await PresignUploadService.confirmUpload(session.upload_id, {
+      const confirmResponse = await service.confirmUpload(session.upload_id, {
         expire_value: options?.expireValue ?? DEFAULT_EXPIRE_VALUE,
         expire_style: options?.expire_style ?? DEFAULT_EXPIRE_STYLE
       })
@@ -215,7 +218,7 @@ export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
       const progressHandler = createProgressHandler(options?.onProgress)
       const uploadUrl =
         session.proxy_upload_url || session.upload_url || session.legacy_proxy_upload_url
-      const response = await PresignUploadService.proxyUpload(
+      const response = await service.proxyUpload(
         session.upload_id,
         file,
         progressHandler,
@@ -271,7 +274,7 @@ export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
     }
 
     try {
-      await PresignUploadService.cancelUpload(uploadSession.value.upload_id)
+      await service.cancelUpload(uploadSession.value.upload_id)
       notify('上传已取消', 'info')
     } catch (error) {
       // 取消失败时静默处理，因为会话可能已过期
@@ -290,7 +293,7 @@ export function usePresignedUpload(options: UsePresignedUploadOptions = {}) {
     }
 
     try {
-      const response = await PresignUploadService.getUploadStatus(uploadSession.value.upload_id)
+      const response = await service.getUploadStatus(uploadSession.value.upload_id)
       if (response.code === 200 && response.detail) {
         // 检查会话是否过期
         if (response.detail.is_expired) {

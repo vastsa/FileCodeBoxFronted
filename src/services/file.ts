@@ -49,73 +49,79 @@ const isMethodFallbackError = (error: unknown) => {
   return status === 404 || status === 405
 }
 
-export class FileService {
-  static async uploadFile(
-    file: File,
-    onProgress?: (progress: UploadProgress) => void
-  ): Promise<ApiResponse<FileUploadResponse>> {
-    const formData = new FormData()
-    formData.append('file', file)
+/** 同一服务可注入寄件专用客户端，接口与普通上传保持一致。 */
+export function createFileUploadService(client = api) {
+  return class FileUploadService {
+    static async uploadFile(
+      file: File,
+      onProgress?: (progress: UploadProgress) => void
+    ): Promise<ApiResponse<FileUploadResponse>> {
+      const formData = new FormData()
+      formData.append('file', file)
 
-    return api.post('/share/file/', formData, multipartUploadConfig(onProgress))
+      return client.post('/share/file/', formData, multipartUploadConfig(onProgress))
+    }
+
+    static async uploadText(
+      text: string,
+      expireValue = 1,
+      expire_style = 'day'
+    ): Promise<ApiResponse<TextSendResponse>> {
+      const formData = new FormData()
+      formData.append('text', text)
+      formData.append('expire_value', String(expireValue))
+      formData.append('expire_style', expire_style)
+      return client.post('/share/text/', formData, multipartUploadConfig())
+    }
+
+    static async initChunkUpload(
+      request: ChunkUploadInitRequest
+    ): Promise<ApiResponse<ChunkUploadInitResponse>> {
+      return client.post(
+        '/chunk/upload/init/',
+        toUrlEncodedForm({
+          file_name: request.file_name,
+          file_size: request.file_size,
+          chunk_size: request.chunk_size,
+          file_hash: request.file_hash
+        }),
+        urlEncodedConfig
+      )
+    }
+
+    static async uploadChunk(
+      uploadId: string,
+      chunkIndex: number,
+      chunk: Blob,
+      onProgress?: (progress: UploadProgress) => void
+    ): Promise<ApiResponse<ChunkUploadResponse>> {
+      const formData = new FormData()
+      formData.append('chunk', chunk)
+      return client.post(
+        `/chunk/upload/chunk/${uploadId}/${chunkIndex}`,
+        formData,
+        multipartUploadConfig(onProgress)
+      )
+    }
+
+    static async completeChunkUpload(
+      uploadId: string,
+      request: ChunkUploadCompleteRequest
+    ): Promise<ApiResponse<FileUploadResponse>> {
+      return client.post(
+        `/chunk/upload/complete/${uploadId}`,
+        toUrlEncodedForm({
+          expire_value: request.expire_value,
+          expire_style: request.expire_style
+        }),
+        urlEncodedConfig
+      )
+    }
   }
+}
 
-  static async uploadText(
-    text: string,
-    expireValue = 1,
-    expire_style = 'day'
-  ): Promise<ApiResponse<TextSendResponse>> {
-    const formData = new FormData()
-    formData.append('text', text)
-    formData.append('expire_value', String(expireValue))
-    formData.append('expire_style', expire_style)
-    return api.post('/share/text/', formData, multipartUploadConfig())
-  }
-
-  static async initChunkUpload(
-    request: ChunkUploadInitRequest
-  ): Promise<ApiResponse<ChunkUploadInitResponse>> {
-    return api.post(
-      '/chunk/upload/init/',
-      toUrlEncodedForm({
-        file_name: request.file_name,
-        file_size: request.file_size,
-        chunk_size: request.chunk_size,
-        file_hash: request.file_hash
-      }),
-      urlEncodedConfig
-    )
-  }
-
-  static async uploadChunk(
-    uploadId: string,
-    chunkIndex: number,
-    chunk: Blob,
-    onProgress?: (progress: UploadProgress) => void
-  ): Promise<ApiResponse<ChunkUploadResponse>> {
-    const formData = new FormData()
-    formData.append('chunk', chunk)
-    return api.post(
-      `/chunk/upload/chunk/${uploadId}/${chunkIndex}`,
-      formData,
-      multipartUploadConfig(onProgress)
-    )
-  }
-
-  static async completeChunkUpload(
-    uploadId: string,
-    request: ChunkUploadCompleteRequest
-  ): Promise<ApiResponse<FileUploadResponse>> {
-    return api.post(
-      `/chunk/upload/complete/${uploadId}`,
-      toUrlEncodedForm({
-        expire_value: request.expire_value,
-        expire_style: request.expire_style
-      }),
-      urlEncodedConfig
-    )
-  }
-
+/** 上传方法由公共服务继承；取件及管理员接口始终使用原客户端，不随寄件授权复制。 */
+export class FileService extends createFileUploadService() {
   static async selectFile(code: string): Promise<ApiResponse<ShareSelectResponse>> {
     return api.post('/share/select/', { code })
   }

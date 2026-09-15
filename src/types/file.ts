@@ -85,6 +85,8 @@ export type AdminFileSortBy = 'created_at' | 'expired_at' | 'name' | 'size' | 'u
 export type AdminFileSortOrder = 'asc' | 'desc'
 
 export interface AdminFileListParams {
+  // 嵌入寄件管理时由后端限定关联分享，不用前端分页结果自行过滤。
+  delivery_id?: number
   page: number
   size: number
   keyword?: string
@@ -446,6 +448,8 @@ export interface ChunkUploadInitRequest {
 }
 
 export interface ChunkUploadInitResponse {
+  // 续传必须使用服务端记录的分片大小，兼容不同客户端创建的会话。
+  chunk_size?: number
   code?: string
   name?: string
   upload_id?: string

@@ -36,32 +36,37 @@ export const copyToClipboard = async (
     }
   }
 
-  try {
-    // 优先使用 Clipboard API
-    if (document.hasFocus() && navigator.clipboard && navigator.clipboard.writeText) {
+  // HTTPS 优先调用现代接口；权限拒绝后仍继续兼容路径，不能直接结束复制流程。
+  if (window.isSecureContext && document.hasFocus() && navigator.clipboard?.writeText) {
+    try {
       await navigator.clipboard.writeText(text)
       showCopyMessage(successMsg, 'success')
       return true
-    }
-    // 后备方案：使用传统的复制方法
-    const textarea = document.createElement('textarea')
+    } catch { /* HTTP 或浏览器策略限制时交由下方降级处理。 */ }
+  }
+  const textarea = document.createElement('textarea')
+  const focused = document.activeElement instanceof HTMLElement ? document.activeElement : null
+  try {
+    // 在用户点击链内执行兼容复制；始终清理节点，不记录任何口令内容。
     textarea.value = text
     textarea.style.position = 'fixed'
     textarea.style.opacity = '0'
     document.body.appendChild(textarea)
+    textarea.focus()
     textarea.select()
     const success = document.execCommand('copy')
-    document.body.removeChild(textarea)
     if (success) {
       showCopyMessage(successMsg, 'success')
       return true
     } else {
       throw new Error('execCommand copy failed')
     }
-  } catch (err) {
-    console.error('复制失败:', err)
+  } catch {
     showCopyMessage(errorMsg, 'error')
     return false
+  } finally {
+    textarea.remove()
+    focused?.focus({ preventScroll: true })
   }
 }
 

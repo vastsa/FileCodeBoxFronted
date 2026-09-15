@@ -31,6 +31,7 @@
           />
         </div>
         <PageFooter
+          show-delivery
           :link-text="$t('retrieve.needSendFile')"
           link-to="/send"
           :drawer-text="$t('retrieve.recordsDrawer')"
