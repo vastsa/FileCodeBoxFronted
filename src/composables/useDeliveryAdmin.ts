@@ -16,8 +16,7 @@ export function useDeliveryAdmin() {
   const page = ref(1),
     total = ref(0),
     filePage = ref(1),
-    fileTotal = ref(0),
-    includeDeleted = ref(false)
+    fileTotal = ref(0)
   const loading = ref(false),
     filesLoading = ref(false),
     creating = ref(false),
@@ -65,7 +64,7 @@ export function useDeliveryAdmin() {
     const sequence = ++listSequence
     loading.value = true
     try {
-      const result = await DeliveryService.list(page.value, includeDeleted.value)
+      const result = await DeliveryService.list(page.value)
       if (sequence !== listSequence) return
       codes.value = result.items
       total.value = result.total
@@ -203,10 +202,6 @@ export function useDeliveryAdmin() {
     }
   }
   watch(page, refresh)
-  watch(includeDeleted, () => {
-    if (page.value === 1) void refresh()
-    else page.value = 1
-  })
   watch(filePage, loadFiles)
   onBeforeUnmount(() => {
     listSequence++
@@ -220,7 +215,6 @@ export function useDeliveryAdmin() {
     total,
     filePage,
     fileTotal,
-    includeDeleted,
     loading,
     filesLoading,
     creating,

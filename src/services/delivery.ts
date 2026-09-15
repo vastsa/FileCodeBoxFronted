@@ -22,10 +22,10 @@ export const DeliveryService = {
       })
     )
   },
-  async list(page: number, includeDeleted: boolean) {
+  async list(page: number) {
     return detail(
       await api.get<never, ApiResponse<DeliveryList<DeliveryCode>>>('/admin/delivery/codes', {
-        params: { page, page_size: 20, include_deleted: includeDeleted }
+        params: { page, page_size: 20 }
       })
     )
   },

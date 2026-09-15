@@ -379,6 +379,8 @@ export default {
       expiresAfterCount: 'Expires after {count} times',
       expiresAt: 'Expires at {date}',
       emptyFileError: 'Cannot read empty file',
+      // 图片粘贴会自动显示文件面板，避免误以为粘贴失败。
+      imagePastedSwitchToFile: 'Clipboard image detected. Switched to Send File: {filename}',
       fileAddedFromClipboard: 'File added from clipboard: {filename}',
       fileProcessingFailed: 'File processing failed',
       expiresAfter: 'Expires after {value} {unit}'

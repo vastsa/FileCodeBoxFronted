@@ -34,7 +34,6 @@ const {
   total,
   filePage,
   fileTotal,
-  includeDeleted,
   loading,
   filesLoading,
   creating,
@@ -71,35 +70,16 @@ onMounted(refresh)
 <template>
   <div class="delivery-management p-4 sm:p-6">
     <template v-if="!selected">
-      <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 class="theme-text-strong text-2xl font-bold">{{ t('delivery.manage') }}</h2>
           <p class="theme-text-muted mt-1 text-sm">{{ t('delivery.manageSubtitle') }}</p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <RouterLink
-            to="/delivery"
-            class="theme-control inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm"
-            ><ExternalLinkIcon class="h-4 w-4" />{{ t('delivery.title') }}</RouterLink
-          >
-          <BaseButton @click="openCreate"
-            ><template #icon><PlusIcon class="mr-2 h-4 w-4" /></template
-            >{{ t('delivery.create') }}</BaseButton
-          >
-        </div>
-      </div>
-      <div
-        class="theme-panel mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4"
-      >
-        <label class="theme-text-muted flex items-center gap-2 text-sm"
-          ><input v-model="includeDeleted" type="checkbox" class="h-4 w-4 accent-zinc-700" />{{
-            t('delivery.showDeleted')
-          }}</label
-        >
-        <BaseButton variant="secondary" :loading="loading" @click="refresh"
-          ><template #icon><RefreshCwIcon class="mr-2 h-4 w-4" /></template
-          >{{ t('delivery.refresh') }}</BaseButton
-        >
+        <!-- 刷新沿用文件管理的文案和按钮，置于页面标题旁，不单独占用白色面板。 -->
+        <BaseButton class="self-start sm:self-auto" variant="secondary" :loading="loading" @click="refresh">
+          <template #icon><RefreshCwIcon class="mr-2 h-4 w-4" /></template>
+          {{ t('fileManage.refresh') }}
+        </BaseButton>
       </div>
       <DataTable
         class="delivery-code-table"
@@ -114,6 +94,19 @@ onMounted(refresh)
           t('delivery.actions')
         ]"
       >
+        <!-- 两个寄件操作与列表标题同排，统一高度，窄屏允许自然换行。 -->
+        <template #actions>
+          <RouterLink
+            to="/delivery"
+            class="theme-control inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-xl border px-3 text-sm font-medium"
+          >
+            <ExternalLinkIcon class="h-4 w-4" />{{ t('delivery.title') }}
+          </RouterLink>
+          <BaseButton size="sm" class="h-9 whitespace-nowrap" @click="openCreate">
+            <template #icon><PlusIcon class="mr-2 h-4 w-4" /></template>
+            {{ t('delivery.create') }}
+          </BaseButton>
+        </template>
         <template #body>
           <tr v-if="!codes.length">
             <td colspan="7" class="px-6 py-14 text-center">
@@ -182,7 +175,6 @@ onMounted(refresh)
                   t('delivery.viewFiles')
                 }}</BaseButton>
                 <BaseButton
-                  v-if="!item.deleted"
                   size="sm"
                   variant="outline"
                   :disabled="acting"
@@ -190,7 +182,6 @@ onMounted(refresh)
                   >{{ t(item.enabled ? 'delivery.disable' : 'delivery.enable') }}</BaseButton
                 >
                 <DeleteActionButton
-                  v-if="!item.deleted"
                   :disabled="acting"
                   @click="pendingDelete = { kind: 'code', id: item.id, name: item.name }"
                 />

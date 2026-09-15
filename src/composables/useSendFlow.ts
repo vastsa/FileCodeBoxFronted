@@ -228,6 +228,7 @@ export function useSendFlow(
   }
 
   const handlePaste = async (event: ClipboardEvent) => {
+    if (isSubmitting.value) return
     const items = event.clipboardData?.items
     if (!items) return
 
@@ -238,13 +239,18 @@ export function useSendFlow(
         return
       }
 
-      selectedFile.value = file
-      if (!checkUpload()) return
+      if (!checkOpenUpload() || !checkFileSize(file) || !checkFileType(file)) return
+      if (!checkExpirationTime(expirationMethod.value, expirationValue.value)) return
 
       try {
-        fileHash.value = await calculateFileHash(file)
+        const hash = await calculateFileHash(file)
+        // 粘贴文件后显示文件面板并清除旧多文件选择，文字草稿保留且不自动上传。
+        selectedFile.value = file
+        selectedFiles.value = []
+        fileHash.value = hash
+        sendType.value = 'file'
         alertStore.showAlert(
-          t('send.messages.fileAddedFromClipboard', { filename: file.name }),
+          t(file.type.startsWith('image/') ? 'send.messages.imagePastedSwitchToFile' : 'send.messages.fileAddedFromClipboard', { filename: file.name }),
           'success'
         )
       } catch (err) {
