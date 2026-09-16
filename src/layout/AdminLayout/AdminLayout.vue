@@ -90,6 +90,7 @@ import {
   MenuIcon,
   XIcon,
   FolderIcon,
+  HardDriveIcon,
   CogIcon,
   LayoutDashboardIcon,
   LogOutIcon
@@ -122,6 +123,12 @@ const menuItems: MenuItem[] = [
     name: t('admin.fileManage.title'),
     icon: FolderIcon,
     redirect: ROUTES.FILE_MANAGE
+  },
+  {
+    id: ROUTE_NAMES.LOCAL_SHARE,
+    name: t('admin.localShare.title'),
+    icon: HardDriveIcon,
+    redirect: ROUTES.LOCAL_SHARE
   },
   {
     id: ROUTE_NAMES.SETTINGS,

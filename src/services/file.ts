@@ -24,6 +24,8 @@ import type {
   FileInfo,
   FileListResponse,
   FileUploadResponse,
+  LocalShareListResponse,
+  LocalShareResult,
   ShareMetadataResponse,
   ShareSelectResponse,
   TextSendResponse,
@@ -267,6 +269,24 @@ export class FileService {
         id,
         max_chars: maxChars
       }
+    })
+  }
+
+  static async listLocalFiles(path = ''): Promise<ApiResponse<LocalShareListResponse>> {
+    return api.get('/admin/local/lists', { params: { path } })
+  }
+
+  static async shareLocalFile(payload: {
+    filename: string
+    expire_value: number
+    expire_style: string
+  }): Promise<ApiResponse<LocalShareResult>> {
+    return api.post('/admin/local/share', payload)
+  }
+
+  static async deleteLocalFile(filename: string): Promise<ApiResponse<string>> {
+    return api.delete('/admin/local/delete', {
+      data: { filename }
     })
   }
 }

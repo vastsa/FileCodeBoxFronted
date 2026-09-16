@@ -70,6 +70,7 @@ export const ROUTES = {
   LOGIN: '/login',
   DASHBOARD: '/admin/dashboard',
   FILE_MANAGE: '/admin/files',
+  LOCAL_SHARE: '/admin/local',
   SETTINGS: '/admin/settings'
 } as const
 
@@ -80,6 +81,7 @@ export const ROUTE_NAMES = {
   LOGIN: 'Login',
   DASHBOARD: 'Dashboard',
   FILE_MANAGE: 'FileManage',
+  LOCAL_SHARE: 'LocalShare',
   SETTINGS: 'Settings'
 } as const
 

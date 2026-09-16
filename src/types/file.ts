@@ -459,3 +459,26 @@ export interface ChunkUploadCompleteRequest {
 }
 
 export type ChunkUploadResponse = null
+
+export interface LocalShareItem {
+  file: string
+  name: string
+  path: string
+  type: 'file' | 'dir'
+  ctime: string | null
+  size: number | null
+}
+
+export interface LocalShareListResponse {
+  path: string
+  parent: string
+  truncated: boolean
+  items: LocalShareItem[]
+}
+
+export interface LocalShareResult {
+  code: string
+  name: string
+  path?: string
+  id?: number
+}
