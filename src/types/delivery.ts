@@ -4,8 +4,6 @@ export interface DeliveryCode {
   code?: string | null
   id: number
   name: string
-  storage_type: string
-  target_path: string
   expires_at: string
   max_uploads: number
   used_count: number
@@ -19,23 +17,17 @@ export interface DeliveryCode {
   note?: string
   tags?: string[]
 }
+/** 会话只维护寄件授权；上传限制和过期策略复用系统配置。 */
 export interface DeliverySession {
-  enable_chunk: number
-  expire_style: string[]
-  max_save_seconds: number
   token: string
   name: string
   remaining: number
   expires_at: string
-  upload_size: number
-  allowed_file_types: string[]
   expires_in: number
 }
 export interface CreateDeliveryCode {
   name: string
   code: string
-  storage_type: string
-  target_path: string
   expires_at: string
   max_uploads: number
   note?: string
@@ -46,7 +38,6 @@ export interface CreateDeliveryCode {
 export interface DeliveryCodeFilters {
   keyword: string
   status: 'all' | 'active' | 'disabled' | 'expired' | 'exhausted'
-  storage_type: 'all' | 'system' | 'local' | 's3' | 'webdav'
   tag: string
   sort_by: 'created_at' | 'expires_at' | 'name' | 'used_count' | 'max_uploads'
   sort_order: 'asc' | 'desc'

@@ -22,7 +22,6 @@ export function useDeliveryAdmin() {
   const filters = reactive<DeliveryCodeFilters>({
     keyword: '',
     status: 'all',
-    storage_type: 'all',
     tag: '',
     sort_by: 'created_at',
     sort_order: 'desc'
@@ -31,7 +30,6 @@ export function useDeliveryAdmin() {
     () =>
       filters.keyword !== '' ||
       filters.status !== 'all' ||
-      filters.storage_type !== 'all' ||
       filters.tag !== '' ||
       filters.sort_by !== 'created_at' ||
       filters.sort_order !== 'desc'
@@ -128,7 +126,6 @@ export function useDeliveryAdmin() {
     Object.assign(filters, {
       keyword: '',
       status: 'all',
-      storage_type: 'all',
       tag: '',
       sort_by: 'created_at',
       sort_order: 'desc'

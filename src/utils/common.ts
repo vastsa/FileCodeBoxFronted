@@ -263,3 +263,11 @@ export function getErrorMessage(error: unknown, fallback: string): string {
     fallback
   )
 }
+
+/** 沿用文件管理的标签整理规则，寄件管理复用同一实现。 */
+export const normalizeMetadataTags = (tags: string[] | undefined) =>
+  Array.isArray(tags) ? tags.map((tag) => String(tag).trim()).filter(Boolean) : []
+
+/** 保留原文件管理的输入分隔规则，服务端统一负责数量、长度和去重。 */
+export const parseMetadataTags = (value: string) =>
+  normalizeMetadataTags(value.split(/[,，\n]+/))

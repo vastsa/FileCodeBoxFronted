@@ -26,20 +26,8 @@ export function useSendFlow(
   const adminStore = useAdminStore()
   const configStore = useConfigStore()
   const fileDataStore = useFileDataStore()
-  // 验证寄件码后复用同一页面状态；不修改全站游客开关。
-  const config = computed(() => {
-    const session = options.getDeliverySession?.()
-    if (!session) return configStore.config
-    // 仅覆盖上传约束，令牌、剩余次数和授权名称不进入站点配置对象。
-    return {
-      ...configStore.config,
-      upload_size: session.upload_size,
-      allowed_file_types: session.allowed_file_types,
-      expire_style: session.expire_style,
-      max_save_seconds: session.max_save_seconds,
-      enable_chunk: session.enable_chunk
-    }
-  })
+  // 寄件与普通发送读取同一个系统配置 Store，授权会话不再另存一套上传设置。
+  const config = computed(() => configStore.config)
   const sendType = ref<SendType>('file')
   const selectedFile = ref<File | null>(null)
   const selectedFiles = ref<File[]>([])

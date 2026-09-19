@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { DELIVERY_STORAGE_OPTIONS } from './storage-options'
 import {
   PlusIcon,
   PencilIcon,
@@ -92,7 +91,7 @@ const sortOptions = computed(() => [
         ><SearchIcon class="mr-2 h-4 w-4" />{{ t('common.search') }}</BaseButton
       >
     </div>
-    <div class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+    <div class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <label class="delivery-label"
         >{{ t('delivery.status')
         }}<select v-model="filters.status" class="delivery-input" @change="search">
@@ -102,20 +101,6 @@ const sortOptions = computed(() => [
             :value="state"
           >
             {{ state === 'all' ? t('delivery.all') : t(`delivery.states.${state}`) }}
-          </option>
-        </select></label
-      >
-      <label class="delivery-label"
-        >{{ t('delivery.storage')
-        }}<select v-model="filters.storage_type" class="delivery-input" @change="search">
-          <option value="all">{{ t('delivery.all') }}</option>
-          <option value="system">{{ t('delivery.followSystem') }}</option>
-          <option
-            v-for="option in DELIVERY_STORAGE_OPTIONS"
-            :key="option"
-            :value="option"
-          >
-            {{ t(`manage.settings.${option}Storage`) }}
           </option>
         </select></label
       >
@@ -158,7 +143,6 @@ const sortOptions = computed(() => [
       '',
       t('delivery.name'),
       t('delivery.code'),
-      t('delivery.storage'),
       t('delivery.expires'),
       t('delivery.status'),
       t('delivery.usage'),
@@ -167,7 +151,7 @@ const sortOptions = computed(() => [
   >
     <template #body>
       <tr v-if="!codes.length">
-        <td colspan="8" class="px-6 py-14 text-center">
+        <td colspan="7" class="px-6 py-14 text-center">
           <InboxIcon class="theme-text-muted mx-auto mb-3 h-8 w-8" />
           <p class="theme-text-strong font-medium">
             {{ t(loading ? 'common.loading' : 'delivery.empty') }}
@@ -213,14 +197,6 @@ const sortOptions = computed(() => [
           <BaseButton size="sm" variant="outline" @click="copyListedCode(item)">
             <CopyIcon class="mr-1 h-4 w-4" />{{ t('delivery.viewCode') }}
           </BaseButton>
-        </td>
-        <td>
-          <span :class="{ uppercase: item.storage_type !== 'system' }">{{
-            item.storage_type === 'system' ? t('delivery.followSystem') : item.storage_type
-          }}</span
-          ><span class="theme-text-muted mt-1 block max-w-48 break-all text-xs">{{
-            item.storage_type === 'system' ? t('delivery.systemPath') : item.target_path
-          }}</span>
         </td>
         <td class="whitespace-nowrap">{{ new Date(item.expires_at).toLocaleString() }}</td>
         <td>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { DELIVERY_STORAGE_OPTIONS } from './storage-options'
 import { PlusIcon, PencilIcon } from 'lucide-vue-next'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
@@ -9,7 +8,7 @@ import { toRefs, reactive } from 'vue'
 
 // 页面状态由父层唯一创建，子组件只负责对应区域。
 const props = defineProps<{ state: ReturnType<typeof useDeliveryAdmin> }>()
-const { customStorage, editing, minimumUploads, creating, showCreate, form, create } = toRefs(
+const { editing, minimumUploads, creating, showCreate, form, create } = toRefs(
   reactive(props.state)
 )
 const { t } = useI18n()
@@ -58,44 +57,10 @@ const { t } = useI18n()
           :placeholder="t(editing ? 'delivery.legacyCode' : 'delivery.autoCode')"
           class="delivery-input"
       /></label>
-      <!-- 大多数寄件码只需沿用设置；勾选后才展开独立存储字段。 -->
-      <div class="space-y-2 sm:col-span-2">
-        <label class="theme-text-strong flex items-center gap-2 text-sm">
-          <input v-model="customStorage" type="checkbox" />{{ t('delivery.customStorage') }}
-        </label>
-        <p class="theme-text-muted text-xs leading-5">
-          {{ t(customStorage ? 'delivery.configHint' : 'delivery.followSystemHint') }}
-        </p>
-      </div>
-      <label v-if="customStorage" class="delivery-label"
-        >{{ t('delivery.storage')
-        }}<select v-model="form.storage_type" class="delivery-input">
-          <!-- 历史类型仅作只读提示，保存前需选择当前支持的存储或跟随系统。 -->
-          <option
-            v-if="!DELIVERY_STORAGE_OPTIONS.includes(form.storage_type as typeof DELIVERY_STORAGE_OPTIONS[number])"
-            :value="form.storage_type"
-            disabled
-          >
-            {{ form.storage_type }} · {{ t('delivery.unsupportedStorage') }}
-          </option>
-          <option
-            v-for="option in DELIVERY_STORAGE_OPTIONS"
-            :key="option"
-            :value="option"
-          >
-            {{ t(`manage.settings.${option}Storage`) }}
-          </option>
-        </select></label
-      >
-      <label v-if="customStorage" class="delivery-label"
-        >{{ t('delivery.target')
-        }}<input
-          v-model="form.target_path"
-          required
-          maxlength="200"
-          :placeholder="t('delivery.targetPlaceholder')"
-          class="delivery-input"
-      /></label>
+      <!-- 系统设置统一决定上传方式和保存目录，寄件码不再保存独立位置。 -->
+      <p class="theme-text-muted text-xs leading-5 sm:col-span-2">
+        {{ t('delivery.systemStorageHint') }}
+      </p>
       <label class="delivery-label"
         >{{ t('delivery.expiresLocal')
         }}<input

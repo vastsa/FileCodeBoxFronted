@@ -31,7 +31,7 @@ import type {
   FileListItem
 } from '@/types'
 import { copyToClipboard } from '@/utils/clipboard'
-import { formatDuration, formatFileSize, formatTimestamp, getErrorMessage } from '@/utils/common'
+import { formatDuration, formatFileSize, formatTimestamp, getErrorMessage, normalizeMetadataTags, parseMetadataTags } from '@/utils/common'
 import {
   downloadAdminManagedFile,
   exportAdminTextFile,
@@ -101,7 +101,6 @@ const emptyBatchEditForm = (): AdminBatchEditForm => ({
   expired_count: null
 })
 
-const metadataTagSeparatorPattern = /[,，\n]+/
 
 const emptyDetailMetadataForm = () => ({
   note: '',
@@ -615,12 +614,6 @@ export function useAdminFiles(options: { getDeliveryId?: () => number | undefine
         displayMeta: metaParts.length > 0 ? metaParts.join(' · ') : '-'
       }
     })
-
-  const normalizeMetadataTags = (tags: string[] | undefined) =>
-    Array.isArray(tags) ? tags.map((tag) => String(tag).trim()).filter(Boolean) : []
-
-  const parseMetadataTags = (value: string) =>
-    normalizeMetadataTags(value.split(metadataTagSeparatorPattern))
 
   const formatMetadataTags = (tags: string[]) => normalizeMetadataTags(tags).join(', ')
 

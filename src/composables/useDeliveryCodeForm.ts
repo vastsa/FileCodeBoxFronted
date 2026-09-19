@@ -1,11 +1,11 @@
 import { computed, reactive, ref, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { DeliveryService } from '@/services'
-import { DELIVERY_STORAGE_OPTIONS } from '@/components/delivery/storage-options'
 import { useAlertStore } from '@/stores/alertStore'
 import type { DeliveryCode, UpdateDeliveryCode } from '@/types/delivery'
 import { copyToClipboard } from '@/utils/clipboard'
 import { buildDeliveryUrl } from '@/utils/share-url'
+import { parseMetadataTags } from '@/utils/common'
 
 /** 创建、编辑及分享结果独立维护，关闭弹窗时清除可复制凭证。 */
 export function useDeliveryCodeForm(
@@ -27,42 +27,22 @@ export function useDeliveryCodeForm(
   const minimumUploads = computed(() =>
     Math.max(1, (editing.value?.used_count ?? 0) + (editing.value?.reserved_count ?? 0))
   )
-  // 默认隐藏单独存储配置，已有寄件码按原模式回填。
-  const customStorage = ref(false)
+  // 寄件始终复用系统存储和目录，表单只维护授权与管理信息。
   const form = reactive({
     name: '',
     code: '',
-    storage_type: 'local',
-    target_path: 'inbox',
     expires_at: '',
     max_uploads: 1,
     note: '',
     tagsText: ''
   })
-  /** 标签输入与文件管理一致：逗号、换行分隔，去空白和重复。 */
-  const parseTags = (value: string) => {
-    const seen = new Set<string>()
-    return value
-      .split(/[，,\n]/)
-      .map((tag) => tag.trim())
-      .filter((tag) => {
-        const normalized = tag.toLocaleLowerCase()
-        if (!tag || seen.has(normalized)) return false
-        seen.add(normalized)
-        return true
-      })
-      .slice(0, 12)
-  }
   function openCreate() {
     editing.value = null
-    customStorage.value = false
     const expiry = new Date(Date.now() + 7 * 86400000)
     expiry.setMinutes(expiry.getMinutes() - expiry.getTimezoneOffset())
     Object.assign(form, {
       name: '',
       code: '',
-      storage_type: 'local',
-      target_path: 'inbox',
       expires_at: expiry.toISOString().slice(0, 16),
       max_uploads: 1,
       note: '',
@@ -97,28 +77,14 @@ export function useDeliveryCodeForm(
       alerts.showAlert(t('delivery.invalidLimit', { count: minimumUploads.value }), 'error')
       return
     }
-    // 不把历史可读但不再提供配置的类型静默替换成其他存储。
-    if (
-      customStorage.value &&
-      !DELIVERY_STORAGE_OPTIONS.includes(form.storage_type as typeof DELIVERY_STORAGE_OPTIONS[number])
-    ) {
-      alerts.showAlert(t('delivery.unsupportedStorage'), 'error')
-      return
-    }
-    if (form.note.length > 2000 || parseTags(form.tagsText).some((tag) => tag.length > 24)) {
-      alerts.showAlert(t('delivery.invalidMetadata'), 'error')
-      return
-    }
     creating.value = true
     try {
       if (editing.value) {
         const payload: UpdateDeliveryCode = {
           name: form.name,
-          storage_type: customStorage.value ? form.storage_type : 'system',
-          target_path: customStorage.value ? form.target_path : '',
           max_uploads: form.max_uploads,
           note: form.note,
-          tags: parseTags(form.tagsText)
+          tags: parseMetadataTags(form.tagsText)
         }
         // 未改日期不传给后端，过期记录也可以只维护备注；改动时才提交新时间。
         if (expiryChanged) payload.expires_at = date.toISOString()
@@ -132,13 +98,11 @@ export function useDeliveryCodeForm(
       }
       const result = await DeliveryService.create({
         name: form.name,
-        storage_type: customStorage.value ? form.storage_type : 'system',
-        target_path: customStorage.value ? form.target_path : '',
         code: form.code.trim(),
         expires_at: date.toISOString(),
         max_uploads: form.max_uploads,
         note: form.note,
-        tags: parseTags(form.tagsText)
+        tags: parseMetadataTags(form.tagsText)
       })
       showCreate.value = false
       createdCode.value = result.code
@@ -172,14 +136,11 @@ export function useDeliveryCodeForm(
 
   function openEdit(item: DeliveryCode) {
     editing.value = item
-    customStorage.value = item.storage_type !== 'system'
     const expiry = new Date(item.expires_at)
     expiry.setMinutes(expiry.getMinutes() - expiry.getTimezoneOffset())
     Object.assign(form, {
       name: item.name,
       code: '',
-      storage_type: item.storage_type === 'system' ? 'local' : item.storage_type,
-      target_path: item.target_path || 'inbox',
       expires_at: expiry.toISOString().slice(0, 19),
       max_uploads: item.max_uploads,
       note: item.note || '',
@@ -198,7 +159,6 @@ export function useDeliveryCodeForm(
   }
 
   return {
-    customStorage,
     editing,
     createdItem,
     createdLink,
