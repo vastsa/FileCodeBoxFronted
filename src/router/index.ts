@@ -73,6 +73,15 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'local',
+        name: ROUTE_NAMES.LOCAL_SHARE,
+        component: () => import('@/views/manage/LocalShareView.vue'),
+        meta: {
+          ...adminPageMeta,
+          title: 'local'
+        }
+      },
+      {
         path: 'settings',
         name: ROUTE_NAMES.SETTINGS,
         component: () => import('@/views/manage/SystemSettingsView.vue'),

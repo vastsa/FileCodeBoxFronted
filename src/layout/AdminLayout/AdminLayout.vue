@@ -92,6 +92,7 @@ import {
   MenuIcon,
   XIcon,
   FolderIcon,
+  HardDriveIcon,
   CogIcon,
   LayoutDashboardIcon,
   LogOutIcon,
@@ -134,6 +135,13 @@ const menuItems = computed<MenuItem[]>(() => [
     name: t('delivery.manage'),
     icon: InboxIcon,
     redirect: ROUTES.DELIVERY_MANAGE
+  },
+  // 同时保留寄件授权管理与本地 NAS 分享入口。
+  {
+    id: ROUTE_NAMES.LOCAL_SHARE,
+    name: t('admin.localShare.title'),
+    icon: HardDriveIcon,
+    redirect: ROUTES.LOCAL_SHARE
   },
   {
     id: ROUTE_NAMES.SETTINGS,
