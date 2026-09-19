@@ -120,6 +120,7 @@ export default {
       }
     },
     fileManage: {
+    unknownStorageBackend: 'Unknown (storage was not recorded)',
       title: 'File Management'
     },
     settings: {

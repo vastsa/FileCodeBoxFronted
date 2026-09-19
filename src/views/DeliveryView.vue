@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import SendFileView from './SendFileView.vue'
 import PageHeader from '@/components/common/PageHeader.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
@@ -9,7 +10,15 @@ import { useDelivery } from '@/composables'
 // 此页只负责验证寄件码，验证后直接挂载普通发送页。
 const { t } = useI18n()
 const router = useRouter()
+const route = useRoute()
 const { code, session, verifying, message, verify, uploaded } = useDelivery()
+// 分享链接自动验证；保留路由参数，避免应用按 fullPath 重建页面后丢失上传会话。
+onMounted(async () => {
+  const sharedCode = route.query.code
+  if (typeof sharedCode !== 'string' || !sharedCode) return
+  code.value = sharedCode
+  await verify()
+})
 </script>
 
 <template>

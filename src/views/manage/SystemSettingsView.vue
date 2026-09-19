@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { inject, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { STORAGE_METHOD_OPTIONS } from '@/constants'
 import { RefreshCwIcon, SaveIcon } from 'lucide-vue-next'
 import BaseButton from '@/components/common/BaseButton.vue'
 import SettingNumberInput from '@/components/common/SettingNumberInput.vue'
@@ -41,18 +42,13 @@ onMounted(() => {
 
 <template>
   <div class="settings-page p-6">
-    <div
-      class="theme-surface sticky top-0 z-20 -mx-6 -mt-6 mb-6 border-b px-6 py-4 backdrop-blur"
-    >
+    <div class="theme-surface sticky top-0 z-20 -mx-6 -mt-6 mb-6 border-b px-6 py-4 backdrop-blur">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 class="theme-text-strong text-2xl font-bold">
             {{ t('admin.settings.title') }}
           </h2>
-          <p
-            class="mt-1 text-sm"
-            :class="isDirty ? 'theme-warning' : 'theme-text-muted'"
-          >
+          <p class="mt-1 text-sm" :class="isDirty ? 'theme-warning' : 'theme-text-muted'">
             {{
               isDirty ? t('manage.settings.unsavedChanges') : t('manage.settings.allChangesSaved')
             }}
@@ -91,9 +87,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <div
-      class="theme-panel space-y-6 rounded-2xl border p-6 backdrop-blur-xl"
-    >
+    <div class="theme-panel space-y-6 rounded-2xl border p-6 backdrop-blur-xl">
       <!-- 基本设置 -->
       <section class="space-y-4">
         <h3 class="text-lg font-medium mb-4" :class="[isDarkMode ? 'text-white' : 'text-zinc-800']">
@@ -346,9 +340,14 @@ onMounted(() => {
                   background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%208l3%203%203-3%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E');
                 "
               >
-                <option value="local">{{ t('manage.settings.localStorage') }}</option>
-                <option value="s3">{{ t('manage.settings.s3Storage') }}</option>
-                <option value="webdav">{{ t('manage.settings.webdavStorage') }}</option>
+                <!-- 与寄件管理使用同一组选项及国际化文案。 -->
+                <option
+                  v-for="option in STORAGE_METHOD_OPTIONS"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ t(option.label) }}
+                </option>
               </select>
             </div>
             <SettingSwitch

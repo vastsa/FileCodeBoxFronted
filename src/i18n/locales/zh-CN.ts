@@ -120,6 +120,7 @@ export default {
       }
     },
     fileManage: {
+    unknownStorageBackend: '未知（历史记录未保存存储方式）',
       title: '文件管理'
     },
     settings: {

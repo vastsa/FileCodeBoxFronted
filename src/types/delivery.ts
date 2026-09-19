@@ -15,6 +15,9 @@ export interface DeliveryCode {
   deleted: boolean
   status: string
   created_at: string
+  /** 管理侧备注与标签仅用于检索和识别，不影响寄件授权。 */
+  note?: string
+  tags?: string[]
 }
 export interface DeliveryFile {
   retrieval_code?: string | null
@@ -46,6 +49,30 @@ export interface CreateDeliveryCode {
   target_path: string
   expires_at: string
   max_uploads: number
+  note?: string
+  tags?: string[]
+}
+
+/** 寄件管理列表的后端筛选参数，全部使用明确的 all 表示未筛选。 */
+export interface DeliveryCodeFilters {
+  keyword: string
+  status: 'all' | 'active' | 'disabled' | 'expired' | 'exhausted'
+  storage_type: 'all' | 'system' | 'local' | 's3' | 'webdav'
+  tag: string
+  sort_by: 'created_at' | 'expires_at' | 'name' | 'code' | 'used_count' | 'max_uploads'
+  sort_order: 'asc' | 'desc'
+}
+
+/** 单条更新允许省略未改的口令，保证历史超长口令仍可保留。 */
+export interface UpdateDeliveryCode extends Partial<Omit<CreateDeliveryCode, 'code'>> {
+  code?: string
+}
+
+export interface DeliveryBatchRequest {
+  ids: number[]
+  action: 'enable' | 'disable' | 'delete' | 'update'
+  expires_at?: string
+  max_uploads?: number
 }
 export interface DeliveryList<T> {
   items: T[]

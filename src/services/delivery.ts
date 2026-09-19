@@ -2,10 +2,13 @@ import api, { publicApiClient, rawApiClient } from './client'
 import type { ApiResponse } from '@/types'
 import type {
   CreateDeliveryCode,
+  DeliveryBatchRequest,
   DeliveryCode,
+  DeliveryCodeFilters,
   DeliveryFile,
   DeliveryList,
-  DeliverySession
+  DeliverySession,
+  UpdateDeliveryCode
 } from '@/types/delivery'
 
 function detail<T>(response: ApiResponse<T>): T {
@@ -22,10 +25,10 @@ export const DeliveryService = {
       })
     )
   },
-  async list(page: number) {
+  async list(page: number, filters: DeliveryCodeFilters) {
     return detail(
       await api.get<never, ApiResponse<DeliveryList<DeliveryCode>>>('/admin/delivery/codes', {
-        params: { page, page_size: 20 }
+        params: { page, page_size: 20, ...filters }
       })
     )
   },
@@ -53,6 +56,16 @@ export const DeliveryService = {
   },
   async removeFile(id: number) {
     await api.delete(`/admin/delivery/files/${id}`)
+  },
+  // 未变更口令时省略 code，兼容历史遗留的 32 位以上口令。
+  async update(id: number, data: UpdateDeliveryCode) {
+    return detail(
+      await api.put<never, ApiResponse<DeliveryCode>>(`/admin/delivery/codes/${id}`, data)
+    )
+  },
+  /** 批量接口由后端原子执行，前端只在成功后清空当前页选择。 */
+  async batch(data: DeliveryBatchRequest) {
+    await api.post('/admin/delivery/codes/batch', data)
   },
   async download(id: number) {
     return rawApiClient.get<Blob>(`/admin/delivery/files/${id}/download`, {

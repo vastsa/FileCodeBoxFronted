@@ -665,8 +665,9 @@ export function useAdminFiles(options: { getDeliveryId?: () => number | undefine
       (expiredCount !== null && expiredCount !== undefined && expiredCount >= 0)
     const hasExpirationTimeFile =
       detail.has_expiration_time ?? Boolean(expiredAt)
+    // 历史文件缺少存储快照时明确提示，不能以当前全站设置冒充原后端。
     const storageBackendValue =
-      storage?.backend ?? detail.storageBackend ?? detail.storage_backend ?? '-'
+      storage?.backend ?? detail.storageBackend ?? detail.storage_backend ?? t('fileManage.unknownStorageBackend')
     const isChunkedStorage = storage?.is_chunked ?? viewItem.isChunkedFile
     const statusInsights = detail.status_insights
     const statusInsightState =
