@@ -51,8 +51,8 @@
             </div>
             <button
               type="button"
-              class="rounded-xl px-5 py-2.5 text-sm font-semibold text-white transition-colors"
-              :class="isDarkMode ? 'bg-zinc-100 text-zinc-900 hover:bg-white' : 'bg-zinc-900 hover:bg-zinc-700'"
+              class="rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors"
+              :class="isDarkMode ? 'bg-zinc-100 text-zinc-900 hover:bg-white' : 'bg-zinc-900 text-white hover:bg-zinc-700'"
               @click="goLoginForUpload"
             >
               {{ t('send.messages.guestUploadBlockedAction') }}

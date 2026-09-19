@@ -6,6 +6,7 @@ import { useAdminStore } from '@/stores/adminStore'
 import { useConfigStore } from '@/stores/configStore'
 import { useFileDataStore } from '@/stores/fileData'
 import type { SendType, SentFileRecord, UploadProgress } from '@/types'
+import { ROUTES } from '@/constants'
 import { getClipboardFile, insertTextAtSelection } from '@/utils/clipboard-paste'
 import { getErrorMessage } from '@/utils/common'
 import { getStorageUnit } from '@/utils/convert'
@@ -110,7 +111,7 @@ export function useSendFlow() {
   )
 
   const goLoginForUpload = () => {
-    router.push({ path: '/login', query: { redirect: '/send' } })
+    router.push({ path: ROUTES.LOGIN, query: { redirect: ROUTES.SEND } })
   }
 
   const checkOpenUpload = () => {
