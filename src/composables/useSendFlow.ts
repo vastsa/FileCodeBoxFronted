@@ -1,5 +1,6 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { useAlertStore } from '@/stores/alertStore'
 import { useAdminStore } from '@/stores/adminStore'
 import { useConfigStore } from '@/stores/configStore'
@@ -15,6 +16,7 @@ import { useSendSubmit } from './useSendSubmit'
 
 export function useSendFlow() {
   const { t } = useI18n()
+  const router = useRouter()
   const alertStore = useAlertStore()
   const adminStore = useAdminStore()
   const configStore = useConfigStore()
@@ -100,6 +102,16 @@ export function useSendFlow() {
       fileHash.value = hash
     }
   })
+
+  // 游客上传关闭且未登录：整页引导登录（发送页在选文件前就展示状态，
+  // 避免用户选完文件点上传才收到 403 提示）。后端 403 兜底始终保留。
+  const guestUploadBlocked = computed(
+    () => config.value.open_upload === 0 && !adminStore.hasToken
+  )
+
+  const goLoginForUpload = () => {
+    router.push({ path: '/login', query: { redirect: '/send' } })
+  }
 
   const checkOpenUpload = () => {
     if (config.value.open_upload === 0 && !adminStore.hasToken) {
@@ -385,6 +397,8 @@ export function useSendFlow() {
 
   return {
     config,
+    guestUploadBlocked,
+    goLoginForUpload,
     sendType,
     selectedFile,
     selectedFiles,

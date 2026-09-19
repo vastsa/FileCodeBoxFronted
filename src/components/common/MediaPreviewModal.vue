@@ -70,6 +70,8 @@
           <iframe
             v-else
             :src="previewUrl"
+            sandbox=""
+            referrerpolicy="no-referrer"
             class="h-[70vh] w-full border-0"
             :title="record.filename"
           ></iframe>
