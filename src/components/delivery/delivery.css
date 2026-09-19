@@ -21,19 +21,33 @@
   border-color: rgb(var(--color-focus-ring));
   box-shadow: 0 0 0 3px rgb(var(--color-focus-ring) / 0.15);
 }
-/* 寄件码/历史收件的局部样式不能覆盖嵌入的原文件管理表格。 */
-:deep(.delivery-code-table td),
-:deep(.delivery-code-table th) {
-  padding: 1rem;
-  vertical-align: top;
+/* 筛选框统一高度，消除原生 select 与文本输入框的高度差。 */
+.delivery-filters .delivery-input {
+  height: 2.75rem;
+}
+/* 将作用域绑定到表格根节点，再穿透子组件，确保插槽单元格与表头使用相同列边距。 */
+.delivery-code-table :deep(td),
+.delivery-code-table :deep(th) {
+  padding: 1rem 1.5rem;
+  vertical-align: middle;
+}
+.delivery-code-table :deep(td) {
   font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+/* 选择列固定为紧凑宽度，给复选框保留与表格标题一致的左侧留白。 */
+.delivery-code-table :deep(td:first-child:not([colspan])),
+.delivery-code-table :deep(th:first-child) {
+  width: 3.5rem;
+  padding-right: 0.5rem;
 }
 @media (max-width: 640px) {
-  :deep(.delivery-code-table td),
-  :deep(.delivery-code-table th) {
+  .delivery-code-table :deep(td),
+  .delivery-code-table :deep(th) {
     padding: 0.75rem;
   }
-  :deep(.delivery-code-table .mt-4.flex.items-center.justify-between) {
+  /* 分页在窄屏换行，避免总数说明和翻页按钮相互挤压。 */
+  .delivery-pagination {
     flex-wrap: wrap;
     gap: 0.75rem;
     padding: 0.75rem;

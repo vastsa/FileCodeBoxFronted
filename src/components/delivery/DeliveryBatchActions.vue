@@ -30,9 +30,10 @@ const { t } = useI18n()
     v-if="codes.length"
     class="theme-panel mb-4 flex flex-col gap-3 rounded-xl border px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
   >
-    <label class="theme-text-strong inline-flex items-center gap-2 text-sm"
+    <label class="theme-text-strong inline-flex shrink-0 items-center gap-2 text-sm"
       ><input
         type="checkbox"
+        class="h-4 w-4"
         :checked="isAllCurrentPageSelected"
         :disabled="acting"
         @change="toggleCurrentPageSelection"

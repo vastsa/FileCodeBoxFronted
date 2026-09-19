@@ -26,6 +26,8 @@
         isDarkMode ? 'text-zinc-400 hover:text-zinc-100' : 'text-slate-500 hover:text-zinc-950'
       "
     >
+      <!-- 保留寄件入口的收件箱图标，与相邻入口的图标样式一致。 -->
+      <InboxIcon class="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       {{ t('delivery.title') }}
     </router-link>
 
@@ -46,7 +48,7 @@
 <script setup lang="ts">
 import { inject } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { HistoryIcon, SendIcon } from 'lucide-vue-next'
+import { HistoryIcon, InboxIcon, SendIcon } from 'lucide-vue-next'
 
 interface Props {
   linkText?: string

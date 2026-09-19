@@ -57,38 +57,40 @@ const sortOptions = computed(() => [
       <h2 class="theme-text-strong text-2xl font-bold">{{ t('delivery.manage') }}</h2>
       <p class="theme-text-muted mt-1 text-sm">{{ t('delivery.manageSubtitle') }}</p>
     </div>
-    <div class="flex flex-wrap gap-2 self-start sm:self-auto">
+    <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
       <!-- 寄件入口和新建码仅属于寄件管理，不扩展通用表格组件。 -->
       <RouterLink
         to="/delivery"
-        class="theme-control inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium"
+        class="theme-control inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium"
       >
         <ExternalLinkIcon class="h-4 w-4" />{{ t('delivery.title') }}
       </RouterLink>
-      <BaseButton size="sm" @click="openCreate">
+      <BaseButton class="h-10" @click="openCreate">
         <template #icon><PlusIcon class="mr-2 h-4 w-4" /></template>
         {{ t('delivery.create') }}
       </BaseButton>
-      <BaseButton variant="secondary" :loading="loading" @click="refresh">
+      <BaseButton class="h-10" variant="secondary" :loading="loading" @click="refresh">
         <template #icon><RefreshCwIcon class="mr-2 h-4 w-4" /></template>
         {{ t('fileManage.refresh') }}
       </BaseButton>
     </div>
   </div>
   <!-- 筛选区与文件管理保持相同结构，关键字查询名称与备注，标签使用独立精确筛选。 -->
-  <section class="theme-panel mb-4 rounded-xl border p-4">
-    <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
-      <label class="relative">
-        <SearchIcon class="theme-text-muted absolute left-3 top-3 h-4 w-4" />
+  <section class="delivery-filters theme-panel mb-4 rounded-xl border p-4">
+    <!-- 搜索栏没有上方字段标签，去掉表单间距并让图标相对输入框垂直居中。 -->
+    <div class="grid items-center gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+      <label class="relative block min-w-0">
+        <span class="sr-only">{{ t('delivery.searchPlaceholder') }}</span>
+        <SearchIcon class="theme-text-muted pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
         <input
           v-model="filters.keyword"
-          class="delivery-input !pl-10"
+          class="delivery-input !mt-0 !pl-10"
           :placeholder="t('delivery.searchPlaceholder')"
           @keyup.enter="search"
         />
       </label>
-      <BaseButton :loading="loading" @click="search"
-        ><SearchIcon class="mr-2 h-4 w-4" />{{ t('common.search') }}</BaseButton
+      <BaseButton class="h-11" :loading="loading" @click="search"
+        ><template #icon><SearchIcon class="mr-2 h-4 w-4" /></template>{{ t('common.search') }}</BaseButton
       >
     </div>
     <div class="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -165,13 +167,14 @@ const sortOptions = computed(() => [
         <td>
           <input
             type="checkbox"
+            class="block h-4 w-4"
             :checked="selectedIds.has(item.id)"
             :disabled="acting"
             :aria-label="t('delivery.selectCode', { name: item.name })"
             @change="toggleSelection(item.id)"
           />
         </td>
-        <td>
+        <td class="min-w-36 max-w-64 break-words">
           <span class="theme-text-strong font-medium">{{ item.name }}</span
           ><span class="theme-text-muted mt-1 block text-xs">#{{ item.id }}</span>
           <p
@@ -214,7 +217,8 @@ const sortOptions = computed(() => [
           {{ item.used_count }} / {{ item.reserved_count }} / {{ item.max_uploads }}
         </td>
         <td>
-          <div class="flex flex-wrap gap-2">
+          <!-- 同一行操作保持并排，窄屏由表格容器横向滚动，避免按钮挤压错行。 -->
+          <div class="flex items-center gap-2 whitespace-nowrap">
             <BaseButton size="sm" variant="outline" @click="viewFiles(item)">{{
               t('delivery.viewFiles')
             }}</BaseButton>
@@ -244,6 +248,7 @@ const sortOptions = computed(() => [
     <template #footer
       ><DataPagination
         v-if="total > 0"
+        class="delivery-pagination"
         :current-page="page"
         :page-size="20"
         :total="total"
