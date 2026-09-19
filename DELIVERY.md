@@ -23,10 +23,10 @@
 
 ## 验证
 
-已在带依赖的临时前端目录执行 `npm run check:architecture`、`npm run type-check`、`npm run build-only` 和 `node --test scripts/test-send-completion.mjs`，均通过。构建验证不依赖个人服务器、存储密钥或实际业务数据。
+已在带依赖的临时前端目录执行 `npm run check:architecture`、`npm run type-check`、`npm run build-only`，均通过。构建验证不依赖个人服务器、存储密钥或实际业务数据。
 
 历史缺失原文的寄件码升级后停用，管理员在编辑界面设置新口令后再启用。前端不再提示通过访客验证恢复摘要对应的口令。
 
-发送完成状态不等待自动复制结果，避免后台页面的剪贴板授权一直挂起时锁住发送按钮。可用 `node --test scripts/test-send-completion.mjs` 验证此回归。
+发送完成状态不等待自动复制结果，避免后台页面的剪贴板授权一直挂起时锁住发送按钮。回归脚本不包含在本 PR 中。
 
 为按真实文件大小控制寄件额度，非分片寄件统一使用原有代理上传模式，包括 S3；普通上传是否直传仍按主干规则处理。
