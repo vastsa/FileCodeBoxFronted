@@ -11,7 +11,7 @@ import { useDelivery } from '@/composables'
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
-const { code, session, verifying, message, verify, uploaded } = useDelivery()
+const { code, session, verifying, message, verify, uploaded, ensureToken } = useDelivery()
 // 分享链接自动验证；保留路由参数，避免应用按 fullPath 重建页面后丢失上传会话。
 onMounted(async () => {
   const sharedCode = route.query.code
@@ -25,6 +25,7 @@ onMounted(async () => {
   <SendFileView
     v-if="session"
     :delivery-session="session"
+    :ensure-delivery-token="ensureToken"
     @change-delivery="session = null"
     @delivery-success="uploaded"
   />

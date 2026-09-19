@@ -70,8 +70,6 @@
           <button @click="toggleSidebar" class="lg:hidden">
             <MenuIcon class="theme-text-muted w-6 h-6" />
           </button>
-          <!-- 寄件管理与原后台共享主题和语言入口。 -->
-          <div class="ml-auto flex items-center gap-3"><LanguageSwitcher /><ThemeToggle /></div>
         </div>
       </header>
 
@@ -86,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import {
   BoxIcon,
   MenuIcon,
@@ -102,8 +100,6 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ROUTE_NAMES, ROUTES } from '@/constants'
 import { useAdminSession } from '@/composables'
-import ThemeToggle from '@/components/common/ThemeToggle.vue'
-import LanguageSwitcher from '@/components/common/LanguageSwitcher.vue'
 
 interface MenuItem {
   id: string
@@ -116,8 +112,7 @@ const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
 const { verifySession, logout } = useAdminSession()
-// 切换语言时即时刷新菜单名称，不再固定在首次渲染的语言。
-const menuItems = computed<MenuItem[]>(() => [
+const menuItems: MenuItem[] = [
   {
     id: ROUTE_NAMES.DASHBOARD,
     name: t('admin.dashboard.title'),
@@ -136,7 +131,6 @@ const menuItems = computed<MenuItem[]>(() => [
     icon: InboxIcon,
     redirect: ROUTES.DELIVERY_MANAGE
   },
-  // 同时保留寄件授权管理与本地 NAS 分享入口。
   {
     id: ROUTE_NAMES.LOCAL_SHARE,
     name: t('admin.localShare.title'),
@@ -149,7 +143,7 @@ const menuItems = computed<MenuItem[]>(() => [
     icon: CogIcon,
     redirect: ROUTES.SETTINGS
   }
-])
+]
 
 const isSidebarOpen = ref(true)
 const toggleSidebar = () => {

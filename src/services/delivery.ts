@@ -1,11 +1,10 @@
-import api, { publicApiClient, rawApiClient } from './client'
+import api, { publicApiClient } from './client'
 import type { ApiResponse } from '@/types'
 import type {
   CreateDeliveryCode,
   DeliveryBatchRequest,
   DeliveryCode,
   DeliveryCodeFilters,
-  DeliveryFile,
   DeliveryList,
   DeliverySession,
   UpdateDeliveryCode
@@ -46,16 +45,24 @@ export const DeliveryService = {
   async remove(id: number) {
     await api.delete(`/admin/delivery/codes/${id}`)
   },
-  async files(id: number, page: number, unsharedOnly = false) {
+  /** 查看和复制才读取原文，管理列表不批量携带凭证。 */
+  async reveal(id: number) {
     return detail(
-      await api.get<never, ApiResponse<DeliveryList<DeliveryFile>>>(
-        `/admin/delivery/codes/${id}/files`,
-        { params: { page, page_size: 20, unshared_only: unsharedOnly } }
+      await api.get<never, ApiResponse<{ code: string | null }>>(
+        `/admin/delivery/codes/${id}/secret`
       )
     )
   },
-  async removeFile(id: number) {
-    await api.delete(`/admin/delivery/files/${id}`)
+  async refresh(token: string) {
+    return detail(
+      await publicApiClient.post<never, ApiResponse<DeliverySession>>(
+        '/api/delivery/refresh',
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      )
+    )
   },
   // 未变更口令时省略 code，兼容历史遗留的 32 位以上口令。
   async update(id: number, data: UpdateDeliveryCode) {
@@ -66,11 +73,5 @@ export const DeliveryService = {
   /** 批量接口由后端原子执行，前端只在成功后清空当前页选择。 */
   async batch(data: DeliveryBatchRequest) {
     await api.post('/admin/delivery/codes/batch', data)
-  },
-  async download(id: number) {
-    return rawApiClient.get<Blob>(`/admin/delivery/files/${id}/download`, {
-      responseType: 'blob',
-      timeout: 0
-    })
   }
 }

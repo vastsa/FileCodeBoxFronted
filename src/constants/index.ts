@@ -66,7 +66,7 @@ export const TIME_CONSTANTS = {
 export const ROUTES = {
   HOME: '/',
   SEND: '/send',
-  // 寄件码与普通分享分别路由，后台仍复用统一登录。
+  // 2024 主题寄件入口与后台管理入口。
   DELIVERY: '/delivery',
   DELIVERY_MANAGE: '/admin/delivery',
   ADMIN: '/admin',
@@ -103,10 +103,3 @@ export const DEFAULT_CONFIG = {
   description: '文件传输工具',
   allowed_file_types: ['*'] as string[]
 }
-
-// 设置与寄件管理共用可配置的存储方式，避免两个入口的选项和名称发生偏差。
-export const STORAGE_METHOD_OPTIONS = [
-  { value: 'local', label: 'manage.settings.localStorage' },
-  { value: 's3', label: 'manage.settings.s3Storage' },
-  { value: 'webdav', label: 'manage.settings.webdavStorage' }
-] as const

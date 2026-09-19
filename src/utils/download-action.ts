@@ -20,11 +20,6 @@ const saveBlobAsFile = async (blob: Blob, filename: string) => {
   saveAs(blob, filename)
 }
 
-/** 寄件下载已在管理服务鉴权，只保存返回的文件，不生成公开取件链接。 */
-export async function savePrivateDeliveryFile(blob: Blob, filename: string): Promise<void> {
-  await saveBlobAsFile(blob, getSafeFilename(filename))
-}
-
 export async function downloadReceivedRecord(record: ReceivedFileRecord): Promise<void> {
   if (record.downloadUrl) {
     window.open(buildDownloadUrl(record.downloadUrl), '_blank')

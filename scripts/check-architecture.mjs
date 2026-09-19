@@ -1,10 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { globSync } from 'glob'
-import { fileURLToPath } from 'node:url'
 
-// Windows 的 URL pathname 含盘符前导斜线，需转换为本机路径以免漏检源码。
-const rootDir = fileURLToPath(new URL('..', import.meta.url))
+const rootDir = new URL('..', import.meta.url).pathname
 const srcDir = join(rootDir, 'src')
 
 const rules = [
@@ -237,8 +235,7 @@ for (const rule of rules) {
   )
 
   for (const file of files) {
-    // 规则中的路径采用正斜线，Windows 也按同一表示匹配排除项。
-    const relativeFile = relative(rootDir, file).replaceAll('\\', '/')
+    const relativeFile = relative(rootDir, file)
     if (rule.ignoreFiles?.some((pattern) => pattern.test(relativeFile))) {
       continue
     }

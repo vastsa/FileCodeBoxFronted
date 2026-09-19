@@ -74,10 +74,11 @@ rawApiClient.interceptors.response.use((response) => response, handleAuthError)
 export default apiClient
 
 /** 寄件凭证仅附加到当前上传实例，不覆盖管理员请求，也不落入持久化存储。 */
-export function createDeliveryUploadClient(getToken: () => string) {
+export function createDeliveryUploadClient(getToken: () => string | Promise<string>) {
   const client = axios.create(clientOptions)
-  client.interceptors.request.use((config) => {
-    config.headers.Authorization = `Bearer ${getToken()}`
+  client.interceptors.request.use(async (config) => {
+    // 每个分片请求前检查续期，后台标签页的计时器被节流也不会使用过期令牌。
+    config.headers.Authorization = `Bearer ${await getToken()}`
     return config
   })
   client.interceptors.response.use((response) => response.data)

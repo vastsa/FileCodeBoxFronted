@@ -9,6 +9,8 @@ export interface FileInfo {
 }
 
 export interface FileListItem {
+  /** 迁移前的私有收件只能经管理员下载，不展示公开取件入口。 */
+  is_private?: boolean
   id: number
   code: string
   prefix: string
@@ -448,8 +450,6 @@ export interface ChunkUploadInitRequest {
 }
 
 export interface ChunkUploadInitResponse {
-  // 续传必须使用服务端记录的分片大小，兼容不同客户端创建的会话。
-  chunk_size?: number
   code?: string
   name?: string
   upload_id?: string

@@ -13,7 +13,7 @@ import { usePresignedUpload } from './usePresignedUpload'
 type Translate = (key: string, params?: Record<string, string | number | undefined>) => string
 
 type UseSendSubmitOptions = {
-  getDeliveryToken?: () => string
+  getDeliveryToken?: () => string | Promise<string>
   getMaxFileSize: () => number
   notify: (message: string, type: AlertType) => void
   translate: Translate

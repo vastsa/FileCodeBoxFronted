@@ -1,6 +1,6 @@
 <template>
   <div :class="embedded ? 'min-w-0' : 'p-6'">
-    <!-- 收件页仅隐藏概览和筛选区，表格及操作弹窗直接共用。 -->
+    <!-- 嵌入寄件管理时仅复用文件表格和操作弹窗，隐藏全局文件概览。 -->
     <div v-if="!embedded" class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
       <div>
         <h2 class="text-2xl font-bold" :class="[primaryTextClass]">
@@ -389,7 +389,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span class="font-medium select-all" :class="[primaryTextClass]">
-                {{ file.code }}
+                {{ file.is_private ? t('delivery.privateLegacy') : file.code }}
               </span>
             </td>
             <td class="px-6 py-4">
@@ -528,7 +528,19 @@
                   <PencilIcon class="mr-1.5 h-4 w-4" />
                   {{ t('common.edit') }}
                 </button>
-                <DeleteActionButton @click="deleteFile(file.id)" />
+                <button
+                  type="button"
+                  class="inline-flex items-center rounded-md px-3 py-1.5 transition-colors duration-200"
+                  :class="[
+                    isDarkMode
+                      ? 'bg-red-900/20 text-red-300 hover:bg-red-900/30'
+                      : 'bg-red-50 text-red-600 hover:bg-red-100'
+                  ]"
+                  @click="deleteFile(file.id)"
+                >
+                  <TrashIcon class="mr-1.5 h-4 w-4" />
+                  {{ t('common.delete') }}
+                </button>
               </div>
             </td>
           </tr>
@@ -620,7 +632,9 @@
           </div>
         </div>
 
+        <!-- 私有收件文件只允许管理员下载，不显示可公开访问的取件信息。 -->
         <div
+          v-if="!selectedFileDetail.is_private"
           class="rounded-lg border px-4 py-3"
           :class="[isDarkMode ? 'border-white/10 bg-white/[0.04]' : 'border-gray-200 bg-gray-50']"
         >
@@ -967,6 +981,7 @@
 
       <div class="grid gap-6">
         <FileEditField
+          v-if="!tableData.find((item) => item.id === editForm.id)?.is_private"
           v-model="editForm.code"
           :label="t('fileManage.form.code')"
           :placeholder="t('fileManage.form.codePlaceholder')"
@@ -1204,12 +1219,10 @@ import DataPagination from '@/components/common/DataPagination.vue'
 import FileEditField from '@/components/common/FileEditField.vue'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
-import DeleteActionButton from '@/components/common/DeleteActionButton.vue'
 import { useAdminFiles, useInjectedDarkMode } from '@/composables'
 import { formatTimestamp } from '@/utils/common'
 
-// 由宿主通过 key 隔离不同寄件码，详情/编辑/删除继续使用原文件管理实例。
-const props = defineProps<{ embedded?: boolean; deliveryId?: number; refreshKey?: number }>()
+const props = defineProps<{ embedded?: boolean; deliveryId?: number }>()
 const { t } = useI18n()
 const isDarkMode = useInjectedDarkMode()
 const route = useRoute()
@@ -1726,12 +1739,6 @@ watch(
     if (params.value.health === health) return
     await setHealthFilter(health)
   }
-)
-
-// 宿主刷新收件时同步刷新共用表格。
-watch(
-  () => props.refreshKey,
-  () => void refreshFiles()
 )
 
 onMounted(() => {

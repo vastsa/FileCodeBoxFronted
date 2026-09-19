@@ -1,4 +1,4 @@
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { FileService } from '@/services'
 import { useAlertStore } from '@/stores/alertStore'
@@ -203,6 +203,7 @@ const normalizeViewPresetParams = (params: unknown): AdminFileViewPresetParams =
   }
 }
 
+/** 寄件收件页复用文件管理时，由后端按寄件码关联关系过滤数据。 */
 export function useAdminFiles(options: { getDeliveryId?: () => number | undefined } = {}) {
   const { t } = useI18n()
   const alertStore = useAlertStore()
@@ -665,9 +666,8 @@ export function useAdminFiles(options: { getDeliveryId?: () => number | undefine
       (expiredCount !== null && expiredCount !== undefined && expiredCount >= 0)
     const hasExpirationTimeFile =
       detail.has_expiration_time ?? Boolean(expiredAt)
-    // 历史文件缺少存储快照时明确提示，不能以当前全站设置冒充原后端。
     const storageBackendValue =
-      storage?.backend ?? detail.storageBackend ?? detail.storage_backend ?? t('fileManage.unknownStorageBackend')
+      storage?.backend ?? detail.storageBackend ?? detail.storage_backend ?? '-'
     const isChunkedStorage = storage?.is_chunked ?? viewItem.isChunkedFile
     const statusInsights = detail.status_insights
     const statusInsightState =
@@ -1088,18 +1088,11 @@ export function useAdminFiles(options: { getDeliveryId?: () => number | undefine
     }
   }
 
-  // 初次加载、分页与宿主刷新可能并发，仅接受最新请求；退出收件页后丢弃迟到响应。
-  let listRequestSequence = 0
-  onBeforeUnmount(() => { listRequestSequence++ })
-
   const loadFiles = async () => {
-    const sequence = ++listRequestSequence
-    const request = { ...requestParams.value }
     isLoading.value = true
     try {
       hasLoadError.value = false
-      const res = await FileService.getAdminFileList(request)
-      if (sequence !== listRequestSequence) return
+      const res = await FileService.getAdminFileList(requestParams.value)
       if (!res.detail) return
 
       tableData.value = res.detail.data.map(createFileViewItem)
@@ -1107,14 +1100,13 @@ export function useAdminFiles(options: { getDeliveryId?: () => number | undefine
       summary.value = normalizeSummary(res.detail.summary, tableData.value, res.detail.total)
       syncSelectedFilesWithCurrentPage()
     } catch (error) {
-      if (sequence !== listRequestSequence) return
       hasLoadError.value = true
       alertStore.showAlert(
         getErrorMessage(error, t('manage.fileManage.loadFileListFailed')),
         'error'
       )
     } finally {
-      if (sequence === listRequestSequence) isLoading.value = false
+      isLoading.value = false
     }
   }
 

@@ -1,0 +1,41 @@
+/* 与上游 theme-control 使用相同变量，弹窗被 Teleport 后也能继承全局主题。 */
+.delivery-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(var(--color-text-muted));
+}
+.delivery-input {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  border: 1px solid rgb(var(--color-border));
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.875rem;
+  color: rgb(var(--color-text-strong));
+  background: rgb(var(--color-surface-input) / 0.8);
+  outline: none;
+}
+.delivery-input:focus {
+  border-color: rgb(var(--color-focus-ring));
+  box-shadow: 0 0 0 3px rgb(var(--color-focus-ring) / 0.15);
+}
+/* 寄件码/历史收件的局部样式不能覆盖嵌入的原文件管理表格。 */
+:deep(.delivery-code-table td),
+:deep(.delivery-code-table th) {
+  padding: 1rem;
+  vertical-align: top;
+  font-size: 0.875rem;
+}
+@media (max-width: 640px) {
+  :deep(.delivery-code-table td),
+  :deep(.delivery-code-table th) {
+    padding: 0.75rem;
+  }
+  :deep(.delivery-code-table .mt-4.flex.items-center.justify-between) {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+}

@@ -1,10 +1,5 @@
 import { FileService } from './file'
-import type {
-  ApiResponse,
-  ChunkUploadInitResponse,
-  FileUploadResponse,
-  UploadProgress
-} from '@/types'
+import type { ApiResponse, ChunkUploadInitResponse, FileUploadResponse, UploadProgress } from '@/types'
 import { calculateFileHash } from '@/utils/file-processing'
 
 const CHUNK_SIZE = 5 * 1024 * 1024
@@ -25,11 +20,7 @@ type ChunkedUploadOptions = {
 
 type ChunkedUploadResult = ChunkUploadInitResponse | FileUploadResponse
 
-const calculateCompletedBytes = (
-  uploadedChunks: Set<number>,
-  chunkSize: number,
-  fileSize: number
-) =>
+const calculateCompletedBytes = (uploadedChunks: Set<number>, chunkSize: number, fileSize: number) =>
   Array.from(uploadedChunks).reduce((total, index) => {
     const chunkStart = index * chunkSize
     const chunkEnd = Math.min((index + 1) * chunkSize, fileSize)
@@ -66,24 +57,22 @@ export const uploadChunkedFile = async (
     throw new Error(options.messages?.initFailed || 'Init chunk upload failed')
   }
 
-  // 续传沿用服务端原会话的分片大小，不以当前客户端默认值重新切片。
-  const chunkSize = initDetail.chunk_size || CHUNK_SIZE
-  const chunks = Math.ceil(file.size / chunkSize)
+  const chunks = Math.ceil(file.size / CHUNK_SIZE)
   const uploadedChunks = new Set(initDetail.uploaded_chunks || [])
   for (let index = 0; index < chunks; index++) {
     if (uploadedChunks.has(index)) {
       continue
     }
 
-    const start = index * chunkSize
-    const end = Math.min(start + chunkSize, file.size)
+    const start = index * CHUNK_SIZE
+    const end = Math.min(start + CHUNK_SIZE, file.size)
     const chunk = file.slice(start, end)
     const chunkResponse = await service.uploadChunk(
       uploadId,
       index,
       new Blob([chunk], { type: file.type }),
       (progress) => {
-        const completedBytes = calculateCompletedBytes(uploadedChunks, chunkSize, file.size)
+        const completedBytes = calculateCompletedBytes(uploadedChunks, CHUNK_SIZE, file.size)
         const percentage = Math.round(((completedBytes + progress.loaded) * 100) / file.size)
         options.onProgress?.({
           loaded: completedBytes + progress.loaded,

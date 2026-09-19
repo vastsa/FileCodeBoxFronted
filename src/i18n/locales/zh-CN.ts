@@ -120,7 +120,6 @@ export default {
       }
     },
     fileManage: {
-    unknownStorageBackend: '未知（历史记录未保存存储方式）',
       title: '文件管理'
     },
     localShare: {
@@ -436,8 +435,6 @@ export default {
       expiresAfterCount: '{count}次后过期',
       expiresAt: '{date}过期',
       emptyFileError: '无法读取空文件',
-      // 图片粘贴会自动显示文件面板，避免误以为粘贴失败。
-      imagePastedSwitchToFile: '已识别剪贴板图片，已切换到发送文件：{filename}',
       fileAddedFromClipboard: '已从剪贴板添加文件：{filename}',
       fileProcessingFailed: '文件处理失败',
       expiresAfter: '{value}{unit}后过期'

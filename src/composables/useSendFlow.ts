@@ -17,6 +17,7 @@ import { useSendSubmit } from './useSendSubmit'
 export function useSendFlow(
   options: {
     getDeliverySession?: () => DeliverySession | null
+    getDeliveryToken?: () => Promise<string>
     onDeliverySuccess?: () => void
   } = {}
 ) {
@@ -26,10 +27,19 @@ export function useSendFlow(
   const configStore = useConfigStore()
   const fileDataStore = useFileDataStore()
   // 验证寄件码后复用同一页面状态；不修改全站游客开关。
-  const config = computed(() => ({
-    ...configStore.config,
-    ...(options.getDeliverySession?.() || {})
-  }))
+  const config = computed(() => {
+    const session = options.getDeliverySession?.()
+    if (!session) return configStore.config
+    // 仅覆盖上传约束，令牌、剩余次数和授权名称不进入站点配置对象。
+    return {
+      ...configStore.config,
+      upload_size: session.upload_size,
+      allowed_file_types: session.allowed_file_types,
+      expire_style: session.expire_style,
+      max_save_seconds: session.max_save_seconds,
+      enable_chunk: session.enable_chunk
+    }
+  })
   const sendType = ref<SendType>('file')
   const selectedFile = ref<File | null>(null)
   const selectedFiles = ref<File[]>([])
@@ -88,9 +98,9 @@ export function useSendFlow(
   const sentRecordActions = createSentRecordActions(notifyCopyResult)
   const { resetPresignUpload, submitFile, submitText } = useSendSubmit({
     getMaxFileSize: () => config.value.upload_size,
-    getDeliveryToken: options.getDeliverySession
+    getDeliveryToken: options.getDeliveryToken || (options.getDeliverySession
       ? () => options.getDeliverySession?.()?.token || ''
-      : undefined,
+      : undefined),
     notify: (message, type) => alertStore.showAlert(message, type),
     translate: t,
     onProgress: (progress: UploadProgress) => {
@@ -228,7 +238,6 @@ export function useSendFlow(
   }
 
   const handlePaste = async (event: ClipboardEvent) => {
-    if (isSubmitting.value) return
     const items = event.clipboardData?.items
     if (!items) return
 
@@ -239,18 +248,13 @@ export function useSendFlow(
         return
       }
 
-      if (!checkOpenUpload() || !checkFileSize(file) || !checkFileType(file)) return
-      if (!checkExpirationTime(expirationMethod.value, expirationValue.value)) return
+      selectedFile.value = file
+      if (!checkUpload()) return
 
       try {
-        const hash = await calculateFileHash(file)
-        // 粘贴文件后显示文件面板并清除旧多文件选择，文字草稿保留且不自动上传。
-        selectedFile.value = file
-        selectedFiles.value = []
-        fileHash.value = hash
-        sendType.value = 'file'
+        fileHash.value = await calculateFileHash(file)
         alertStore.showAlert(
-          t(file.type.startsWith('image/') ? 'send.messages.imagePastedSwitchToFile' : 'send.messages.fileAddedFromClipboard', { filename: file.name }),
+          t('send.messages.fileAddedFromClipboard', { filename: file.name }),
           'success'
         )
       } catch (err) {
@@ -378,7 +382,10 @@ export function useSendFlow(
         resetUploadProgress()
         resetPresignUpload()
         selectedRecord.value = newRecord
-        await sentRecordActions.copyLink(newRecord)
+        // 自动复制可能等待后台页面的剪贴板授权；上传已完成，不能因此锁住发送按钮。
+        void sentRecordActions.copyLink(newRecord).catch(() => {
+          alertStore.showAlert(t('common.copyFailed'), 'error')
+        })
       } else {
         throw new Error(t('send.messages.serverError'))
       }

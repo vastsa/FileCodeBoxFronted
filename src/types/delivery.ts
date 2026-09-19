@@ -1,6 +1,6 @@
 /** 寄件接口独立于公开取件接口，避免误用下载权限或管理员凭证。 */
 export interface DeliveryCode {
-  // 旧版记录没有原文，允许为空并明确提示，不能伪造恢复值。
+  // 列表不携带原文；历史缺失原文的码需在后台重设后启用。
   code?: string | null
   id: number
   name: string
@@ -18,17 +18,6 @@ export interface DeliveryCode {
   /** 管理侧备注与标签仅用于检索和识别，不影响寄件授权。 */
   note?: string
   tags?: string[]
-}
-export interface DeliveryFile {
-  retrieval_code?: string | null
-  expired_at?: string | null
-  expired_count?: number | null
-  id: number
-  filename: string
-  size: number
-  status: string
-  storage_type: string
-  created_at: string
 }
 export interface DeliverySession {
   enable_chunk: number
@@ -59,7 +48,7 @@ export interface DeliveryCodeFilters {
   status: 'all' | 'active' | 'disabled' | 'expired' | 'exhausted'
   storage_type: 'all' | 'system' | 'local' | 's3' | 'webdav'
   tag: string
-  sort_by: 'created_at' | 'expires_at' | 'name' | 'code' | 'used_count' | 'max_uploads'
+  sort_by: 'created_at' | 'expires_at' | 'name' | 'used_count' | 'max_uploads'
   sort_order: 'asc' | 'desc'
 }
 

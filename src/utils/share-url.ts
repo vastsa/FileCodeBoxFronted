@@ -37,7 +37,7 @@ export function buildWgetCommand(retrieveCode: string, fileName: string): string
   return `wget ${buildAbsoluteUrl(`/share/select?code=${retrieveCode}`)} -O "${fileName}"`
 }
 
-/** 寄件口令放在前端路由片段中，访问页面时不会进入服务器 URL 日志。 */
+/** 寄件口令使用 Hash 路由，避免出现在服务端请求路径中。 */
 export function buildDeliveryUrl(code: string): string {
   return `${window.location.origin}${import.meta.env.BASE_URL}#/delivery?code=${encodeURIComponent(code)}`
 }

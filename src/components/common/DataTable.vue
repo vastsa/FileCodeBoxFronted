@@ -9,18 +9,11 @@
   >
     <div
       class="px-6 py-4 border-b"
-      :class="[
-        isDarkMode ? 'border-white/10' : 'border-zinc-200/70',
-        $slots.actions ? 'flex flex-wrap items-center justify-between gap-3' : ''
-      ]"
+      :class="[isDarkMode ? 'border-white/10' : 'border-zinc-200/70']"
     >
       <h3 class="text-lg font-medium" :class="[isDarkMode ? 'text-white' : 'text-zinc-950']">
         {{ title }}
       </h3>
-      <!-- 可选标题栏操作区，窄屏自动换行，不改变其他列表的默认布局。 -->
-      <div v-if="$slots.actions" class="flex flex-wrap items-center gap-2">
-        <slot name="actions"></slot>
-      </div>
     </div>
     <div class="overflow-x-auto">
       <table
