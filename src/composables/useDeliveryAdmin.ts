@@ -15,7 +15,7 @@ import { savePrivateDeliveryFile } from '@/utils/download-action'
 import { getErrorMessage } from '@/utils/common'
 import { buildDeliveryUrl } from '@/utils/share-url'
 
-/** 业务状态与请求留在组合函数中，页面只负责使用上游组件展示。 */
+/** 业务状态与请求留在组合函数中，页面只负责使用共用组件展示。 */
 export function useDeliveryAdmin() {
   const { t } = useI18n(),
     alerts = useAlertStore()
