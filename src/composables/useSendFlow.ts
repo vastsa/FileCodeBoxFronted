@@ -1,12 +1,10 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { useAlertStore } from '@/stores/alertStore'
 import { useAdminStore } from '@/stores/adminStore'
 import { useConfigStore } from '@/stores/configStore'
 import { useFileDataStore } from '@/stores/fileData'
 import type { SendType, SentFileRecord, UploadProgress } from '@/types'
-import { ROUTES } from '@/constants'
 import { getClipboardFile, insertTextAtSelection } from '@/utils/clipboard-paste'
 import { getErrorMessage } from '@/utils/common'
 import { getStorageUnit } from '@/utils/convert'
@@ -17,7 +15,6 @@ import { useSendSubmit } from './useSendSubmit'
 
 export function useSendFlow() {
   const { t } = useI18n()
-  const router = useRouter()
   const alertStore = useAlertStore()
   const adminStore = useAdminStore()
   const configStore = useConfigStore()
@@ -109,10 +106,6 @@ export function useSendFlow() {
   const guestUploadBlocked = computed(
     () => config.value.open_upload === 0 && !adminStore.hasToken
   )
-
-  const goLoginForUpload = () => {
-    router.push({ path: ROUTES.LOGIN, query: { redirect: ROUTES.SEND } })
-  }
 
   const checkOpenUpload = () => {
     if (config.value.open_upload === 0 && !adminStore.hasToken) {
@@ -399,7 +392,6 @@ export function useSendFlow() {
   return {
     config,
     guestUploadBlocked,
-    goLoginForUpload,
     sendType,
     selectedFile,
     selectedFiles,

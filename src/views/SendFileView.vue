@@ -192,13 +192,13 @@ import SideDrawer from '@/components/common/SideDrawer.vue'
 import SentRecordList from '@/components/common/SentRecordList.vue'
 import SentRecordDetailModal from '@/components/common/SentRecordDetailModal.vue'
 import { useInjectedDarkMode, useSendFlow } from '@/composables'
+import { ROUTES } from '@/constants'
 
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()
 const router = useRouter()
 const {
   guestUploadBlocked,
-  goLoginForUpload,
   sendType,
   selectedFile,
   selectedFiles,
@@ -230,6 +230,10 @@ const {
   toggleDrawer,
   viewDetails
 } = useSendFlow()
+
+const goLoginForUpload = () => {
+  router.push({ path: ROUTES.LOGIN, query: { redirect: ROUTES.SEND } })
+}
 
 const toRetrieve = () => {
   router.push('/')
