@@ -87,7 +87,7 @@ import { XIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useInjectedDarkMode } from '@/composables'
 import type { ReceivedFileRecord } from '@/types'
-import { buildAbsoluteUrl, buildDownloadUrl } from '@/utils/share-url'
+import { buildDownloadUrl } from '@/utils/share-url'
 
 interface Props {
   visible: boolean
@@ -106,12 +106,7 @@ const extension = computed(() => props.record?.filename.split('.').pop()?.toLowe
 const downloadUrl = computed(() =>
   props.record?.downloadUrl ? buildDownloadUrl(props.record.downloadUrl) : ''
 )
-const previewUrl = computed(() => {
-  if (['html', 'htm'].includes(extension.value) && props.record?.code) {
-    return buildAbsoluteUrl(`/share/preview/html/${encodeURIComponent(props.record.code)}`)
-  }
-  return downloadUrl.value
-})
+const previewUrl = computed(() => downloadUrl.value)
 const mediaType = computed(() => {
   if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(extension.value)) return 'image'
   if (['mp4', 'webm', 'ogg', 'mov', 'm4v'].includes(extension.value)) return 'video'

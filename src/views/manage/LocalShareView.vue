@@ -1,21 +1,5 @@
 <template>
   <div class="p-6">
-    <div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <h2 class="text-2xl font-bold" :class="[primaryTextClass]">
-          {{ t('admin.localShare.title') }}
-        </h2>
-        <p class="mt-1 text-sm" :class="[mutedTextClass]">
-          {{ t('admin.localShare.subtitle') }}
-        </p>
-      </div>
-      <BaseButton variant="secondary" :loading="isLoading" @click="loadDirectory(currentPath)">
-        <template #icon>
-          <RefreshCwIcon class="mr-2 h-4 w-4" />
-        </template>
-        {{ t('admin.localShare.refresh') }}
-      </BaseButton>
-    </div>
 
     <p class="mb-4 rounded-lg border px-4 py-3 text-sm" :class="[hintClass]">
       {{ t('admin.localShare.mountHint') }}
@@ -168,6 +152,7 @@ import BaseModal from '@/components/common/BaseModal.vue'
 import { ROUTES } from '@/constants'
 import { useInjectedDarkMode, useLocalShare } from '@/composables'
 import { formatFileSize } from '@/utils/common'
+import { useAdminHeaderActions } from '@/composables'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -222,6 +207,20 @@ const goToFiles = () => {
   closeShareModal()
   void router.push(ROUTES.FILE_MANAGE)
 }
+
+const headerConfig = computed(() => ({
+  subtitle: t('admin.localShare.subtitle'),
+  actions: [
+    {
+      key: 'refresh',
+      label: t('admin.localShare.refresh'),
+      icon: RefreshCwIcon,
+      loading: isLoading.value,
+      onClick: () => void loadDirectory(currentPath.value)
+    }
+  ]
+}))
+useAdminHeaderActions(headerConfig)
 
 onMounted(() => {
   void loadDirectory('')

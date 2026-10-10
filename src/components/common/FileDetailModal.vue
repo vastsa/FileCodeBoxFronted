@@ -65,18 +65,8 @@
               </button>
             </div>
             <div v-else class="ml-2 flex flex-wrap gap-2">
-              <a
-                v-if="isHtmlPreviewable(record)"
-                :href="getHtmlPreviewUrl(record)"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="rounded-xl px-4 py-2 text-sm font-semibold transition duration-300"
-                :class="isDarkMode ? 'bg-zinc-200 text-zinc-950 hover:bg-zinc-100' : 'bg-zinc-800 text-white hover:bg-zinc-900'"
-              >
-                {{ t('fileRecord.preview') }}
-              </a>
               <button
-                v-else-if="isPreviewable(record)"
+                v-if="isPreviewable(record)"
                 type="button"
                 class="rounded-xl px-4 py-2 text-sm font-semibold transition duration-300"
                 :class="isDarkMode ? 'bg-zinc-200 text-zinc-950 hover:bg-zinc-100' : 'bg-zinc-800 text-white hover:bg-zinc-900'"
@@ -138,7 +128,7 @@ import { useI18n } from 'vue-i18n'
 import { FileIcon, CalendarIcon, HardDriveIcon, DownloadIcon } from 'lucide-vue-next'
 import QRCode from 'qrcode.vue'
 import type { ReceivedFileRecord } from '@/types'
-import { buildAbsoluteUrl, buildDownloadUrl, buildReceivedRecordQrValue } from '@/utils/share-url'
+import { buildDownloadUrl, buildReceivedRecordQrValue } from '@/utils/share-url'
 
 interface Props {
   visible: boolean
@@ -160,13 +150,6 @@ const getDownloadUrl = (record: ReceivedFileRecord) => {
   return buildDownloadUrl(record.downloadUrl)
 }
 
-const isHtmlPreviewable = (record: ReceivedFileRecord) => {
-  const extension = record.filename.split('.').pop()?.toLowerCase() || ''
-  return Boolean(record.downloadUrl) && ['html', 'htm'].includes(extension)
-}
-
-const getHtmlPreviewUrl = (record: ReceivedFileRecord) =>
-  buildAbsoluteUrl(`/share/preview/html/${encodeURIComponent(record.code)}`)
 
 const getQRCodeValue = (record: ReceivedFileRecord) => {
   return buildReceivedRecordQrValue(record)
@@ -193,8 +176,6 @@ const isPreviewable = (record: ReceivedFileRecord) => {
     'm4a',
     'flac',
     'pdf',
-    'html',
-    'htm'
   ].includes(extension)
 }
 </script>

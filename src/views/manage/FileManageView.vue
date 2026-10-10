@@ -1,34 +1,5 @@
 <template>
   <div class="p-6">
-    <div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <h2 class="text-2xl font-bold" :class="[primaryTextClass]">
-          {{ t('fileManage.title') }}
-        </h2>
-        <p class="mt-1 text-sm" :class="[mutedTextClass]">
-          {{ t('fileManage.subtitle', { count: summary.total_files }) }}
-        </p>
-      </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <BaseButton variant="secondary" :loading="isLoading" @click="refreshFiles">
-          <template #icon>
-            <RefreshCwIcon class="mr-2 h-4 w-4" />
-          </template>
-          {{ t('fileManage.refresh') }}
-        </BaseButton>
-        <BaseButton
-          v-if="hasActiveFilters"
-          variant="outline"
-          :disabled="isLoading"
-          @click="handleResetFilters"
-        >
-          <template #icon>
-            <XIcon class="mr-2 h-4 w-4" />
-          </template>
-          {{ t('fileManage.resetFilters') }}
-        </BaseButton>
-      </div>
-    </div>
 
     <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
       <div
@@ -1217,6 +1188,7 @@ import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { useAdminFiles, useInjectedDarkMode } from '@/composables'
 import { formatTimestamp } from '@/utils/common'
+import { useAdminHeaderActions } from '@/composables'
 
 const { t } = useI18n()
 const isDarkMode = useInjectedDarkMode()
@@ -1732,6 +1704,30 @@ watch(
     await setHealthFilter(health)
   }
 )
+
+const headerConfig = computed(() => ({
+  subtitle: t('fileManage.subtitle', { count: summary.value.total_files }),
+  actions: [
+    {
+      key: 'refresh',
+      label: t('fileManage.refresh'),
+      icon: RefreshCwIcon,
+      loading: isLoading.value,
+      onClick: () => void refreshFiles()
+    },
+    ...(hasActiveFilters.value
+      ? [{
+          key: 'reset-filters',
+          label: t('fileManage.resetFilters'),
+          icon: XIcon,
+          variant: 'outline' as const,
+          disabled: isLoading.value,
+          onClick: () => void handleResetFilters()
+        }]
+      : [])
+  ]
+}))
+useAdminHeaderActions(headerConfig)
 
 onMounted(() => {
   params.value.health = getRouteHealthFilter()

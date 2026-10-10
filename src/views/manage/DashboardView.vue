@@ -1,30 +1,5 @@
 <template>
   <div class="p-6">
-    <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <p class="text-sm" :class="[mutedTextClass]">FileCodeBox Admin</p>
-        <h2 class="text-2xl font-bold" :class="[primaryTextClass]">
-          {{ t('admin.dashboard.title') }}
-        </h2>
-        <p class="mt-1 text-xs" :class="[mutedTextClass]">
-          {{ t('admin.dashboard.lastUpdated', { time: lastUpdatedText }) }}
-        </p>
-      </div>
-      <button
-        type="button"
-        :disabled="isLoading"
-        @click="fetchDashboardData"
-        class="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-70"
-        :class="[
-          isDarkMode
-            ? 'bg-gray-800 text-gray-200 hover:bg-gray-700'
-            : 'bg-white text-gray-700 shadow-sm hover:bg-gray-50'
-        ]"
-      >
-        <RefreshCwIcon class="mr-2 h-4 w-4" :class="{ 'animate-spin': isLoading }" />
-        {{ isLoading ? t('admin.dashboard.refreshing') : t('admin.dashboard.refresh') }}
-      </button>
-    </div>
 
     <div
       v-if="errorMessage"
@@ -276,6 +251,8 @@ import { useConfigStore } from '@/stores/configStore'
 import type { DashboardHealthAction } from '@/types'
 import { buildInfo } from '@/utils/build-info'
 
+import { useAdminHeaderActions } from '@/composables'
+
 const isDarkMode = useInjectedDarkMode()
 const { t } = useI18n()
 const router = useRouter()
@@ -289,6 +266,20 @@ const { dashboardData, errorMessage, fetchDashboardData, isLoading, lastUpdatedT
 const primaryTextClass = computed(() => (isDarkMode.value ? 'text-white' : 'text-gray-900'))
 const mutedTextClass = computed(() => (isDarkMode.value ? 'text-zinc-400' : 'text-zinc-500'))
 const versionText = computed(() => appVersion.value || t('admin.dashboard.versionPending'))
+const headerConfig = computed(() => ({
+  subtitle: t('admin.dashboard.lastUpdated', { time: lastUpdatedText.value }),
+  actions: [
+    {
+      key: 'refresh',
+      label: isLoading.value ? t('admin.dashboard.refreshing') : t('admin.dashboard.refresh'),
+      icon: RefreshCwIcon,
+      loading: isLoading.value,
+      onClick: () => void fetchDashboardData()
+    }
+  ]
+}))
+useAdminHeaderActions(headerConfig)
+
 const panelClass = computed(() =>
   isDarkMode.value
     ? 'border border-white/10 bg-white/[0.06] shadow-[0_22px_54px_-36px_rgba(255,255,255,0.22)] backdrop-blur-xl'

@@ -66,10 +66,45 @@
       <header
         class="theme-surface border-b transition-colors duration-300 h-16 backdrop-blur-xl"
       >
-        <div class="flex items-center justify-between h-16 px-4">
-          <button @click="toggleSidebar" class="lg:hidden">
-            <MenuIcon class="theme-text-muted w-6 h-6" />
+        <div class="flex h-16 items-center gap-3 px-4">
+          <button
+            type="button"
+            aria-label="Open navigation menu"
+            @click="toggleSidebar"
+            class="theme-icon-button flex h-10 w-10 shrink-0 items-center justify-center rounded-lg lg:hidden"
+          >
+            <MenuIcon class="h-6 w-6" />
           </button>
+          <h2 class="theme-text-strong min-w-0 flex-1 truncate text-lg font-semibold">
+            {{ currentPageTitle }}
+          </h2>
+          <div class="flex min-w-0 shrink-0 items-center gap-3">
+            <p v-if="headerActions?.subtitle" class="theme-text-muted hidden max-w-56 truncate text-sm xl:block">
+              {{ headerActions.subtitle }}
+            </p>
+            <p
+              v-if="headerActions?.status"
+              class="hidden whitespace-nowrap text-sm sm:block"
+              :class="headerActions.statusTone === 'warning' ? 'theme-warning' : 'theme-text-muted'"
+            >
+              {{ headerActions.status }}
+            </p>
+            <BaseButton
+              v-for="action in headerActions?.actions ?? []"
+              :key="action.key"
+              size="sm"
+              :variant="action.variant ?? 'secondary'"
+              :loading="action.loading"
+              :disabled="action.disabled"
+              :aria-label="action.label"
+              @click="action.onClick"
+            >
+              <template #icon>
+                <component :is="action.icon" class="mr-2 h-4 w-4 sm:mr-0" />
+              </template>
+              <span class="hidden sm:inline">{{ action.label }}</span>
+            </BaseButton>
+          </div>
         </div>
       </header>
 
@@ -84,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import {
   BoxIcon,
   MenuIcon,
@@ -93,12 +128,15 @@ import {
   HardDriveIcon,
   CogIcon,
   LayoutDashboardIcon,
-  LogOutIcon
+  LogOutIcon,
+  NetworkIcon
 } from 'lucide-vue-next'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ROUTE_NAMES, ROUTES } from '@/constants'
 import { useAdminSession } from '@/composables'
+import BaseButton from '@/components/common/BaseButton.vue'
+import { provideAdminHeaderActions } from '@/composables/useAdminHeaderActions'
 
 interface MenuItem {
   id: string
@@ -109,8 +147,9 @@ interface MenuItem {
 
 const router = useRouter()
 const route = useRoute()
-const { t } = useI18n()
 const { verifySession, logout } = useAdminSession()
+const { t } = useI18n()
+const headerActions = provideAdminHeaderActions()
 const menuItems: MenuItem[] = [
   {
     id: ROUTE_NAMES.DASHBOARD,
@@ -131,12 +170,19 @@ const menuItems: MenuItem[] = [
     redirect: ROUTES.LOCAL_SHARE
   },
   {
+    id: ROUTE_NAMES.MCP,
+    name: t('admin.mcp.title'),
+    icon: NetworkIcon,
+    redirect: ROUTES.MCP
+  },
+  {
     id: ROUTE_NAMES.SETTINGS,
     name: t('admin.settings.title'),
     icon: CogIcon,
     redirect: ROUTES.SETTINGS
   }
 ]
+const currentPageTitle = computed(() => menuItems.find((item) => item.id === route.name)?.name ?? '')
 
 const isSidebarOpen = ref(true)
 const toggleSidebar = () => {

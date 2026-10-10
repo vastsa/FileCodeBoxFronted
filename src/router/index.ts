@@ -69,6 +69,15 @@ const routes: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'mcp',
+        name: ROUTE_NAMES.MCP,
+        component: () => import('@/views/manage/McpView.vue'),
+        meta: {
+          ...adminPageMeta,
+          title: 'mcp'
+        }
+      },
+      {
         path: 'settings',
         name: ROUTE_NAMES.SETTINGS,
         component: () => import('@/views/manage/SystemSettingsView.vue'),

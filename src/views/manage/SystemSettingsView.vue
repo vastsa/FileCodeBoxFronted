@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { inject, onMounted } from 'vue'
+import { computed, inject, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RefreshCwIcon, SaveIcon } from 'lucide-vue-next'
-import BaseButton from '@/components/common/BaseButton.vue'
 import SettingNumberInput from '@/components/common/SettingNumberInput.vue'
 import SettingSwitch from '@/components/common/SettingSwitch.vue'
 import { useSystemConfig } from '@/composables'
 
+import { useAdminHeaderActions } from '@/composables'
 const isDarkMode = inject('isDarkMode')
 const { t } = useI18n()
 const {
@@ -34,6 +34,35 @@ const updateAllowedFileTypes = (event: Event) => {
     .filter(Boolean)
 }
 
+const headerConfig = computed(() => ({
+  status: isDirty.value ? t('manage.settings.unsavedChanges') : t('manage.settings.allChangesSaved'),
+  statusTone: isDirty.value ? 'warning' as const : 'muted' as const,
+  actions: [
+    {
+      key: 'refresh',
+      label: isRefreshing.value ? t('manage.settings.refreshing') : t('manage.settings.refreshConfig'),
+      icon: RefreshCwIcon,
+      loading: isRefreshing.value,
+      disabled: isSaving.value || isDirty.value,
+      onClick: (): void => {
+        void refreshConfig()
+      }
+    },
+    {
+      key: 'save',
+      label: isSaving.value ? t('manage.settings.saving') : t('manage.settings.saveChanges'),
+      icon: SaveIcon,
+      variant: 'primary' as const,
+      loading: isSaving.value,
+      disabled: !isDirty.value || isRefreshing.value,
+      onClick: (): void => {
+        void submitConfig()
+      }
+    }
+  ]
+}))
+useAdminHeaderActions(headerConfig)
+
 onMounted(() => {
   void refreshConfig()
 })
@@ -41,55 +70,6 @@ onMounted(() => {
 
 <template>
   <div class="settings-page p-6">
-    <div
-      class="theme-surface sticky top-0 z-20 -mx-6 -mt-6 mb-6 border-b px-6 py-4 backdrop-blur"
-    >
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h2 class="theme-text-strong text-2xl font-bold">
-            {{ t('admin.settings.title') }}
-          </h2>
-          <p
-            class="mt-1 text-sm"
-            :class="isDirty ? 'theme-warning' : 'theme-text-muted'"
-          >
-            {{
-              isDirty ? t('manage.settings.unsavedChanges') : t('manage.settings.allChangesSaved')
-            }}
-          </p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <BaseButton
-            variant="secondary"
-            :loading="isRefreshing"
-            :disabled="isSaving || isDirty"
-            :title="
-              isDirty ? t('manage.settings.refreshBlocked') : t('manage.settings.refreshConfig')
-            "
-            @click="refreshConfig"
-          >
-            <template #icon>
-              <RefreshCwIcon class="mr-2 h-4 w-4" />
-            </template>
-            {{
-              isRefreshing ? t('manage.settings.refreshing') : t('manage.settings.refreshConfig')
-            }}
-          </BaseButton>
-
-          <BaseButton
-            :loading="isSaving"
-            :disabled="!isDirty || isRefreshing"
-            @click="submitConfig"
-          >
-            <template #icon>
-              <SaveIcon class="mr-2 h-4 w-4" />
-            </template>
-            {{ isSaving ? t('manage.settings.saving') : t('manage.settings.saveChanges') }}
-          </BaseButton>
-        </div>
-      </div>
-    </div>
 
     <div
       class="theme-panel space-y-6 rounded-2xl border p-6 backdrop-blur-xl"
@@ -743,16 +723,6 @@ onMounted(() => {
                 {{ t('manage.settings.codeGenerateTypeHelp') }}
               </p>
 
-            <SettingSwitch
-              :label="t('manage.settings.mcpRequireToken')"
-              :model-value="config.mcp_require_token"
-              :enabled-text="t('common.enabled')"
-              :disabled-text="t('common.disabled')"
-              @toggle="toggleConfigFlag('mcp_require_token')"
-            />
-            <p class="text-xs" :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-500']">
-              {{ t('manage.settings.mcpRequireTokenHelp') }}
-            </p>
             </div>
 
             <div class="space-y-2">
