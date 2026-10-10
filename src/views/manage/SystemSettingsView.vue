@@ -742,6 +742,17 @@ onMounted(() => {
               <p class="text-xs" :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-500']">
                 {{ t('manage.settings.codeGenerateTypeHelp') }}
               </p>
+
+            <SettingSwitch
+              :label="t('manage.settings.mcpRequireToken')"
+              :model-value="config.mcp_require_token"
+              :enabled-text="t('common.enabled')"
+              :disabled-text="t('common.disabled')"
+              @toggle="toggleConfigFlag('mcp_require_token')"
+            />
+            <p class="text-xs" :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-500']">
+              {{ t('manage.settings.mcpRequireTokenHelp') }}
+            </p>
             </div>
 
             <div class="space-y-2">

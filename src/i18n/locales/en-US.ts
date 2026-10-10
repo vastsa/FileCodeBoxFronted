@@ -752,6 +752,8 @@ export default {
       allowedFileTypesPlaceholder: '* or .rar, .zip, image/*',
       allowedFileTypesHelp:
         'Separate multiple types with commas. * allows all; extensions and MIME wildcards are supported.',
+      mcpRequireToken: 'Require admin token for MCP uploads',
+      mcpRequireTokenHelp: 'When enabled, pass your admin login token as Authorization: Bearer when calling /mcp.',
       codeGenerateType: 'Passcode Rule',
       codeGenerateNumber: 'Numeric Passcode',
       codeGenerateSecret: 'Secret Passcode',

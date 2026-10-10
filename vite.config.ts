@@ -43,6 +43,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  build: {
+    outDir: '../FileCodeBox/themes/2024',
+    emptyOutDir: true
+  },
   css: {
     postcss: {
       plugins: [tailwindcss, autoprefixer]

@@ -14,7 +14,7 @@ import {
   type SaveTimeUnit
 } from '@/utils/config-form'
 
-type ConfigFlagKey = 'enable_chunk' | 's3_proxy' | 'open_upload' | 'show_admin_addr'
+type ConfigFlagKey = 'enable_chunk' | 's3_proxy' | 'open_upload' | 'show_admin_addr' | 'mcp_require_token'
 
 const SECONDS_PER_DAY = 24 * 60 * 60
 

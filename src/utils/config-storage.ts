@@ -54,6 +54,7 @@ export const DEFAULT_CONFIG_STATE: ConfigState = {
   storage_path: '',
   storage_limit: 0,
   upload_minute: 1,
+  mcp_require_token: 0,
   max_save_seconds: DEFAULT_PUBLIC_CONFIG.max_save_seconds,
   opacity: 0.9,
   enable_chunk: DEFAULT_PUBLIC_CONFIG.enable_chunk,

@@ -18,7 +18,7 @@
           </h3>
           <div class="flex items-center gap-2">
             <a
-              :href="previewUrl"
+              :href="downloadUrl"
               target="_blank"
               rel="noopener noreferrer"
               class="rounded-xl px-3 py-1.5 text-sm font-semibold transition duration-300"
@@ -87,7 +87,7 @@ import { XIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useInjectedDarkMode } from '@/composables'
 import type { ReceivedFileRecord } from '@/types'
-import { buildDownloadUrl } from '@/utils/share-url'
+import { buildAbsoluteUrl, buildDownloadUrl } from '@/utils/share-url'
 
 interface Props {
   visible: boolean
@@ -102,10 +102,16 @@ defineEmits<{
 const { t } = useI18n()
 const isDarkMode = useInjectedDarkMode()
 
-const previewUrl = computed(() =>
+const extension = computed(() => props.record?.filename.split('.').pop()?.toLowerCase() || '')
+const downloadUrl = computed(() =>
   props.record?.downloadUrl ? buildDownloadUrl(props.record.downloadUrl) : ''
 )
-const extension = computed(() => props.record?.filename.split('.').pop()?.toLowerCase() || '')
+const previewUrl = computed(() => {
+  if (['html', 'htm'].includes(extension.value) && props.record?.code) {
+    return buildAbsoluteUrl(`/share/preview/html/${encodeURIComponent(props.record.code)}`)
+  }
+  return downloadUrl.value
+})
 const mediaType = computed(() => {
   if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(extension.value)) return 'image'
   if (['mp4', 'webm', 'ogg', 'mov', 'm4v'].includes(extension.value)) return 'video'

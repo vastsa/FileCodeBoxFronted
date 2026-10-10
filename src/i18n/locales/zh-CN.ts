@@ -771,6 +771,8 @@ export default {
       allowedFileTypes: '允许上传类型',
       allowedFileTypesPlaceholder: '* 或 .rar, .zip, image/*',
       allowedFileTypesHelp: '多个类型用英文逗号分隔，* 表示不限制；支持扩展名和 MIME 通配。',
+      mcpRequireToken: 'MCP 上传需要管理员 Token',
+      mcpRequireTokenHelp: '启用后调用 /mcp 上传时，需在 Authorization: Bearer 中提供管理员登录 Token。',
       codeGenerateType: '取件码规则',
       codeGenerateNumber: '数字取件码',
       codeGenerateSecret: 'Secret 取件码',

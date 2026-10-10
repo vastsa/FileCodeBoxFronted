@@ -45,6 +45,7 @@ export interface ConfigState {
   storage_limit: number
   upload_minute: number
   max_save_seconds: number
+  mcp_require_token: number
   opacity: number
   enable_chunk: number
   s3_access_key_id: string
