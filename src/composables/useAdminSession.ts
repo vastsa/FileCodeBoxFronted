@@ -13,7 +13,9 @@ export function useAdminSession() {
         adminStore.login(response.detail)
         return true
       }
-    } catch {}
+    } catch {
+      // Verification failures fall through to clear the local session below.
+    }
 
     adminStore.logout()
     return false

@@ -101,7 +101,6 @@ import { useInjectedDarkMode } from '@/composables'
 import {
   CopyIcon,
   FileTextIcon,
-  NetworkIcon,
   RefreshCwIcon,
   SparklesIcon,
   UploadIcon

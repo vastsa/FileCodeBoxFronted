@@ -39,6 +39,15 @@ repository's default branch. Every push is also checked with a production build.
 pnpm build
 ```
 
+### Run Regression Tests
+
+```sh
+pnpm test
+```
+
+Uses Node's built-in test runner with isolated VM modules to cover Markdown preview
+sanitization boundaries and safe fallback behavior (including issue #557).
+
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh

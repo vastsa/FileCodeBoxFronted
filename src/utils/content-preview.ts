@@ -22,8 +22,8 @@ const MARKDOWN_ALLOWED_TAGS = [
 
 const MARKDOWN_ALLOWED_ATTR = ['href', 'src', 'alt', 'title', 'class']
 
-type MarkedRenderer = typeof import('marked')['marked']
-type DOMPurifyModule = typeof import('dompurify')['default']
+type MarkedRenderer = (typeof import('marked'))['marked']
+type DOMPurifyModule = (typeof import('dompurify'))['default']
 
 let markdownRendererLoader: Promise<{
   marked: MarkedRenderer
@@ -52,6 +52,13 @@ export async function renderMarkdownPreview(content: string): Promise<string> {
     })
   } catch (error) {
     console.error('Markdown 渲染失败:', error)
+    // The result is consumed by v-html, even when parsing or loading dependencies fails.
+    // Escape without DOMPurify so a failed renderer can never expose raw HTML.
     return content
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
   }
 }
