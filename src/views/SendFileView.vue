@@ -1,9 +1,19 @@
 <template>
   <div
     class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-4 font-sans transition-colors duration-700 sm:p-8"
-    :class="isDarkMode ? 'bg-zinc-950 text-zinc-100' : 'bg-[#f5f5f7] text-zinc-900'"
+    :class="[
+      isDarkMode ? 'text-zinc-100' : 'text-zinc-900',
+      hasBackground ? '' : isDarkMode ? 'bg-zinc-950' : 'bg-[#f5f5f7]'
+    ]"
+    :style="backgroundStyle"
     @paste.prevent="handlePaste"
   >
+    <div
+      v-if="hasBackground"
+      class="pointer-events-none absolute inset-0"
+      :class="isDarkMode ? 'bg-zinc-950/45' : 'bg-white/20'"
+      aria-hidden="true"
+    ></div>
     <div class="relative z-10 w-full max-w-md">
       <div
         class="relative overflow-hidden rounded-[2rem] border backdrop-blur-3xl transition-all duration-500 sm:rounded-[2.5rem]"
@@ -191,10 +201,11 @@ import TextInputArea from '@/components/common/TextInputArea.vue'
 import SideDrawer from '@/components/common/SideDrawer.vue'
 import SentRecordList from '@/components/common/SentRecordList.vue'
 import SentRecordDetailModal from '@/components/common/SentRecordDetailModal.vue'
-import { useInjectedDarkMode, useSendFlow } from '@/composables'
+import { useInjectedDarkMode, useSendFlow, useSiteBackground } from '@/composables'
 import { ROUTES } from '@/constants'
 
 const isDarkMode = useInjectedDarkMode()
+const { hasBackground, backgroundStyle } = useSiteBackground()
 const { t } = useI18n()
 const router = useRouter()
 const {

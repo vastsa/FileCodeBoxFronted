@@ -1,8 +1,18 @@
 <template>
   <div
     class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-4 font-sans transition-colors duration-700 sm:p-8"
-    :class="isDarkMode ? 'bg-zinc-950 text-zinc-100' : 'bg-[#f5f5f7] text-zinc-900'"
+    :class="[
+      isDarkMode ? 'text-zinc-100' : 'text-zinc-900',
+      hasBackground ? '' : isDarkMode ? 'bg-zinc-950' : 'bg-[#f5f5f7]'
+    ]"
+    :style="backgroundStyle"
   >
+    <div
+      v-if="hasBackground"
+      class="pointer-events-none absolute inset-0"
+      :class="isDarkMode ? 'bg-zinc-950/45' : 'bg-white/20'"
+      aria-hidden="true"
+    ></div>
     <div class="relative z-10 w-full max-w-md">
       <div
         class="relative overflow-hidden rounded-[2rem] border backdrop-blur-3xl transition-all duration-500 sm:rounded-[2.5rem]"
@@ -84,9 +94,10 @@ import FileRecordList from '@/components/common/FileRecordList.vue'
 import ContentPreviewModal from '@/components/common/ContentPreviewModal.vue'
 import MediaPreviewModal from '@/components/common/MediaPreviewModal.vue'
 import { useRetrieveFlow } from '@/composables'
-import { useInjectedDarkMode } from '@/composables'
+import { useInjectedDarkMode, useSiteBackground } from '@/composables'
 
 const isDarkMode = useInjectedDarkMode()
+const { hasBackground, backgroundStyle } = useSiteBackground()
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()

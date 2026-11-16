@@ -218,6 +218,30 @@ onMounted(() => {
           </div>
           <div class="space-y-2">
             <label
+              for="site-background"
+              class="block text-sm font-medium"
+              :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
+            >
+              {{ t('manage.settings.backgroundImage') }}
+            </label>
+            <input
+              id="site-background"
+              type="url"
+              v-model.trim="config.background"
+              :placeholder="t('manage.settings.backgroundImagePlaceholder')"
+              class="w-full rounded-md shadow-sm px-4 py-2.5 transition-all duration-200 ease-in-out border focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none"
+              :class="[
+                isDarkMode
+                  ? 'border-white/10 bg-zinc-950/45 text-white placeholder-zinc-500 hover:border-white/20'
+                  : 'border-zinc-200/80 bg-white/80 text-zinc-950 placeholder-zinc-400 hover:border-zinc-300'
+              ]"
+            />
+            <p class="mt-2 text-xs" :class="[isDarkMode ? 'text-zinc-400' : 'text-zinc-500']">
+              {{ t('manage.settings.backgroundImageHelp') }}
+            </p>
+          </div>
+          <div class="space-y-2">
+            <label
               class="block text-sm font-medium"
               :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-700']"
             >
